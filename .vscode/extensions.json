@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "bradlc.vscode-tailwindcss",
+    "unifiedjs.vscode-mdx",
+    "Prisma.prisma",
+    "biomejs.biome",
+    "vitest.explorer"
+  ]
+}

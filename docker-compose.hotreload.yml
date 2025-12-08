@@ -1,0 +1,102 @@
+services:
+  typebot-db-docker:
+    image: postgres:16
+    restart: always
+    volumes:
+      - ${PWD}/.typebot-build/database:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=typebot
+      - POSTGRES_PASSWORD=typebot
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
+
+  typebot-builder:
+    build:
+      context: .
+      args:
+        - SCOPE=builder
+    depends_on:
+      typebot-db-docker:
+        condition: service_healthy
+    restart: always
+    ports:
+      - "8080:3000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    env_file: .env.docker
+    working_dir: /app
+    # Resource limits for 4GB VPS
+    mem_limit: 1500m
+    mem_reservation: 1000m
+    cpus: 1.0
+    volumes:
+      # Mount source code for hot reload
+      - ./apps/builder:/app/apps/builder:cached
+      - ./packages:/app/packages:cached
+      - ./.env:/app/.env:cached
+      # Preserve container's node_modules to avoid platform-specific issues
+      - /app/node_modules
+      - /app/apps/builder/node_modules
+      - /app/apps/builder/.next
+    environment:
+      # Enable file watching in Docker environment
+      - WATCHPACK_POLLING=true
+      - CHOKIDAR_USEPOLLING=true
+      - NODE_ENV=development
+    # Override entrypoint and use development command
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - |
+        set -e
+        echo "Running Prisma migrations..."
+        ./node_modules/.bin/prisma migrate deploy --schema=packages/prisma/postgresql/schema.prisma || true
+        echo "Starting builder in development mode..."
+        cd apps/builder
+        exec bun run dev
+
+  typebot-viewer:
+    build:
+      context: .
+      args:
+        - SCOPE=viewer
+    depends_on:
+      typebot-db-docker:
+        condition: service_healthy
+    restart: always
+    ports:
+      - "8081:3001"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    env_file: .env.docker
+    working_dir: /app
+    # Resource limits for 4GB VPS
+    mem_limit: 1500m
+    mem_reservation: 1000m
+    cpus: 1.0
+    volumes:
+      # Mount source code for hot reload
+      - ./apps/viewer:/app/apps/viewer:cached
+      - ./packages:/app/packages:cached
+      - ./.env:/app/.env:cached
+      # Preserve container's node_modules to avoid platform-specific issues
+      - /app/node_modules
+      - /app/apps/viewer/node_modules
+      - /app/apps/viewer/.next
+    environment:
+      # Enable file watching in Docker environment
+      - WATCHPACK_POLLING=true
+      - CHOKIDAR_USEPOLLING=true
+      - NODE_ENV=development
+    # Override entrypoint and use development command
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - |
+        set -e
+        echo "Starting viewer in development mode..."
+        cd apps/viewer
+        exec bun run dev

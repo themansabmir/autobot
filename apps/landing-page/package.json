@@ -1,0 +1,51 @@
+{
+  "name": "landing-page",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "dev": "dotenv -e ./.env -e ../../.env -- vite dev --port 3003",
+    "build": "bun check-broken-links && dotenv -e ./.env -e ../../.env -- vite build",
+    "check-broken-links": "mdx-local-link-checker content public '*/(index.mdx|blog|about|pricing?isTiersModalOpened=true)'"
+  },
+  "dependencies": {
+    "@tanstack/react-router": "1.123.2",
+    "@tanstack/react-start": "1.123.2",
+    "@typebot.io/billing": "workspace:*",
+    "@typebot.io/lib": "workspace:*",
+    "@typebot.io/prisma": "workspace:*",
+    "@typebot.io/react": "workspace:*",
+    "@typebot.io/telemetry": "workspace:*",
+    "@typebot.io/ui": "workspace:*",
+    "@typebot.io/zod": "workspace:*",
+    "motion": "12.4.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "vite": "7.0.0"
+  },
+  "devDependencies": {
+    "@content-collections/core": "0.9.1",
+    "@content-collections/mdx": "0.2.2",
+    "@content-collections/integrations": "0.2.1",
+    "@shikijs/transformers": "2.4.2",
+    "@tailwindcss/typography": "0.5.16",
+    "@tanstack/react-router-devtools": "1.123.2",
+    "@typebot.io/tsconfig": "workspace:*",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^5.0.4",
+    "@types/node": "^20.4.2",
+    "dotenv-cli": "^8.0.0",
+    "mdx-local-link-checker": "^2.1.1",
+    "rehype-autolink-headings": "^7.1.0",
+    "rehype-pretty-code": "^0.14.0",
+    "rehype-slug": "^6.0.0",
+    "remark-gfm": "^4.0.1",
+    "tailwindcss": "^4.1.16",
+    "@tailwindcss/vite": "^4.1.16",
+    "unified": "^11.0.5",
+    "unist-util-visit": "^5.0.0",
+    "vite-tsconfig-paths": "^5.1.4"
+  }
+}

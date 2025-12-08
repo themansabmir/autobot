@@ -1,0 +1,178 @@
+import { useTranslate } from "@tolgee/react";
+import { getSeatsLimit } from "@typebot.io/billing/helpers/getSeatsLimit";
+import { isDefined } from "@typebot.io/lib/utils";
+import { WorkspaceRole } from "@typebot.io/prisma/enum";
+import type { Prisma } from "@typebot.io/prisma/types";
+import { Alert } from "@typebot.io/ui/components/Alert";
+import { Button } from "@typebot.io/ui/components/Button";
+import { Skeleton } from "@typebot.io/ui/components/Skeleton";
+import { useOpenControls } from "@typebot.io/ui/hooks/useOpenControls";
+import { InformationSquareIcon } from "@typebot.io/ui/icons/InformationSquareIcon";
+import { ChangePlanDialog } from "@/features/billing/components/ChangePlanDialog";
+import { useUser } from "@/features/user/hooks/useUser";
+import { useMembers } from "../hooks/useMembers";
+import { deleteInvitationQuery } from "../queries/deleteInvitationQuery";
+import { deleteMemberQuery } from "../queries/deleteMemberQuery";
+import { updateInvitationQuery } from "../queries/updateInvitationQuery";
+import { updateMemberQuery } from "../queries/updateMemberQuery";
+import type { Member } from "../types";
+import { useWorkspace } from "../WorkspaceProvider";
+import { AddMemberForm } from "./AddMemberForm";
+import { MemberItem } from "./MemberItem";
+
+export const MembersList = () => {
+  const { t } = useTranslate();
+  const { user } = useUser();
+  const { workspace, currentUserMode } = useWorkspace();
+  const { members, invitations, isLoading, mutate } = useMembers({
+    workspaceId: workspace?.id,
+  });
+
+  const {
+    isOpen: isChangePlanDialogOpen,
+    onOpen: onChangePlanDialogOpen,
+    onClose: onChangePlanDialogClose,
+  } = useOpenControls();
+
+  const handleDeleteMemberClick = (memberId: string) => async () => {
+    if (!workspace) return;
+    await deleteMemberQuery(workspace.id, memberId);
+    mutate({
+      members: members.filter((m) => m.userId !== memberId),
+      invitations,
+    });
+  };
+
+  const handleSelectNewRole =
+    (memberId: string) => async (role: WorkspaceRole) => {
+      if (!workspace) return;
+      await updateMemberQuery(workspace.id, { userId: memberId, role });
+      mutate({
+        members: members.map((m) =>
+          m.userId === memberId ? { ...m, role } : m,
+        ),
+        invitations,
+      });
+    };
+
+  const handleDeleteInvitationClick = (id: string) => async () => {
+    if (!workspace) return;
+    await deleteInvitationQuery({ workspaceId: workspace.id, id });
+    mutate({
+      invitations: invitations.filter((i) => i.id !== id),
+      members,
+    });
+  };
+
+  const handleSelectNewInvitationRole =
+    (id: string) => async (type: WorkspaceRole) => {
+      if (!workspace) return;
+      await updateInvitationQuery({ workspaceId: workspace.id, id, type });
+      mutate({
+        invitations: invitations.map((i) => (i.id === id ? { ...i, type } : i)),
+        members,
+      });
+    };
+
+  const handleNewInvitation = async (
+    invitation: Prisma.WorkspaceInvitation,
+  ) => {
+    await mutate({
+      members,
+      invitations: [...invitations, invitation],
+    });
+  };
+
+  const handleNewMember = async (member: Member) => {
+    await mutate({
+      members: [...members, member],
+      invitations,
+    });
+  };
+
+  const currentMembersCount =
+    members.filter((member) => member.role !== WorkspaceRole.GUEST).length +
+    invitations.length;
+
+  const seatsLimit = workspace ? getSeatsLimit(workspace) : undefined;
+
+  const canInviteNewMember =
+    seatsLimit === "inf"
+      ? true
+      : seatsLimit
+        ? currentMembersCount < seatsLimit
+        : false;
+
+  return (
+    <div className="flex flex-col w-full gap-3">
+      {!canInviteNewMember && (
+        <Alert.Root>
+          <InformationSquareIcon />
+          <Alert.Title>Unlock more members</Alert.Title>
+          <Alert.Description>
+            {t("workspace.membersList.unlockBanner.label")}
+          </Alert.Description>
+          <Alert.Action>
+            <Button
+              variant="secondary"
+              onClick={onChangePlanDialogOpen}
+              size="sm"
+            >
+              Upgrade
+            </Button>
+            <ChangePlanDialog
+              isOpen={isChangePlanDialogOpen}
+              onClose={onChangePlanDialogClose}
+            />
+          </Alert.Action>
+        </Alert.Root>
+      )}
+      {isDefined(seatsLimit) && (
+        <h2>
+          {t("workspace.membersList.title")}{" "}
+          {seatsLimit === -1 ? "" : `(${currentMembersCount}/${seatsLimit})`}
+        </h2>
+      )}
+      {workspace?.id && currentUserMode === "write" && (
+        <AddMemberForm
+          workspaceId={workspace.id}
+          onNewInvitation={handleNewInvitation}
+          onNewMember={handleNewMember}
+          isLoading={isLoading}
+          isLocked={!canInviteNewMember}
+        />
+      )}
+      {members.map((member) => (
+        <MemberItem
+          key={member.userId}
+          email={member.email ?? ""}
+          image={member.image ?? undefined}
+          name={member.name ?? undefined}
+          role={member.role}
+          isMe={member.userId === user?.id}
+          onDeleteClick={handleDeleteMemberClick(member.userId)}
+          onSelectNewRole={handleSelectNewRole(member.userId)}
+          canEdit={currentUserMode === "write"}
+        />
+      ))}
+      {invitations.map((invitation) => (
+        <MemberItem
+          key={invitation.email}
+          email={invitation.email ?? ""}
+          role={invitation.type}
+          onDeleteClick={handleDeleteInvitationClick(invitation.id)}
+          onSelectNewRole={handleSelectNewInvitationRole(invitation.id)}
+          isGuest
+          canEdit={currentUserMode === "write"}
+        />
+      ))}
+      {isLoading && (
+        <div className="flex items-center gap-2 py-4">
+          <Skeleton className="size-12 rounded-full" />
+          <Skeleton className="w-40 h-2" />
+          <Skeleton className="w-40 h-2" />
+        </div>
+      )}
+    </div>
+  );
+};
