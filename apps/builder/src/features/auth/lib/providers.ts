@@ -159,7 +159,7 @@ providers.push(
       const user = await prisma.user.upsert({
         where: { email },
         update: {},
-        create: { email },
+        create: { email, onboardingCategories: [] },
       });
 
       return userSchema.parse(user);
