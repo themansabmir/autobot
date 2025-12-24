@@ -4,6 +4,7 @@ import { Button } from "@typebot.io/ui/components/Button";
 import { useOpenControls } from "@typebot.io/ui/hooks/useOpenControls";
 import { HardDriveIcon } from "@typebot.io/ui/icons/HardDriveIcon";
 import { Settings01Icon } from "@typebot.io/ui/icons/Settings01Icon";
+import { ChatIcon } from "@typebot.io/ui/icons/ChatIcon";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
@@ -56,14 +57,25 @@ export const DashboardHeader = () => {
             />
           )}
           {!workspace?.isPastDue && (
-            <Button
-              variant="secondary"
-              onClick={onOpen}
-              disabled={isNotDefined(workspace) || isLoggingOut}
-            >
-              <Settings01Icon />
-              {t("dashboard.header.settingsButton.label")}
-            </Button>
+            <>
+              <Link href="/chats">
+                <Button
+                  variant="secondary"
+                  disabled={isNotDefined(workspace) || isLoggingOut}
+                >
+                  <ChatIcon />
+                  Chat History
+                </Button>
+              </Link>
+              <Button
+                variant="secondary"
+                onClick={onOpen}
+                disabled={isNotDefined(workspace) || isLoggingOut}
+              >
+                <Settings01Icon />
+                {t("dashboard.header.settingsButton.label")}
+              </Button>
+            </>
           )}
           <WorkspaceDropdown
             isLoggingOut={isLoggingOut}

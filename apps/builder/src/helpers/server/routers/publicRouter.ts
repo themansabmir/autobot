@@ -11,6 +11,7 @@ import { typebotRouter } from "@/features/typebot/api/router";
 import { publicUserRouter } from "@/features/user/server/routers";
 import { publicWhatsAppRouter } from "@/features/whatsapp/router";
 import { workspaceRouter } from "@/features/workspace/api/router";
+import { chatHistoryRouter } from "@/features/chatHistory/api/router";
 import { router } from "../trpc";
 
 export const publicRouter = router({
@@ -27,6 +28,7 @@ export const publicRouter = router({
   whatsApp: publicWhatsAppRouter,
   folders: folderRouter,
   user: publicUserRouter,
+  chatHistory: chatHistoryRouter,
 });
 
 export type PublicRouter = typeof publicRouter;
