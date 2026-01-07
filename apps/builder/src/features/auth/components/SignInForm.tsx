@@ -39,7 +39,7 @@ export const SignInForm = ({ defaultEmail, className }: Props) => {
 
   useEffect(() => {
     if (status === "authenticated") {
-      router.replace(redirectPath ? sanitizeUrl(redirectPath) : "/typebots");
+      router.replace(redirectPath ? sanitizeUrl(redirectPath) : "/dashboard");
       return;
     }
     (async () => {
@@ -67,7 +67,7 @@ export const SignInForm = ({ defaultEmail, className }: Props) => {
       await signIn("credentials", {
         email: emailValue,
         redirect: true,
-        callbackUrl: redirectPath ? sanitizeUrl(redirectPath) : "/typebots",
+        callbackUrl: redirectPath ? sanitizeUrl(redirectPath) : "/dashboard",
       });
     } catch (_e) {
       toast({

@@ -2,9 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 import { useTranslate } from "@tolgee/react";
 import { LoaderCircleIcon } from "@typebot.io/ui/icons/LoaderCircleIcon";
 import { useRouter } from "next/router";
+import { DashboardLayout } from "@/components/DashboardLayout";
 import { NotFoundPage } from "@/components/NotFoundPage";
 import { Seo } from "@/components/Seo";
-import { DashboardHeader } from "@/features/dashboard/components/DashboardHeader";
 import { useWorkspace } from "@/features/workspace/WorkspaceProvider";
 import { trpc } from "@/lib/queryClient";
 import { TypebotDndProvider } from "../TypebotDndProvider";
@@ -33,18 +33,19 @@ export const FolderPage = () => {
     return <NotFoundPage resourceName="Folder" />;
 
   return (
-    <div className="flex flex-col gap-2 min-h-screen">
-      <Seo title={t("dashboard.title")} />
-      <DashboardHeader />
-      <TypebotDndProvider>
-        {!folder ? (
-          <div className="flex flex-1">
-            <LoaderCircleIcon className="animate-spin mx-auto" />
-          </div>
-        ) : (
-          <FolderContent folder={folder} />
-        )}
-      </TypebotDndProvider>
-    </div>
+    <DashboardLayout>
+      <div className="flex flex-col gap-2 min-h-screen">
+        <Seo title={t("dashboard.title")} />
+        <TypebotDndProvider>
+          {!folder ? (
+            <div className="flex flex-1">
+              <LoaderCircleIcon className="animate-spin mx-auto" />
+            </div>
+          ) : (
+            <FolderContent folder={folder} />
+          )}
+        </TypebotDndProvider>
+      </div>
+    </DashboardLayout>
   );
 };
