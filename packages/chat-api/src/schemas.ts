@@ -1,13 +1,21 @@
 import { audioBubbleContentSchema } from "@typebot.io/blocks-bubbles/audio/schema";
 import { BubbleBlockType } from "@typebot.io/blocks-bubbles/constants";
+import { documentBubbleContentSchema } from "@typebot.io/blocks-bubbles/document/schema";
 import { embedBubbleContentSchema } from "@typebot.io/blocks-bubbles/embed/schema";
 import { imageBubbleContentSchema } from "@typebot.io/blocks-bubbles/image/schema";
+import { locationBubbleContentSchema } from "@typebot.io/blocks-bubbles/location/schema";
+import { stickerBubbleContentSchema } from "@typebot.io/blocks-bubbles/sticker/schema";
 import { videoBubbleContentSchema } from "@typebot.io/blocks-bubbles/video/schema";
+import { addressInputSchema } from "@typebot.io/blocks-inputs/address/schema";
 import { cardsBlockSchema } from "@typebot.io/blocks-inputs/cards/schema";
 import { buttonsInputSchemas } from "@typebot.io/blocks-inputs/choice/schema";
+import { ctaUrlInputSchema } from "@typebot.io/blocks-inputs/ctaUrl/schema";
 import { dateInputSchema } from "@typebot.io/blocks-inputs/date/schema";
 import { emailInputSchema } from "@typebot.io/blocks-inputs/email/schema";
 import { fileInputBlockSchemas } from "@typebot.io/blocks-inputs/file/schema";
+import { flowInputSchema } from "@typebot.io/blocks-inputs/flow/schema";
+import { locationRequestInputSchema } from "@typebot.io/blocks-inputs/locationRequest/schema";
+import { mediaCarouselBlockSchema } from "@typebot.io/blocks-inputs/mediaCarousel/schema";
 import { numberInputSchema } from "@typebot.io/blocks-inputs/number/schema";
 import {
   paymentInputRuntimeOptionsSchema,
@@ -15,7 +23,9 @@ import {
 } from "@typebot.io/blocks-inputs/payment/schema";
 import { phoneNumberInputBlockSchema } from "@typebot.io/blocks-inputs/phone/schema";
 import { pictureChoiceBlockSchemas } from "@typebot.io/blocks-inputs/pictureChoice/schema";
+import { productCarouselBlockSchema } from "@typebot.io/blocks-inputs/productCarousel/schema";
 import { ratingInputBlockSchema } from "@typebot.io/blocks-inputs/rating/schema";
+import { templateInputSchema } from "@typebot.io/blocks-inputs/template/schema";
 import { textInputSchema } from "@typebot.io/blocks-inputs/text/schema";
 import { timeInputSchema } from "@typebot.io/blocks-inputs/time/schema";
 import { urlInputSchema } from "@typebot.io/blocks-inputs/url/schema";
@@ -143,6 +153,36 @@ const embedBubbleSchema = z
     ref: "embedBubble",
   });
 
+const locationBubbleSchema = z
+  .object({
+    type: z.enum([BubbleBlockType.LOCATION]),
+    content: locationBubbleContentSchema,
+  })
+  .openapi({
+    title: "Location",
+    ref: "locationBubble",
+  });
+
+const documentBubbleSchema = z
+  .object({
+    type: z.enum([BubbleBlockType.DOCUMENT]),
+    content: documentBubbleContentSchema,
+  })
+  .openapi({
+    title: "Document",
+    ref: "documentBubble",
+  });
+
+const stickerBubbleSchema = z
+  .object({
+    type: z.enum([BubbleBlockType.STICKER]),
+    content: stickerBubbleContentSchema,
+  })
+  .openapi({
+    title: "Sticker",
+    ref: "stickerBubble",
+  });
+
 const displayEmbedBubbleSchema = z.object({
   url: z.string().optional(),
   waitForEventFunction: z
@@ -176,6 +216,9 @@ export const chatBubbleSchema = z
       videoBubbleSchema,
       audioBubbleSchema,
       embedBubbleSchema,
+      locationBubbleSchema,
+      documentBubbleSchema,
+      stickerBubbleSchema,
       customBubbleSchema,
     ]),
   );
@@ -348,6 +391,13 @@ const chatResponseBaseSchema = z.object({
         fileInputBlockSchemas.v6,
         pictureChoiceBlockSchemas.v6,
         cardsBlockSchema,
+        locationRequestInputSchema,
+        ctaUrlInputSchema,
+        addressInputSchema,
+        templateInputSchema,
+        flowInputSchema,
+        mediaCarouselBlockSchema,
+        productCarouselBlockSchema,
       ]),
       z.discriminatedUnion("type", [
         buttonsInputSchemas.v5,

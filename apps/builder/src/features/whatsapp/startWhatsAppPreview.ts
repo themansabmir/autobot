@@ -1,3 +1,5 @@
+import { authenticatedProcedure } from "@/helpers/server/trpc";
+import { ClientToastError } from "@/lib/ClientToastError";
 import { TRPCError } from "@trpc/server";
 import { saveStateToDatabase } from "@typebot.io/bot-engine/saveStateToDatabase";
 import { startSession } from "@typebot.io/bot-engine/startSession";
@@ -14,8 +16,6 @@ import { isReadTypebotForbidden } from "@typebot.io/typebot/helpers/isReadTypebo
 import { sendChatReplyToWhatsApp } from "@typebot.io/whatsapp/sendChatReplyToWhatsApp";
 import { sendWhatsAppMessage } from "@typebot.io/whatsapp/sendWhatsAppMessage";
 import { z } from "@typebot.io/zod";
-import { authenticatedProcedure } from "@/helpers/server/trpc";
-import { ClientToastError } from "@/lib/ClientToastError";
 
 export const startWhatsAppPreview = authenticatedProcedure
   .meta({
@@ -132,7 +132,7 @@ export const startWhatsAppPreview = authenticatedProcedure
     deleteSessionStore(sessionId);
 
     try {
-      if (canSendDirectMessagesToUser) {
+      if (canSendDirectMessagesToUser){        
         await sendChatReplyToWhatsApp({
           to,
           messages,

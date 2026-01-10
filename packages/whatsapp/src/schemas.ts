@@ -14,6 +14,7 @@ const documentSchema = z.object({
   link: z.string().optional(),
   id: z.string().optional(),
   filename: z.string().optional(),
+  caption: z.string().optional(),
 });
 
 const headerSchema = z
@@ -85,6 +86,19 @@ const sendingMessageSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("document"),
     document: documentSchema,
+  }),
+  z.object({
+    type: z.literal("location"),
+    location: z.object({
+      latitude: z.string(),
+      longitude: z.string(),
+      name: z.string().optional(),
+      address: z.string().optional(),
+    }),
+  }),
+  z.object({
+    type: z.literal("sticker"),
+    sticker: mediaSchema,
   }),
   z.object({
     type: z.literal("interactive"),

@@ -1,3 +1,11 @@
+import { AudioBubbleForm } from "@/features/blocks/bubbles/audio/components/AudioBubbleForm";
+import { DocumentBubbleSettings } from "@/features/blocks/bubbles/document/components/DocumentBubbleSettings";
+import { EmbedBubbleSettings } from "@/features/blocks/bubbles/embed/components/EmbedBubbleSettings";
+import { ImageBubbleSettings } from "@/features/blocks/bubbles/image/components/ImageBubbleSettings";
+import { LocationBubbleSettings } from "@/features/blocks/bubbles/location/components/LocationBubbleSettings";
+import { StickerBubbleSettings } from "@/features/blocks/bubbles/sticker/components/StickerBubbleSettings";
+import { VideoUploadContent } from "@/features/blocks/bubbles/video/components/VideoUploadContent";
+import type { FilePathUploadProps } from "@/features/upload/api/generateUploadUrl";
 import { BubbleBlockType } from "@typebot.io/blocks-bubbles/constants";
 import type {
   BubbleBlock,
@@ -6,11 +14,6 @@ import type {
 import type { TextBubbleBlock } from "@typebot.io/blocks-bubbles/text/schema";
 import { Popover } from "@typebot.io/ui/components/Popover";
 import { cx } from "@typebot.io/ui/lib/cva";
-import { AudioBubbleForm } from "@/features/blocks/bubbles/audio/components/AudioBubbleForm";
-import { EmbedBubbleSettings } from "@/features/blocks/bubbles/embed/components/EmbedBubbleSettings";
-import { ImageBubbleSettings } from "@/features/blocks/bubbles/image/components/ImageBubbleSettings";
-import { VideoUploadContent } from "@/features/blocks/bubbles/video/components/VideoUploadContent";
-import type { FilePathUploadProps } from "@/features/upload/api/generateUploadUrl";
 
 type Props = {
   uploadFileProps: FilePathUploadProps;
@@ -69,6 +72,32 @@ export const MediaBubbleContent = ({
         <AudioBubbleForm
           content={block.content}
           uploadFileProps={uploadFileProps}
+          onContentChange={onContentChange}
+        />
+      );
+    }
+    case BubbleBlockType.LOCATION: {
+      return (
+        <LocationBubbleSettings
+          content={block.content}
+          onContentChange={onContentChange}
+        />
+      );
+    }
+    case BubbleBlockType.DOCUMENT: {
+      return (
+        <DocumentBubbleSettings
+          uploadFileProps={uploadFileProps}
+          content={block.content}
+          onContentChange={onContentChange}
+        />
+      );
+    }
+    case BubbleBlockType.STICKER: {
+      return (
+        <StickerBubbleSettings
+          uploadFileProps={uploadFileProps}
+          content={block.content}
           onContentChange={onContentChange}
         />
       );

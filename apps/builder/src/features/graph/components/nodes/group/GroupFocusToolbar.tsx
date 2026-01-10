@@ -1,10 +1,10 @@
+import { useIsAnalyzing } from "@/features/graph/hooks/useIsAnalyzing";
+import { isMac } from "@/helpers/isMac";
 import { Button } from "@typebot.io/ui/components/Button";
 import { Copy01Icon } from "@typebot.io/ui/icons/Copy01Icon";
 import { PlayIcon } from "@typebot.io/ui/icons/PlayIcon";
 import { TrashIcon } from "@typebot.io/ui/icons/TrashIcon";
 import { cn } from "@typebot.io/ui/lib/cn";
-import { useIsAnalyzing } from "@/features/graph/hooks/useIsAnalyzing";
-import { isMac } from "@/helpers/isMac";
 
 type Props = {
   groupId: string;

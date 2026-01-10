@@ -1,14 +1,22 @@
 import { z } from "@typebot.io/zod";
+import { addressInputSchema } from "./address/schema";
 import { cardsBlockSchema } from "./cards/schema";
 import { buttonsInputSchemas } from "./choice/schema";
+import { ctaUrlInputSchema } from "./ctaUrl/schema";
 import { dateInputSchema } from "./date/schema";
 import { emailInputSchema } from "./email/schema";
 import { fileInputBlockSchemas } from "./file/schema";
+import { flowInputSchema } from "./flow/schema";
+import { interactiveListInputSchema } from "./interactiveList/schema";
+import { locationRequestInputSchema } from "./locationRequest/schema";
+import { mediaCarouselBlockSchema } from "./mediaCarousel/schema";
 import { numberInputSchema } from "./number/schema";
 import { paymentInputSchema } from "./payment/schema";
 import { phoneNumberInputBlockSchema } from "./phone/schema";
 import { pictureChoiceBlockSchemas } from "./pictureChoice/schema";
+import { productCarouselBlockSchema } from "./productCarousel/schema";
 import { ratingInputBlockSchema } from "./rating/schema";
+import { templateInputSchema } from "./template/schema";
 import { textInputSchema } from "./text/schema";
 import { timeInputSchema } from "./time/schema";
 import { urlInputSchema } from "./url/schema";
@@ -24,6 +32,14 @@ const inputBlockSchemas = [
   paymentInputSchema,
   ratingInputBlockSchema,
   cardsBlockSchema,
+  ctaUrlInputSchema,
+  locationRequestInputSchema,
+  addressInputSchema,
+  templateInputSchema,
+  flowInputSchema,
+  mediaCarouselBlockSchema,
+  productCarouselBlockSchema,
+  interactiveListInputSchema,
 ] as const;
 
 export const inputBlockV5Schema = z.discriminatedUnion("type", [

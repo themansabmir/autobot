@@ -1,3 +1,5 @@
+import { DebouncedTextInputWithVariablesButton } from "@/components/inputs/DebouncedTextInput";
+import { VariablesCombobox } from "@/components/inputs/VariablesCombobox";
 import { useTranslate } from "@tolgee/react";
 import { defaultChoiceInputOptions } from "@typebot.io/blocks-inputs/choice/constants";
 import type { ChoiceInputBlock } from "@typebot.io/blocks-inputs/choice/schema";
@@ -5,8 +7,6 @@ import { Field } from "@typebot.io/ui/components/Field";
 import { MoreInfoTooltip } from "@typebot.io/ui/components/MoreInfoTooltip";
 import { Switch } from "@typebot.io/ui/components/Switch";
 import type { Variable } from "@typebot.io/variables/schemas";
-import { DebouncedTextInputWithVariablesButton } from "@/components/inputs/DebouncedTextInput";
-import { VariablesCombobox } from "@/components/inputs/VariablesCombobox";
 
 type Props = {
   options?: ChoiceInputBlock["options"];

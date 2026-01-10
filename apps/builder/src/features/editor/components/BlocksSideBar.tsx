@@ -1,3 +1,6 @@
+import { Portal } from "@/components/Portal";
+import { useBlockDnd } from "@/features/graph/providers/GraphDndProvider";
+import { useEventListener } from "@/hooks/useEventListener";
 import { useTranslate } from "@tolgee/react";
 import { BubbleBlockType } from "@typebot.io/blocks-bubbles/constants";
 import type { BlockV6 } from "@typebot.io/blocks-core/schemas/schema";
@@ -17,9 +20,6 @@ import { cx } from "@typebot.io/ui/lib/cva";
 import type React from "react";
 import { useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
-import { Portal } from "@/components/Portal";
-import { useBlockDnd } from "@/features/graph/providers/GraphDndProvider";
-import { useEventListener } from "@/hooks/useEventListener";
 import { EventCard } from "../../events/components/EventCard";
 import { EventCardOverlay } from "../../events/components/EventCardOverlay";
 import { getEventBlockLabel } from "../../events/components/EventLabel";
@@ -27,10 +27,10 @@ import { leftSidebarLockedStorageKey } from "../constants";
 import { BlockCard } from "./BlockCard";
 import { BlockCardOverlay } from "./BlockCardOverlay";
 import {
-  getBubbleBlockLabel,
-  getInputBlockLabel,
-  getIntegrationBlockLabel,
-  getLogicBlockLabel,
+    getBubbleBlockLabel,
+    getInputBlockLabel,
+    getIntegrationBlockLabel,
+    getLogicBlockLabel,
 } from "./BlockLabel";
 
 // Integration blocks migrated to forged blocks
@@ -147,15 +147,15 @@ export const BlocksSideBar = () => {
 
   const filteredBubbleBlockTypes = Object.values(BubbleBlockType).filter(
     (type) =>
-      getBubbleBlockLabel(t)
-        [type].toLowerCase()
+      (getBubbleBlockLabel(t)[type] ?? "")
+        .toLowerCase()
         .includes(searchInput.toLowerCase()),
   );
 
   const filteredInputBlockTypes = Object.values(InputBlockType).filter(
     (type) => {
-      return getInputBlockLabel(t)
-        [type].toLowerCase()
+      return (getInputBlockLabel(t)[type] ?? "")
+        .toLowerCase()
         .includes(searchInput.toLowerCase());
     },
   );
@@ -165,14 +165,14 @@ export const BlocksSideBar = () => {
       type === LogicBlockType.WEBHOOK
         ? isDefined(env.NEXT_PUBLIC_PARTYKIT_HOST)
         : true &&
-          getLogicBlockLabel(t)
-            [type].toLowerCase()
+          (getLogicBlockLabel(t)[type] ?? "")
+            .toLowerCase()
             .includes(searchInput.toLowerCase()),
   );
 
   const filteredEventBlockTypes = Object.values(EventType).filter((type) =>
-    getEventBlockLabel(t)
-      [type].toLowerCase()
+    (getEventBlockLabel(t)[type] ?? "")
+      .toLowerCase()
       .includes(searchInput.toLowerCase()),
   );
 
@@ -180,8 +180,8 @@ export const BlocksSideBar = () => {
     IntegrationBlockType,
   ).filter(
     (type) =>
-      getIntegrationBlockLabel(t)
-        [type].toLowerCase()
+      (getIntegrationBlockLabel(t)[type] ?? "")
+        .toLowerCase()
         .includes(searchInput.toLowerCase()) &&
       !legacyIntegrationBlocks.includes(type),
   );

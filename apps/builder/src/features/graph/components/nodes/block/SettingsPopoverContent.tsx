@@ -1,22 +1,21 @@
-import type { BlockWithOptions } from "@typebot.io/blocks-core/schemas/schema";
-import { InputBlockType } from "@typebot.io/blocks-inputs/constants";
-import { IntegrationBlockType } from "@typebot.io/blocks-integrations/constants";
-import { LogicBlockType } from "@typebot.io/blocks-logic/constants";
-import { EventType } from "@typebot.io/events/constants";
-import type { TEventWithOptions } from "@typebot.io/events/schemas";
-import { Popover } from "@typebot.io/ui/components/Popover";
-import { cn } from "@typebot.io/ui/lib/cn";
-import { useRef, useState } from "react";
+import { AddressInputSettings } from "@/features/blocks/inputs/address/components/AddressInputSettings";
 import { ButtonsBlockSettings } from "@/features/blocks/inputs/buttons/components/ButtonsBlockSettings";
 import { CardsBlockSettings } from "@/features/blocks/inputs/cards/components/CardsBlockSettings";
+import { CtaUrlSettings } from "@/features/blocks/inputs/ctaUrl/components/CtaUrlSettings";
 import { DateInputSettings } from "@/features/blocks/inputs/date/components/DateInputSettings";
 import { EmailInputSettings } from "@/features/blocks/inputs/emailInput/components/EmailInputSettings";
 import { FileInputSettings } from "@/features/blocks/inputs/fileUpload/components/FileInputSettings";
+import { FlowSettings } from "@/features/blocks/inputs/flow/components/FlowSettings";
+import { InteractiveListSettings } from "@/features/blocks/inputs/interactiveList/components/InteractiveListSettings";
+import { LocationRequestSettings } from "@/features/blocks/inputs/locationRequest/components/LocationRequestSettings";
+import { MediaCarouselSettings } from "@/features/blocks/inputs/mediaCarousel/components/MediaCarouselSettings";
 import { NumberInputSettings } from "@/features/blocks/inputs/number/components/NumberInputSettings";
 import { PaymentSettings } from "@/features/blocks/inputs/payment/components/PaymentSettings";
 import { PhoneInputSettings } from "@/features/blocks/inputs/phone/components/PhoneInputSettings";
 import { PictureChoiceSettings } from "@/features/blocks/inputs/pictureChoice/components/PictureChoiceSettings";
+import { ProductCarouselSettings } from "@/features/blocks/inputs/productCarousel/components/ProductCarouselSettings";
 import { RatingInputSettings } from "@/features/blocks/inputs/rating/components/RatingInputSettings";
+import { TemplateSettings } from "@/features/blocks/inputs/template/components/TemplateSettings";
 import { TextInputSettings } from "@/features/blocks/inputs/textInput/components/TextInputSettings";
 import { TimeInputSettings } from "@/features/blocks/inputs/time/components/TimeInputSettings";
 import { UrlInputSettings } from "@/features/blocks/inputs/url/components/UrlInputSettings";
@@ -45,6 +44,15 @@ import { useForgedBlock } from "@/features/forge/hooks/useForgedBlock";
 import { VideoOnboardingPopover } from "@/features/onboarding/components/VideoOnboardingPopover";
 import { hasOnboardingVideo } from "@/features/onboarding/helpers/hasOnboardingVideo";
 import { useEventListener } from "@/hooks/useEventListener";
+import type { BlockWithOptions } from "@typebot.io/blocks-core/schemas/schema";
+import { InputBlockType } from "@typebot.io/blocks-inputs/constants";
+import { IntegrationBlockType } from "@typebot.io/blocks-integrations/constants";
+import { LogicBlockType } from "@typebot.io/blocks-logic/constants";
+import { EventType } from "@typebot.io/events/constants";
+import type { TEventWithOptions } from "@typebot.io/events/schemas";
+import { Popover } from "@typebot.io/ui/components/Popover";
+import { cn } from "@typebot.io/ui/lib/cn";
+import { useRef, useState } from "react";
 import { ForgedBlockSettings } from "../../../../forge/components/ForgedBlockSettings";
 import { SettingsHoverBar } from "./SettingsHoverBar";
 
@@ -231,6 +239,70 @@ export const NodeSettings = ({
     case InputBlockType.CARDS: {
       return (
         <CardsBlockSettings
+          options={node.options}
+          onOptionsChange={updateOptions}
+        />
+      );
+    }
+    case InputBlockType.LOCATION_REQUEST: {
+      return (
+        <LocationRequestSettings
+          options={node.options}
+          onOptionsChange={updateOptions}
+        />
+      );
+    }
+    case InputBlockType.CTA_URL: {
+      return (
+        <CtaUrlSettings
+          options={node.options}
+          onOptionsChange={updateOptions}
+        />
+      );
+    }
+    case InputBlockType.ADDRESS: {
+      return (
+        <AddressInputSettings
+          options={node.options}
+          onOptionsChange={updateOptions}
+        />
+      );
+    }
+    case InputBlockType.TEMPLATE: {
+      return (
+        <TemplateSettings
+          options={node.options}
+          onOptionsChange={updateOptions}
+        />
+      );
+    }
+    case InputBlockType.FLOW: {
+      return (
+        <FlowSettings
+          options={node.options}
+          onOptionsChange={updateOptions}
+        />
+      );
+    }
+    case InputBlockType.MEDIA_CAROUSEL: {
+      return (
+        <MediaCarouselSettings
+          options={node.options}
+          onOptionsChange={updateOptions}
+        />
+      );
+    }
+    case InputBlockType.PRODUCT_CAROUSEL: {
+      return (
+        <ProductCarouselSettings
+          options={node.options}
+          onOptionsChange={updateOptions}
+        />
+      );
+    }
+    case InputBlockType.INTERACTIVE_LIST: {
+      return (
+        <InteractiveListSettings
           options={node.options}
           onOptionsChange={updateOptions}
         />

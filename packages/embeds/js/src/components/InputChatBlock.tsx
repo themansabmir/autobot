@@ -1,15 +1,45 @@
+import { AddressInput } from "@/features/blocks/inputs/address/components/AddressInput";
+import { Buttons } from "@/features/blocks/inputs/buttons/components/Buttons";
+import { MultipleChoicesForm } from "@/features/blocks/inputs/buttons/components/MultipleChoicesForm";
+import { CardsCaroussel } from "@/features/blocks/inputs/cards/CardsCaroussel";
+import { CtaUrlInput } from "@/features/blocks/inputs/ctaUrl/components/CtaUrlInput";
+import { DateForm } from "@/features/blocks/inputs/date/components/DateForm";
+import { EmailInput } from "@/features/blocks/inputs/email/components/EmailInput";
+import { FileUploadForm } from "@/features/blocks/inputs/fileUpload/components/FileUploadForm";
+import { FlowInput } from "@/features/blocks/inputs/flow/components/FlowInput";
+import { LocationRequestInput } from "@/features/blocks/inputs/locationRequest/components/LocationRequestInput";
+import { MediaCarouselInput } from "@/features/blocks/inputs/mediaCarousel/components/MediaCarouselInput";
+import { NumberInput } from "@/features/blocks/inputs/number/components/NumberInput";
+import { PaymentForm } from "@/features/blocks/inputs/payment/components/PaymentForm";
+import { PhoneInput } from "@/features/blocks/inputs/phone/components/PhoneInput";
+import { MultiplePictureChoice } from "@/features/blocks/inputs/pictureChoice/MultiplePictureChoice";
+import { SinglePictureChoice } from "@/features/blocks/inputs/pictureChoice/SinglePictureChoice";
+import { ProductCarouselInput } from "@/features/blocks/inputs/productCarousel/components/ProductCarouselInput";
+import { RatingForm } from "@/features/blocks/inputs/rating/components/RatingForm";
+import { TemplateInput } from "@/features/blocks/inputs/template/components/TemplateInput";
+import { TextInput } from "@/features/blocks/inputs/textInput/components/TextInput";
+import { TimeForm } from "@/features/blocks/inputs/time/components/TimeForm";
+import { UrlInput } from "@/features/blocks/inputs/url/components/UrlInput";
+import type { BotContext, ChatChunk, InputSubmitContent } from "@/types";
+import type { AddressInputBlock } from "@typebot.io/blocks-inputs/address/schema";
 import type { CardsBlock } from "@typebot.io/blocks-inputs/cards/schema";
 import type { ChoiceInputBlock } from "@typebot.io/blocks-inputs/choice/schema";
 import { InputBlockType } from "@typebot.io/blocks-inputs/constants";
+import type { CtaUrlInputBlock } from "@typebot.io/blocks-inputs/ctaUrl/schema";
 import type { DateInputBlock } from "@typebot.io/blocks-inputs/date/schema";
 import type { EmailInputBlock } from "@typebot.io/blocks-inputs/email/schema";
 import type { FileInputBlock } from "@typebot.io/blocks-inputs/file/schema";
+import type { FlowInputBlock } from "@typebot.io/blocks-inputs/flow/schema";
+import type { LocationRequestInputBlock } from "@typebot.io/blocks-inputs/locationRequest/schema";
+import type { MediaCarouselBlock } from "@typebot.io/blocks-inputs/mediaCarousel/schema";
 import type { NumberInputBlock } from "@typebot.io/blocks-inputs/number/schema";
 import { defaultPaymentInputOptions } from "@typebot.io/blocks-inputs/payment/constants";
 import type { PaymentInputBlock } from "@typebot.io/blocks-inputs/payment/schema";
 import type { PhoneNumberInputBlock } from "@typebot.io/blocks-inputs/phone/schema";
 import type { PictureChoiceBlock } from "@typebot.io/blocks-inputs/pictureChoice/schema";
+import type { ProductCarouselBlock } from "@typebot.io/blocks-inputs/productCarousel/schema";
 import type { RatingInputBlock } from "@typebot.io/blocks-inputs/rating/schema";
+import type { TemplateInputBlock } from "@typebot.io/blocks-inputs/template/schema";
 import type { TextInputBlock } from "@typebot.io/blocks-inputs/text/schema";
 import type { TimeInputBlock } from "@typebot.io/blocks-inputs/time/schema";
 import type { UrlInputBlock } from "@typebot.io/blocks-inputs/url/schema";
@@ -21,22 +51,6 @@ import { isNotDefined } from "@typebot.io/lib/utils";
 import { defaultHostAvatarIsEnabled } from "@typebot.io/theme/constants";
 import type { Theme } from "@typebot.io/theme/schemas";
 import { Match, Show, Switch } from "solid-js";
-import { Buttons } from "@/features/blocks/inputs/buttons/components/Buttons";
-import { MultipleChoicesForm } from "@/features/blocks/inputs/buttons/components/MultipleChoicesForm";
-import { CardsCaroussel } from "@/features/blocks/inputs/cards/CardsCaroussel";
-import { DateForm } from "@/features/blocks/inputs/date/components/DateForm";
-import { EmailInput } from "@/features/blocks/inputs/email/components/EmailInput";
-import { FileUploadForm } from "@/features/blocks/inputs/fileUpload/components/FileUploadForm";
-import { NumberInput } from "@/features/blocks/inputs/number/components/NumberInput";
-import { PaymentForm } from "@/features/blocks/inputs/payment/components/PaymentForm";
-import { PhoneInput } from "@/features/blocks/inputs/phone/components/PhoneInput";
-import { MultiplePictureChoice } from "@/features/blocks/inputs/pictureChoice/MultiplePictureChoice";
-import { SinglePictureChoice } from "@/features/blocks/inputs/pictureChoice/SinglePictureChoice";
-import { RatingForm } from "@/features/blocks/inputs/rating/components/RatingForm";
-import { TextInput } from "@/features/blocks/inputs/textInput/components/TextInput";
-import { TimeForm } from "@/features/blocks/inputs/time/components/TimeForm";
-import { UrlInput } from "@/features/blocks/inputs/url/components/UrlInput";
-import type { BotContext, ChatChunk, InputSubmitContent } from "@/types";
 import { GuestBubble } from "./bubbles/GuestBubble";
 
 type Props = {
@@ -262,6 +276,50 @@ const Input = (props: {
           block={props.block as CardsBlock}
           onSubmit={props.onSubmit}
           onTransitionEnd={props.onTransitionEnd}
+        />
+      </Match>
+      <Match when={props.block.type === InputBlockType.LOCATION_REQUEST}>
+        <LocationRequestInput
+          block={props.block as LocationRequestInputBlock}
+          context={props.context}
+          onSubmit={props.onSubmit}
+        />
+      </Match>
+      <Match when={props.block.type === InputBlockType.CTA_URL}>
+        <CtaUrlInput
+          block={props.block as CtaUrlInputBlock}
+          onSubmit={props.onSubmit}
+        />
+      </Match>
+      <Match when={props.block.type === InputBlockType.ADDRESS}>
+        <AddressInput
+          block={props.block as AddressInputBlock}
+          onSubmit={props.onSubmit}
+        />
+      </Match>
+      <Match when={props.block.type === InputBlockType.TEMPLATE}>
+        <TemplateInput
+          block={props.block as TemplateInputBlock}
+          onSubmit={props.onSubmit}
+        />
+      </Match>
+      <Match when={props.block.type === InputBlockType.FLOW}>
+        <FlowInput
+          block={props.block as FlowInputBlock}
+          context={props.context}
+          onSubmit={props.onSubmit}
+        />
+      </Match>
+      <Match when={props.block.type === InputBlockType.MEDIA_CAROUSEL}>
+        <MediaCarouselInput
+          block={props.block as MediaCarouselBlock}
+          onSubmit={props.onSubmit}
+        />
+      </Match>
+      <Match when={props.block.type === InputBlockType.PRODUCT_CAROUSEL}>
+        <ProductCarouselInput
+          block={props.block as ProductCarouselBlock}
+          onSubmit={props.onSubmit}
         />
       </Match>
     </Switch>

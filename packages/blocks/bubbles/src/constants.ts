@@ -4,4 +4,7 @@ export enum BubbleBlockType {
   VIDEO = "video",
   EMBED = "embed",
   AUDIO = "audio",
+  LOCATION = "location",
+  DOCUMENT = "document",
+  STICKER = "sticker",
 }

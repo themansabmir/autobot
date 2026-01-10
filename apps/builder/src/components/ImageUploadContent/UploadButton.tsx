@@ -1,18 +1,18 @@
-import { useMutation } from "@tanstack/react-query";
-import {
-  type ButtonProps,
-  buttonVariants,
-} from "@typebot.io/ui/components/Button";
-import { Upload01Icon } from "@typebot.io/ui/icons/Upload01Icon";
-import type { ChangeEvent } from "react";
-import { useId, useState } from "react";
 import type { FilePathUploadProps } from "@/features/upload/api/generateUploadUrl";
 import { compressFile } from "@/helpers/compressFile";
 import { trpc } from "@/lib/queryClient";
 import { toast } from "@/lib/toast";
+import { useMutation } from "@tanstack/react-query";
+import {
+    type ButtonProps,
+    buttonVariants,
+} from "@typebot.io/ui/components/Button";
+import { Upload01Icon } from "@typebot.io/ui/icons/Upload01Icon";
+import type { ChangeEvent } from "react";
+import { useId, useState } from "react";
 
 type UploadButtonProps = {
-  fileType: "image" | "audio";
+  fileType: "image" | "audio" | "video" | "file";
   filePathProps: FilePathUploadProps;
   onFileUploaded: (url: string) => void;
 } & ButtonProps;
@@ -73,6 +73,21 @@ export const UploadButton = ({
     });
   };
 
+  const getAcceptAttribute = () => {
+    switch (fileType) {
+      case "image":
+        return "image/avif, image/*";
+      case "audio":
+        return "audio/*";
+      case "video":
+        return "video/*";
+      case "file":
+        return "*";
+      default:
+        return "*";
+    }
+  };
+
   return (
     <>
       <input
@@ -81,7 +96,7 @@ export const UploadButton = ({
         id={`file-input-${id}`}
         className="hidden"
         onChange={handleInputChange}
-        accept={fileType === "image" ? "image/avif, image/*" : "audio/*"}
+        accept={getAcceptAttribute()}
       />
       <label
         htmlFor={`file-input-${id}`}

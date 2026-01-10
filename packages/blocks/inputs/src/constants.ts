@@ -14,6 +14,14 @@ export enum InputBlockType {
   RATING = "rating input",
   FILE = "file input",
   CARDS = "cards",
+  CTA_URL = "cta url button",
+  LOCATION_REQUEST = "location request",
+  ADDRESS = "address input",
+  TEMPLATE = "template message",
+  FLOW = "whatsapp flow",
+  MEDIA_CAROUSEL = "media carousel",
+  PRODUCT_CAROUSEL = "product carousel",
+  INTERACTIVE_LIST = "interactive list",
 }
 
 export const replyEventInputTypeFromEnum = {
@@ -30,4 +38,12 @@ export const replyEventInputTypeFromEnum = {
   [InputBlockType.RATING]: "rating",
   [InputBlockType.FILE]: "file",
   [InputBlockType.CARDS]: "cards",
+  [InputBlockType.CTA_URL]: "cta url",
+  [InputBlockType.LOCATION_REQUEST]: "location",
+  [InputBlockType.ADDRESS]: "address",
+  [InputBlockType.TEMPLATE]: "template",
+  [InputBlockType.FLOW]: "flow",
+  [InputBlockType.MEDIA_CAROUSEL]: "media carousel",
+  [InputBlockType.PRODUCT_CAROUSEL]: "product carousel",
+  [InputBlockType.INTERACTIVE_LIST]: "whatsapp list",
 };

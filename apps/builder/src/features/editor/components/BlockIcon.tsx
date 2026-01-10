@@ -1,26 +1,28 @@
-import { BubbleBlockType } from "@typebot.io/blocks-bubbles/constants";
-import type { Block } from "@typebot.io/blocks-core/schemas/schema";
-import { InputBlockType } from "@typebot.io/blocks-inputs/constants";
-import { IntegrationBlockType } from "@typebot.io/blocks-integrations/constants";
-import { LogicBlockType } from "@typebot.io/blocks-logic/constants";
-import { CarouselHorizontal02Icon } from "@typebot.io/ui/icons/CarouselHorizontal02Icon";
-import { Flag02Icon } from "@typebot.io/ui/icons/Flag02Icon";
-import { ZapIcon } from "@typebot.io/ui/icons/ZapIcon";
-import { cn } from "@typebot.io/ui/lib/cn";
 import { AudioBubbleIcon } from "@/features/blocks/bubbles/audio/components/AudioBubbleIcon";
+import { DocumentBubbleIcon } from "@/features/blocks/bubbles/document/components/DocumentBubbleIcon";
 import { EmbedBubbleIcon } from "@/features/blocks/bubbles/embed/components/EmbedBubbleIcon";
 import { ImageBubbleIcon } from "@/features/blocks/bubbles/image/components/ImageBubbleIcon";
+import { LocationBubbleIcon } from "@/features/blocks/bubbles/location/components/LocationBubbleIcon";
+import { StickerBubbleIcon } from "@/features/blocks/bubbles/sticker/components/StickerBubbleIcon";
 import { TextBubbleIcon } from "@/features/blocks/bubbles/textBubble/components/TextBubbleIcon";
 import { VideoBubbleIcon } from "@/features/blocks/bubbles/video/components/VideoBubbleIcon";
+import { AddressInputIcon } from "@/features/blocks/inputs/address/components/AddressInputIcon";
 import { ButtonsInputIcon } from "@/features/blocks/inputs/buttons/components/ButtonsIcon";
+import { CtaUrlIcon } from "@/features/blocks/inputs/ctaUrl/components/CtaUrlIcon";
 import { DateInputIcon } from "@/features/blocks/inputs/date/components/DateInputIcon";
 import { EmailInputIcon } from "@/features/blocks/inputs/emailInput/components/EmailInputIcon";
 import { FileInputIcon } from "@/features/blocks/inputs/fileUpload/components/FileInputIcon";
+import { FlowIcon } from "@/features/blocks/inputs/flow/components/FlowIcon";
+import { InteractiveListIcon } from "@/features/blocks/inputs/interactiveList/components/InteractiveListIcon";
+import { LocationRequestIcon } from "@/features/blocks/inputs/locationRequest/components/LocationRequestIcon";
+import { MediaCarouselIcon } from "@/features/blocks/inputs/mediaCarousel/components/MediaCarouselIcon";
 import { NumberInputIcon } from "@/features/blocks/inputs/number/components/NumberInputIcon";
 import { PaymentInputIcon } from "@/features/blocks/inputs/payment/components/PaymentInputIcon";
 import { PhoneInputIcon } from "@/features/blocks/inputs/phone/components/PhoneInputIcon";
 import { PictureChoiceIcon } from "@/features/blocks/inputs/pictureChoice/components/PictureChoiceIcon";
+import { ProductCarouselIcon } from "@/features/blocks/inputs/productCarousel/components/ProductCarouselIcon";
 import { RatingInputIcon } from "@/features/blocks/inputs/rating/components/RatingInputIcon";
+import { TemplateIcon } from "@/features/blocks/inputs/template/components/TemplateIcon";
 import { TextInputIcon } from "@/features/blocks/inputs/textInput/components/TextInputIcon";
 import { TimeInputIcon } from "@/features/blocks/inputs/time/components/TimeInputIcon";
 import { UrlInputIcon } from "@/features/blocks/inputs/url/components/UrlInputIcon";
@@ -45,6 +47,15 @@ import { WaitIcon } from "@/features/blocks/logic/wait/components/WaitIcon";
 import { WebhookIcon } from "@/features/blocks/logic/webhook/components/WebhookIcon";
 import { ForgedBlockIcon } from "@/features/forge/ForgedBlockIcon";
 import { useThemeValue } from "@/hooks/useThemeValue";
+import { BubbleBlockType } from "@typebot.io/blocks-bubbles/constants";
+import type { Block } from "@typebot.io/blocks-core/schemas/schema";
+import { InputBlockType } from "@typebot.io/blocks-inputs/constants";
+import { IntegrationBlockType } from "@typebot.io/blocks-integrations/constants";
+import { LogicBlockType } from "@typebot.io/blocks-logic/constants";
+import { CarouselHorizontal02Icon } from "@typebot.io/ui/icons/CarouselHorizontal02Icon";
+import { Flag02Icon } from "@typebot.io/ui/icons/Flag02Icon";
+import { ZapIcon } from "@typebot.io/ui/icons/ZapIcon";
+import { cn } from "@typebot.io/ui/lib/cn";
 
 type BlockIconProps = { type: Block["type"]; className?: string };
 
@@ -71,6 +82,18 @@ export const BlockIcon = ({ type, className }: BlockIconProps): JSX.Element => {
     case BubbleBlockType.AUDIO:
       return (
         <AudioBubbleIcon className={cn("text-gray-12 stroke-2", className)} />
+      );
+    case BubbleBlockType.LOCATION:
+      return (
+        <LocationBubbleIcon className={cn("text-gray-12 stroke-2", className)} />
+      );
+    case BubbleBlockType.DOCUMENT:
+      return (
+        <DocumentBubbleIcon className={cn("text-gray-12 stroke-2", className)} />
+      );
+    case BubbleBlockType.STICKER:
+      return (
+        <StickerBubbleIcon className={cn("text-gray-12 stroke-2", className)} />
       );
     case InputBlockType.TEXT:
       return (
@@ -125,6 +148,44 @@ export const BlockIcon = ({ type, className }: BlockIconProps): JSX.Element => {
     case InputBlockType.CARDS:
       return (
         <CarouselHorizontal02Icon
+          className={cn("text-orange-9 stroke-2", className)}
+        />
+      );
+    case InputBlockType.ADDRESS:
+      return (
+        <AddressInputIcon className={cn("text-orange-9 stroke-2", className)} />
+      );
+    case InputBlockType.LOCATION_REQUEST:
+      return (
+        <LocationRequestIcon
+          className={cn("text-orange-9 stroke-2", className)}
+        />
+      );
+    case InputBlockType.CTA_URL:
+      return (
+        <CtaUrlIcon className={cn("text-orange-9 stroke-2", className)} />
+      );
+    case InputBlockType.TEMPLATE:
+      return (
+        <TemplateIcon className={cn("text-orange-9 stroke-2", className)} />
+      );
+    case InputBlockType.FLOW:
+      return <FlowIcon className={cn("text-orange-9 stroke-2", className)} />;
+    case InputBlockType.MEDIA_CAROUSEL:
+      return (
+        <MediaCarouselIcon
+          className={cn("text-orange-9 stroke-2", className)}
+        />
+      );
+    case InputBlockType.INTERACTIVE_LIST:
+      return (
+        <InteractiveListIcon
+          className={cn("text-orange-9 stroke-2", className)}
+        />
+      );
+    case InputBlockType.PRODUCT_CAROUSEL:
+      return (
+        <ProductCarouselIcon
           className={cn("text-orange-9 stroke-2", className)}
         />
       );

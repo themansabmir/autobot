@@ -1,26 +1,29 @@
-import { BubbleBlockType } from "@typebot.io/blocks-bubbles/constants";
-import type {
-  BlockIndices,
-  BlockV6,
-} from "@typebot.io/blocks-core/schemas/schema";
-import { InputBlockType } from "@typebot.io/blocks-inputs/constants";
-import { IntegrationBlockType } from "@typebot.io/blocks-integrations/constants";
-import { LogicBlockType } from "@typebot.io/blocks-logic/constants";
 import { AudioBubbleNode } from "@/features/blocks/bubbles/audio/components/AudioBubbleNode";
+import { DocumentBubbleContent } from "@/features/blocks/bubbles/document/components/DocumentBubbleContent";
 import { EmbedBubbleContent } from "@/features/blocks/bubbles/embed/components/EmbedBubbleContent";
 import { ImageBubbleContent } from "@/features/blocks/bubbles/image/components/ImageBubbleContent";
+import { LocationBubbleContent } from "@/features/blocks/bubbles/location/components/LocationBubbleContent";
+import { StickerBubbleContent } from "@/features/blocks/bubbles/sticker/components/StickerBubbleContent";
 import { TextBubbleContent } from "@/features/blocks/bubbles/textBubble/components/TextBubbleContent";
 import { VideoBubbleContent } from "@/features/blocks/bubbles/video/components/VideoBubbleContent";
+import { AddressInputNodeContent } from "@/features/blocks/inputs/address/components/AddressInputNodeContent";
 import { ButtonsBlockNode } from "@/features/blocks/inputs/buttons/components/ButtonsBlockNode";
 import { CardsBlockNode } from "@/features/blocks/inputs/cards/components/CardsBlockNode";
+import { CtaUrlNodeContent } from "@/features/blocks/inputs/ctaUrl/components/CtaUrlNodeContent";
 import { DateNodeContent } from "@/features/blocks/inputs/date/components/DateNodeContent";
 import { EmailInputNodeContent } from "@/features/blocks/inputs/emailInput/components/EmailInputNodeContent";
 import { FileInputContent } from "@/features/blocks/inputs/fileUpload/components/FileInputContent";
+import { FlowNodeContent } from "@/features/blocks/inputs/flow/components/FlowNodeContent";
+import { InteractiveListNodeContent } from "@/features/blocks/inputs/interactiveList/components/InteractiveListNodeContent";
+import { LocationRequestNodeContent } from "@/features/blocks/inputs/locationRequest/components/LocationRequestNodeContent";
+import { MediaCarouselNodeContent } from "@/features/blocks/inputs/mediaCarousel/components/MediaCarouselNodeContent";
 import { NumberNodeContent } from "@/features/blocks/inputs/number/components/NumberNodeContent";
 import { PaymentInputContent } from "@/features/blocks/inputs/payment/components/PaymentInputContent";
 import { PhoneNodeContent } from "@/features/blocks/inputs/phone/components/PhoneNodeContent";
 import { PictureChoiceNode } from "@/features/blocks/inputs/pictureChoice/components/PictureChoiceNode";
+import { ProductCarouselNodeContent } from "@/features/blocks/inputs/productCarousel/components/ProductCarouselNodeContent";
 import { RatingInputContent } from "@/features/blocks/inputs/rating/components/RatingInputContent";
+import { TemplateNodeContent } from "@/features/blocks/inputs/template/components/TemplateNodeContent";
 import { TextInputNodeContent } from "@/features/blocks/inputs/textInput/components/TextInputNodeContent";
 import { TimeNodeContent } from "@/features/blocks/inputs/time/components/TimeNodeContent";
 import { UrlNodeContent } from "@/features/blocks/inputs/url/components/UrlNodeContent";
@@ -45,6 +48,14 @@ import { TypebotLinkNode } from "@/features/blocks/logic/typebotLink/components/
 import { WaitNodeContent } from "@/features/blocks/logic/wait/components/WaitNodeContent";
 import { WebhookNodeContent } from "@/features/blocks/logic/webhook/components/WebhookNodeContent";
 import { ForgedBlockNodeContent } from "@/features/forge/components/ForgedBlockNodeContent";
+import { BubbleBlockType } from "@typebot.io/blocks-bubbles/constants";
+import type {
+  BlockIndices,
+  BlockV6,
+} from "@typebot.io/blocks-core/schemas/schema";
+import { InputBlockType } from "@typebot.io/blocks-inputs/constants";
+import { IntegrationBlockType } from "@typebot.io/blocks-integrations/constants";
+import { LogicBlockType } from "@typebot.io/blocks-logic/constants";
 
 type Props = {
   block: BlockV6;
@@ -71,6 +82,15 @@ export const BlockNodeContent = ({
     }
     case BubbleBlockType.AUDIO: {
       return <AudioBubbleNode url={block.content?.url} />;
+    }
+    case BubbleBlockType.LOCATION: {
+      return <LocationBubbleContent block={block} />;
+    }
+    case BubbleBlockType.DOCUMENT: {
+      return <DocumentBubbleContent block={block} />;
+    }
+    case BubbleBlockType.STICKER: {
+      return <StickerBubbleContent block={block} />;
     }
     case InputBlockType.TEXT: {
       return <TextInputNodeContent options={block.options} />;
@@ -110,6 +130,30 @@ export const BlockNodeContent = ({
     }
     case InputBlockType.CARDS: {
       return <CardsBlockNode block={block} indices={indices} />;
+    }
+    case InputBlockType.ADDRESS: {
+      return <AddressInputNodeContent options={block.options} />;
+    }
+    case InputBlockType.CTA_URL: {
+      return <CtaUrlNodeContent options={block.options} />;
+    }
+    case InputBlockType.FLOW: {
+      return <FlowNodeContent options={block.options} />;
+    }
+    case InputBlockType.LOCATION_REQUEST: {
+      return <LocationRequestNodeContent options={block.options} />;
+    }
+    case InputBlockType.MEDIA_CAROUSEL: {
+      return <MediaCarouselNodeContent options={block.options} />;
+    }
+    case InputBlockType.PRODUCT_CAROUSEL: {
+      return <ProductCarouselNodeContent options={block.options} />;
+    }
+    case InputBlockType.INTERACTIVE_LIST: {
+      return <InteractiveListNodeContent options={block.options} />;
+    }
+    case InputBlockType.TEMPLATE: {
+      return <TemplateNodeContent options={block.options} />;
     }
     case LogicBlockType.SET_VARIABLE: {
       return <SetVariableContent block={block} />;

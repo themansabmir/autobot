@@ -176,6 +176,74 @@ export const convertMessageToWhatsAppMessage = async ({
           preview_url: true,
         },
       };
+    case BubbleBlockType.LOCATION: {
+      if (!message.content.latitude || !message.content.longitude) return null;
+      return {
+        type: "location",
+        location: {
+          latitude: message.content.latitude,
+          longitude: message.content.longitude,
+          name: message.content.name,
+          address: message.content.address,
+        },
+      };
+    }
+    case BubbleBlockType.DOCUMENT: {
+      if (!message.content.url) return null;
+      
+      if (mediaCache) {
+        const mediaId = await getOrUploadMedia({
+          url: message.content.url,
+          cache: mediaCache,
+        });
+
+        if (mediaId) {
+          return {
+            type: "document",
+            document: {
+              id: mediaId,
+              filename: message.content.filename,
+              caption: message.content.caption,
+            },
+          };
+        }
+      }
+
+      return {
+        type: "document",
+        document: {
+          link: message.content.url,
+          filename: message.content.filename,
+          caption: message.content.caption,
+        },
+      };
+    }
+    case BubbleBlockType.STICKER: {
+      if (!message.content.url) return null;
+
+      if (mediaCache) {
+        const mediaId = await getOrUploadMedia({
+          url: message.content.url,
+          cache: mediaCache,
+        });
+
+        if (mediaId) {
+          return {
+            type: "sticker",
+            sticker: {
+              id: mediaId,
+            },
+          };
+        }
+      }
+
+      return {
+        type: "sticker",
+        sticker: {
+          link: message.content.url,
+        },
+      };
+    }
     case "custom-embed":
       if (!message.content.url) return null;
       return {

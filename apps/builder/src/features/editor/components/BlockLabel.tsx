@@ -1,3 +1,4 @@
+import { ForgedBlockLabel } from "@/features/forge/ForgedBlockLabel";
 import { type TFnType, useTranslate } from "@tolgee/react";
 import { BubbleBlockType } from "@typebot.io/blocks-bubbles/constants";
 import {
@@ -12,7 +13,6 @@ import { InputBlockType } from "@typebot.io/blocks-inputs/constants";
 import { IntegrationBlockType } from "@typebot.io/blocks-integrations/constants";
 import { LogicBlockType } from "@typebot.io/blocks-logic/constants";
 import { cn } from "@typebot.io/ui/lib/cn";
-import { ForgedBlockLabel } from "@/features/forge/ForgedBlockLabel";
 
 type Props = { type: Block["type"]; className?: string };
 
@@ -43,6 +43,9 @@ export const getBubbleBlockLabel = (
   [BubbleBlockType.VIDEO]: t("editor.sidebarBlock.video.label"),
   [BubbleBlockType.EMBED]: t("editor.sidebarBlock.embed.label"),
   [BubbleBlockType.AUDIO]: t("editor.sidebarBlock.audio.label"),
+  [BubbleBlockType.LOCATION]: "Location",
+  [BubbleBlockType.DOCUMENT]: "Document",
+  [BubbleBlockType.STICKER]: "Sticker",
 });
 
 export const getInputBlockLabel = (
@@ -61,6 +64,14 @@ export const getInputBlockLabel = (
   [InputBlockType.FILE]: t("editor.sidebarBlock.file.label"),
   [InputBlockType.TIME]: "Time",
   [InputBlockType.CARDS]: "Cards",
+  [InputBlockType.CTA_URL]: "CTA URL Button",
+  [InputBlockType.LOCATION_REQUEST]: "Location Request",
+  [InputBlockType.ADDRESS]: "Address Input",
+  [InputBlockType.TEMPLATE]: "Template Message",
+  [InputBlockType.FLOW]: "WhatsApp Flow",
+  [InputBlockType.MEDIA_CAROUSEL]: "Media Carousel",
+  [InputBlockType.PRODUCT_CAROUSEL]: "Product Carousel",
+  [InputBlockType.INTERACTIVE_LIST]: "Interactive List",
 });
 
 export const getLogicBlockLabel = (
