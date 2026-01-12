@@ -31,6 +31,9 @@ export const {
   adapter: createAuthPrismaAdapter(prisma),
   secret: env.ENCRYPTION_SECRET,
   providers,
+  session: {
+    strategy: "jwt",
+  },
   trustHost: env.VERCEL_GIT_COMMIT_SHA ? undefined : true,
   pages: {
     signIn: "/signin",
@@ -85,12 +88,19 @@ export const {
     },
   },
   callbacks: {
-    session: async ({ session, user }) => ({
-      ...session,
-      user: clientUserSchema.parse(user),
-    }),
+    session: async ({ session, token }) => {
+      if (!token.sub) return session;
+      const user = await prisma.user.findUnique({
+        where: { id: token.sub },
+      });
+      if (!user) return session;
+      return {
+        ...session,
+        user: clientUserSchema.parse(user),
+      };
+    },
     signIn: async ({ account, user, email }) => {
-      if (!account) return false;
+      if (!account) return true;
       const isNewUser = !("createdAt" in user && isDefined(user.createdAt));
       if (user.email && email?.verificationRequest) {
         const ip = req

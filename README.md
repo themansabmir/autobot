@@ -83,6 +83,31 @@ You'll find a lot of resources to help you get started with Typebot in the [docu
 - Have a question? Join the [Discord server](https://typebot.io/discord) and get instant help.
 - Found a bug? [Create an issue](https://github.com/baptisteArno/typebot.io/issues/new)
 
+## 📚 Documentation for Contributors
+
+**New to the codebase?** We've created comprehensive documentation to help you understand and contribute to Typebot:
+
+### 🌟 Start Here
+- **[NEW_CONTRIBUTOR_START_HERE.md](./NEW_CONTRIBUTOR_START_HERE.md)** - Quick start guide (30 minutes)
+- **[DOCUMENTATION_INDEX.md](./DOCUMENTATION_INDEX.md)** - Navigation hub for all documentation
+
+### 📖 Essential Reading
+- **[ONBOARDING_GUIDE.md](./ONBOARDING_GUIDE.md)** - Complete onboarding guide (MUST READ!)
+- **[QUICK_REFERENCE.md](./QUICK_REFERENCE.md)** - Cheat sheet for daily development
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - Deep dive into system architecture
+- **[FEATURE_DEVELOPMENT_GUIDE.md](./FEATURE_DEVELOPMENT_GUIDE.md)** - Step-by-step development guides
+- **[PACKAGE_REFERENCE.md](./PACKAGE_REFERENCE.md)** - Complete package documentation
+
+### 🎯 Quick Links
+- [Setup Instructions](./ONBOARDING_GUIDE.md#getting-started)
+- [Architecture Overview](./ARCHITECTURE.md#system-architecture-overview)
+- [Adding a New Block](./FEATURE_DEVELOPMENT_GUIDE.md#adding-a-new-block-type)
+- [Creating an Integration](./FEATURE_DEVELOPMENT_GUIDE.md#creating-a-new-integration)
+- [Common Commands](./QUICK_REFERENCE.md#development-commands)
+- [Troubleshooting](./QUICK_REFERENCE.md#troubleshooting)
+
+See [DOCUMENTATION_SUMMARY.md](./DOCUMENTATION_SUMMARY.md) for a complete overview of all documentation.
+
 ## Self-hosting
 
 Interested in self-hosting Typebot on your server? Take a look at the [self-hosting installation instructions](https://docs.typebot.io/self-hosting/get-started).

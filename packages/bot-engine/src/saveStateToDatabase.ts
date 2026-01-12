@@ -48,10 +48,11 @@ export const saveStateToDatabase = async ({
   const resultId = state.typebotsQueue[0].resultId;
 
   if (sessionId.type === "existing") {
-    if (isCompleted && resultId) {
-      console.log("🗑️ [DEBUG] Deleting completed session:", sessionId.id);
-      queries.push(deleteSession(sessionId.id));
-    } else {
+    // MODIFIED: Keep completed sessions for data analytics instead of deleting them
+    // if (isCompleted && resultId) {
+    //   console.log("🗑️ [DEBUG] Deleting completed session:", sessionId.id);
+    //   queries.push(deleteSession(sessionId.id));
+    // } else {
       console.log("🔄 [DEBUG] Updating existing session:", sessionId.id, {
         isCompleted,
         hasState: !!state,
@@ -65,7 +66,7 @@ export const saveStateToDatabase = async ({
           isReplying: isWaitingForExternalEvent ?? false,
         }),
       );
-    }
+    // }
   }
 
   const session =
