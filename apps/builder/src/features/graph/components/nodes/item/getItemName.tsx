@@ -14,5 +14,7 @@ export const getItemName = (blockType: BlockWithItems["type"]): string => {
       return "Condition";
     case LogicBlockType.AB_TEST:
       return "AB Test";
+    case InputBlockType.WHATSAPP_LIST:
+      return "Option";
   }
 };

@@ -15,6 +15,7 @@ export enum InputBlockType {
   FILE = "file input",
   CARDS = "cards",
   CTA_URL = "cta url",
+  WHATSAPP_LIST = "whatsapp list",
 }
 
 export const replyEventInputTypeFromEnum = {
@@ -32,4 +33,5 @@ export const replyEventInputTypeFromEnum = {
   [InputBlockType.FILE]: "file",
   [InputBlockType.CARDS]: "cards",
   [InputBlockType.CTA_URL]: "cta url",
+  [InputBlockType.WHATSAPP_LIST]: "whatsapp list",
 };

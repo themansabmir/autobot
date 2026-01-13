@@ -13,6 +13,7 @@ import type {
 import type { ButtonItem } from "@typebot.io/blocks-inputs/choice/schema";
 import { InputBlockType } from "@typebot.io/blocks-inputs/constants";
 import type { PictureChoiceItem } from "@typebot.io/blocks-inputs/pictureChoice/schema";
+import type { WhatsAppListItem } from "@typebot.io/blocks-inputs/whatsappList/schema";
 import type { AbTestBlock } from "@typebot.io/blocks-logic/abTest/schema";
 import type { ConditionItem } from "@typebot.io/blocks-logic/condition/schema";
 import { LogicBlockType } from "@typebot.io/blocks-logic/constants";
@@ -211,6 +212,16 @@ const createItem = (
       block.items.splice(itemIndex, 0, newItem);
       return newItem;
     }
+    case InputBlockType.WHATSAPP_LIST: {
+      const baseItem = item as WhatsAppListItem;
+      const newItem = {
+        ...baseItem,
+        id: "id" in item && item.id ? item.id : createId(),
+        content: baseItem.content,
+      };
+      block.items.splice(itemIndex, 0, newItem);
+      return newItem;
+    }
   }
 };
 
@@ -296,6 +307,16 @@ export const duplicateItemDraft = (
         outgoingEdgeId: newDefaultOutgoingEdge?.id,
         id: newItemId,
       } satisfies AbTestBlock["items"][number];
+      return { newItem, newEdges };
+    }
+    case InputBlockType.WHATSAPP_LIST: {
+      const baseItem = item as WhatsAppListItem;
+      const newItem = {
+        ...baseItem,
+        outgoingEdgeId: newDefaultOutgoingEdge?.id,
+        id: newItemId,
+        content: baseItem.content,
+      } satisfies WhatsAppListItem;
       return { newItem, newEdges };
     }
   }

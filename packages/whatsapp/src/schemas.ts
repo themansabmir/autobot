@@ -47,6 +47,28 @@ const actionSchema = z.object({
   ),
 });
 
+const interactiveListSchema = z.object({
+  type: z.literal("list"),
+  header: headerSchema.optional(),
+  body: bodySchema,
+  footer: z.object({ text: z.string() }).optional(),
+  action: z.object({
+    button: z.string(),
+    sections: z.array(
+      z.object({
+        title: z.string().optional(),
+        rows: z.array(
+          z.object({
+            id: z.string(),
+            title: z.string(),
+            description: z.string().optional(),
+          }),
+        ),
+      }),
+    ),
+  }),
+});
+
 const templateSchema = z.object({
   name: z.string(),
   language: z.object({
@@ -72,16 +94,18 @@ const ctaUrlActionSchema = z.object({
 const interactiveCtaUrlSchema = z.object({
   type: z.literal("cta_url"),
   header: headerSchema.optional(),
-  body: z.object({
-    text: z.string(),
-  }),
+  body: bodySchema,
   footer: z.object({
     text: z.string(),
   }).optional(),
   action: ctaUrlActionSchema,
 });
 
-const interactiveSchema = z.union([interactiveButtonSchema, interactiveCtaUrlSchema]);
+const interactiveSchema = z.union([
+  interactiveButtonSchema,
+  interactiveCtaUrlSchema,
+  interactiveListSchema,
+]);
 
 // https://developers.facebook.com/docs/whatsapp/cloud-api/reference/messages#message-object
 const sendingMessageSchema = z.discriminatedUnion("type", [
@@ -115,6 +139,30 @@ const sendingMessageSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("template"),
     template: templateSchema,
+  }),
+  z.object({
+    type: z.literal("location"),
+    location: z.object({
+      longitude: z.number(),
+      latitude: z.number(),
+      name: z.string().optional(),
+      address: z.string().optional(),
+    }),
+  }),
+  z.object({
+    type: z.literal("contacts"),
+    contacts: z.array(z.any()),
+  }),
+  z.object({
+    type: z.literal("sticker"),
+    sticker: mediaSchema,
+  }),
+  z.object({
+    type: z.literal("reaction"),
+    reaction: z.object({
+      message_id: z.string(),
+      emoji: z.string(),
+    }),
   }),
 ]);
 

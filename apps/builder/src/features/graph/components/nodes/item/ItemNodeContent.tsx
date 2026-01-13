@@ -12,6 +12,7 @@ import { LogicBlockType } from "@typebot.io/blocks-logic/constants";
 import { ButtonsItemNode } from "@/features/blocks/inputs/buttons/components/ButtonsItemNode";
 import { CardsItemNode } from "@/features/blocks/inputs/cards/components/CardsItemNode";
 import { PictureChoiceItemNode } from "@/features/blocks/inputs/pictureChoice/components/PictureChoiceItemNode";
+import { WhatsAppListItemNode } from "@/features/blocks/inputs/whatsappList/components/WhatsAppListItemNode";
 import { ConditionItemNode } from "@/features/blocks/logic/condition/components/ConditionItemNode";
 
 type Props = {
@@ -37,6 +38,14 @@ export const ItemNodeContent = ({
         <ButtonsItemNode
           item={item as ButtonItem}
           key={`${item.id}-${(item as ButtonItem).content}`}
+          isMouseOver={isMouseOver}
+          indices={indices}
+        />
+      );
+    case InputBlockType.WHATSAPP_LIST:
+      return (
+        <WhatsAppListItemNode
+          item={item as any}
           isMouseOver={isMouseOver}
           indices={indices}
         />

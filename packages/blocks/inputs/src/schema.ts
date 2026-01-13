@@ -14,6 +14,8 @@ import { textInputSchema } from "./text/schema";
 import { timeInputSchema } from "./time/schema";
 import { urlInputSchema } from "./url/schema";
 
+import { whatsAppListBlockSchema } from "./whatsappList/schema";
+
 const inputBlockSchemas = [
   textInputSchema,
   emailInputSchema,
@@ -26,6 +28,7 @@ const inputBlockSchemas = [
   ratingInputBlockSchema,
   cardsBlockSchema,
   ctaUrlInputSchema,
+  whatsAppListBlockSchema,
 ] as const;
 
 export const inputBlockV5Schema = z.discriminatedUnion("type", [

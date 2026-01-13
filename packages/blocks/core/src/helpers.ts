@@ -103,11 +103,13 @@ export const blockTypeHasItems = (
   | LogicBlockType.CONDITION
   | InputBlockType.CHOICE
   | LogicBlockType.AB_TEST
+  | InputBlockType.WHATSAPP_LIST
   | InputBlockType.CARDS =>
   type === LogicBlockType.CONDITION ||
   type === InputBlockType.CHOICE ||
   type === LogicBlockType.AB_TEST ||
   type === InputBlockType.PICTURE_CHOICE ||
+  type === InputBlockType.WHATSAPP_LIST ||
   type === InputBlockType.CARDS;
 
 export const blockHasItems = (block: Block): block is BlockWithItems =>
@@ -129,6 +131,7 @@ export const shouldOpenBlockSettingsOnCreation = (
   type !== InputBlockType.CARDS &&
   type !== InputBlockType.PICTURE_CHOICE &&
   type !== LogicBlockType.CONDITION &&
+  type !== InputBlockType.WHATSAPP_LIST &&
   type !== InputBlockType.CHOICE;
 
 export const shouldOpenItemSettingsOnCreation = (

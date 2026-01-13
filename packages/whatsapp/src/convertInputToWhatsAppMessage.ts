@@ -325,6 +325,71 @@ export const convertInputToWhatsAppMessages = async ({
       console.log("✅ [WhatsApp Converter] CTA_URL message converted:", JSON.stringify(ctaUrlMessage, null, 2));
       return [ctaUrlMessage];
     }
+    case InputBlockType.WHATSAPP_LIST: {
+      if (!env.WHATSAPP_ENABLE_LIST_MESSAGES) return [];
+
+      const options = input.options;
+      const items = input.items as any[];
+
+      const rowContents = items
+        .filter((item) => isDefined(item.content))
+        .map((item) => item.content as string);
+      const uniqueTitles = getUniqueButtonTitles(rowContents);
+
+      const sections: any[] = [];
+      let currentSection: any = null;
+      let totalRows = 0;
+
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (!item.content || totalRows >= 10) continue;
+
+        if (item.sectionTitle || !currentSection) {
+          if (sections.length >= 10) break;
+          currentSection = {
+            title: item.sectionTitle?.slice(0, 24),
+            rows: [],
+          };
+          sections.push(currentSection);
+        }
+
+        currentSection.rows.push({
+          id: item.id,
+          title: uniqueTitles[totalRows],
+          description: item.description?.slice(0, 72),
+        });
+        totalRows++;
+      }
+
+      if (sections.length === 0) return [];
+
+      return [
+        {
+          type: "interactive",
+          interactive: {
+            type: "list",
+            header: options?.listHeader
+              ? {
+                  type: "text",
+                  text: options.listHeader.slice(0, 60),
+                }
+              : undefined,
+            body: {
+              text: lastMessageText || "Please select an option",
+            },
+            footer: options?.listFooter
+              ? {
+                  text: options.listFooter.slice(0, 60),
+                }
+              : undefined,
+            action: {
+              button: (options?.buttonLabel || "Options").slice(0, 20),
+              sections,
+            },
+          },
+        },
+      ];
+    }
   }
 };
 

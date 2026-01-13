@@ -21,6 +21,7 @@ import { RatingInputSettings } from "@/features/blocks/inputs/rating/components/
 import { TextInputSettings } from "@/features/blocks/inputs/textInput/components/TextInputSettings";
 import { TimeInputSettings } from "@/features/blocks/inputs/time/components/TimeInputSettings";
 import { UrlInputSettings } from "@/features/blocks/inputs/url/components/UrlInputSettings";
+import { WhatsAppListSettings } from "@/features/blocks/inputs/whatsappList/components/WhatsAppListSettings";
 import { ChatwootSettings } from "@/features/blocks/integrations/chatwoot/components/ChatwootSettings";
 import { GoogleAnalyticsSettings } from "@/features/blocks/integrations/googleAnalytics/components/GoogleAnalyticsSettings";
 import { GoogleSheetsSettings } from "@/features/blocks/integrations/googleSheets/components/GoogleSheetsSettings";
@@ -240,6 +241,14 @@ export const NodeSettings = ({
     case InputBlockType.CTA_URL: {
       return (
         <CtaUrlSettings
+          options={node.options}
+          onOptionsChange={updateOptions}
+        />
+      );
+    }
+    case InputBlockType.WHATSAPP_LIST: {
+      return (
+        <WhatsAppListSettings
           options={node.options}
           onOptionsChange={updateOptions}
         />

@@ -62,6 +62,7 @@ export const getInputBlockLabel = (
   [InputBlockType.TIME]: "Time",
   [InputBlockType.CARDS]: "Cards",
   [InputBlockType.CTA_URL]: "URL Button",
+  [InputBlockType.WHATSAPP_LIST]: "WhatsApp List",
 });
 
 export const getLogicBlockLabel = (

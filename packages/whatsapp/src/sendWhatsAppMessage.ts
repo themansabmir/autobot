@@ -47,6 +47,9 @@ export const sendWhatsAppMessage = async ({
     } else {
       const apiUrl = `${env.WHATSAPP_CLOUD_API_URL}/v21.0/${credentials.phoneNumberId}/messages`;
       console.log("🔗 [WhatsApp API] Meta API URL:", apiUrl);
+
+
+      console.log("DEBUG WHATSAPP MESSAGE BODY" , JSON.stringify(json, null, 2))
       
       const response = await ky.post(apiUrl, {
         headers: {

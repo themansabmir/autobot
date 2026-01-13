@@ -25,6 +25,7 @@ import { RatingInputContent } from "@/features/blocks/inputs/rating/components/R
 import { TextInputNodeContent } from "@/features/blocks/inputs/textInput/components/TextInputNodeContent";
 import { TimeNodeContent } from "@/features/blocks/inputs/time/components/TimeNodeContent";
 import { UrlNodeContent } from "@/features/blocks/inputs/url/components/UrlNodeContent";
+import { WhatsAppListBlockNode } from "@/features/blocks/inputs/whatsappList/components/WhatsAppListBlockNode";
 import { ChatwootNodeBody } from "@/features/blocks/integrations/chatwoot/components/ChatwootNodeBody";
 import { GoogleAnalyticsNodeBody } from "@/features/blocks/integrations/googleAnalytics/components/GoogleAnalyticsNodeBody";
 import { GoogleSheetsNodeContent } from "@/features/blocks/integrations/googleSheets/components/GoogleSheetsNodeContent";
@@ -114,6 +115,9 @@ export const BlockNodeContent = ({
     }
     case InputBlockType.CTA_URL: {
       return <CtaUrlNodeContent options={block.options} />;
+    }
+    case InputBlockType.WHATSAPP_LIST: {
+      return <WhatsAppListBlockNode block={block} indices={indices} />;
     }
     case LogicBlockType.SET_VARIABLE: {
       return <SetVariableContent block={block} />;

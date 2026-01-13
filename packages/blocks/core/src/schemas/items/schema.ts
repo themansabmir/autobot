@@ -1,6 +1,7 @@
 import { cardsItemSchema } from "@typebot.io/blocks-inputs/cards/schema";
 import { buttonItemSchemas } from "@typebot.io/blocks-inputs/choice/schema";
 import { pictureChoiceItemSchemas } from "@typebot.io/blocks-inputs/pictureChoice/schema";
+import { whatsAppListItemSchema } from "@typebot.io/blocks-inputs/whatsappList/schema";
 import {
   aItemSchemas,
   bItemSchemas,
@@ -23,6 +24,7 @@ const itemSchemas = {
     aItemSchemas.v6,
     bItemSchemas.v6,
     cardsItemSchema,
+    whatsAppListItemSchema,
   ]),
 } as const;
 

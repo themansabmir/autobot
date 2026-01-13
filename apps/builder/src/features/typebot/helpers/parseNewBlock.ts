@@ -26,6 +26,8 @@ const parseDefaultItems = (type: BlockWithItems["type"]): ItemV6[] => {
         { id: createId(), path: "a" },
         { id: createId(), path: "b" },
       ];
+    case InputBlockType.WHATSAPP_LIST:
+      return [{ id: createId() }];
   }
 };
 
