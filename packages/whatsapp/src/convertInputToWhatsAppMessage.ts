@@ -25,6 +25,14 @@ export const convertInputToWhatsAppMessages = async ({
   systemMessages,
   mediaCache,
 }: Props): Promise<WhatsAppSendingMessage[]> => {
+  // Debug logging for input conversion
+  console.log("🔄 [WhatsApp Converter] Converting input block:", {
+    inputType: input.type,
+    inputId: input.id,
+    hasOptions: !!input.options,
+    options: JSON.stringify(input.options, null, 2),
+  });
+
   const lastMessageText =
     lastMessage?.type === BubbleBlockType.TEXT &&
     lastMessage.content.type === "richText"
@@ -246,6 +254,76 @@ export const convertInputToWhatsAppMessages = async ({
         });
       }
       return messages;
+    }
+    case InputBlockType.CTA_URL: {
+      console.log("🔗 [WhatsApp Converter] CTA_URL block detected:", {
+        featureFlagEnabled: env.WHATSAPP_ENABLE_CTA_URL_MESSAGES,
+        hasUrl: !!input.options?.url,
+        hasBodyText: !!input.options?.bodyText,
+      });
+
+      if (!env.WHATSAPP_ENABLE_CTA_URL_MESSAGES) {
+        console.log("⚠️ [WhatsApp Converter] CTA_URL feature flag is disabled");
+        return [];
+      }
+      const options = input.options;
+      if (!options?.url || !options?.bodyText) {
+        console.log("⚠️ [WhatsApp Converter] CTA_URL missing required fields (url or bodyText)");
+        return [];
+      }
+
+      let header;
+      if (options.headerType === "text" && options.headerText) {
+        header = {
+          type: "text" as const,
+          text: options.headerText.slice(0, 60),
+        };
+      } else if (options.headerType === "image" && options.headerImageUrl) {
+        if (mediaCache) {
+          const mediaId = await getOrUploadMedia({
+            url: options.headerImageUrl,
+            cache: mediaCache,
+          });
+          header = {
+            type: "image" as const,
+            image: mediaId
+              ? { id: mediaId }
+              : { link: options.headerImageUrl },
+          };
+        } else {
+          header = {
+            type: "image" as const,
+            image: { link: options.headerImageUrl },
+          };
+        }
+      }
+
+      const ctaUrlMessage = {
+        type: "interactive" as const,
+        interactive: {
+          type: "cta_url" as const,
+          header,
+          body: {
+            text: options.bodyText.slice(0, 1024),
+          },
+          footer: options.footerText
+            ? { text: options.footerText.slice(0, 60) }
+            : undefined,
+          action: {
+            name: "cta_url" as const,
+            parameters: {
+              display_text: (options.displayText || "Click here").slice(
+                0,
+                20,
+              ),
+              url: options.url,
+            },
+          },
+        },
+      };
+
+      console.log("✅ [WhatsApp Converter] CTA_URL message converted:", JSON.stringify(ctaUrlMessage, null, 2));
+      return [ctaUrlMessage];
     }
   }
 };

@@ -373,6 +373,14 @@ const whatsAppEnv = {
       .optional()
       .default("https://graph.facebook.com"),
     WHATSAPP_INTERACTIVE_GROUP_SIZE: z.coerce.number().optional().default(3),
+    // Feature flags for extended WhatsApp message types
+    WHATSAPP_ENABLE_LOCATION_MESSAGES: boolean.optional().default("false"),
+    WHATSAPP_ENABLE_CONTACTS_MESSAGES: boolean.optional().default("false"),
+    WHATSAPP_ENABLE_STICKER_MESSAGES: boolean.optional().default("false"),
+    WHATSAPP_ENABLE_REACTION_MESSAGES: boolean.optional().default("false"),
+    WHATSAPP_ENABLE_LIST_MESSAGES: boolean.optional().default("false"),
+    WHATSAPP_ENABLE_CTA_URL_MESSAGES: boolean.optional().default("false"),
+    WHATSAPP_ENABLE_EXTENDED_TEMPLATES: boolean.optional().default("false"),
   },
 };
 

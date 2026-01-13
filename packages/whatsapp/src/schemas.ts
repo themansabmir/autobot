@@ -54,12 +54,34 @@ const templateSchema = z.object({
   }),
 });
 
-const interactiveSchema = z.object({
+const interactiveButtonSchema = z.object({
   type: z.literal("button"),
   header: headerSchema.optional(),
   body: bodySchema.optional(),
   action: actionSchema,
 });
+
+const ctaUrlActionSchema = z.object({
+  name: z.literal("cta_url"),
+  parameters: z.object({
+    display_text: z.string(),
+    url: z.string(),
+  }),
+});
+
+const interactiveCtaUrlSchema = z.object({
+  type: z.literal("cta_url"),
+  header: headerSchema.optional(),
+  body: z.object({
+    text: z.string(),
+  }),
+  footer: z.object({
+    text: z.string(),
+  }).optional(),
+  action: ctaUrlActionSchema,
+});
+
+const interactiveSchema = z.union([interactiveButtonSchema, interactiveCtaUrlSchema]);
 
 // https://developers.facebook.com/docs/whatsapp/cloud-api/reference/messages#message-object
 const sendingMessageSchema = z.discriminatedUnion("type", [
@@ -293,3 +315,25 @@ export type WhatsAppComparison = z.infer<typeof whatsAppComparisonSchema>;
 
 export type WhatsAppIncomingMessage = z.infer<typeof incomingMessageSchema>;
 export type WhatsAppSendingMessage = z.infer<typeof sendingMessageSchema>;
+
+// Re-export extended schemas for use when feature flags are enabled
+export {
+  locationMessageSchema,
+  contactsMessageSchema,
+  stickerMessageSchema,
+  reactionMessageSchema,
+  interactiveListSchema,
+  interactiveCtaUrlSchema,
+  extendedTemplateSchema,
+  extendedSendingMessageSchema,
+  type WhatsAppLocationMessage,
+  type WhatsAppContactsMessage,
+  type WhatsAppStickerMessage,
+  type WhatsAppReactionMessage,
+  type WhatsAppInteractiveListMessage,
+  type WhatsAppInteractiveCtaUrlMessage,
+  type WhatsAppExtendedTemplateMessage,
+  type WhatsAppExtendedSendingMessage,
+  type WhatsAppFeatureFlags,
+  isMessageTypeEnabled,
+} from "./extendedSchemas";

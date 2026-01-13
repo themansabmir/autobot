@@ -13,6 +13,7 @@ import { TextBubbleContent } from "@/features/blocks/bubbles/textBubble/componen
 import { VideoBubbleContent } from "@/features/blocks/bubbles/video/components/VideoBubbleContent";
 import { ButtonsBlockNode } from "@/features/blocks/inputs/buttons/components/ButtonsBlockNode";
 import { CardsBlockNode } from "@/features/blocks/inputs/cards/components/CardsBlockNode";
+import { CtaUrlNodeContent } from "@/features/blocks/inputs/ctaUrl/components/CtaUrlNodeContent";
 import { DateNodeContent } from "@/features/blocks/inputs/date/components/DateNodeContent";
 import { EmailInputNodeContent } from "@/features/blocks/inputs/emailInput/components/EmailInputNodeContent";
 import { FileInputContent } from "@/features/blocks/inputs/fileUpload/components/FileInputContent";
@@ -110,6 +111,9 @@ export const BlockNodeContent = ({
     }
     case InputBlockType.CARDS: {
       return <CardsBlockNode block={block} indices={indices} />;
+    }
+    case InputBlockType.CTA_URL: {
+      return <CtaUrlNodeContent options={block.options} />;
     }
     case LogicBlockType.SET_VARIABLE: {
       return <SetVariableContent block={block} />;

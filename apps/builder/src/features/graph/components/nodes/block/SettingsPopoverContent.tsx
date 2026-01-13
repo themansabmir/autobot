@@ -9,6 +9,7 @@ import { cn } from "@typebot.io/ui/lib/cn";
 import { useRef, useState } from "react";
 import { ButtonsBlockSettings } from "@/features/blocks/inputs/buttons/components/ButtonsBlockSettings";
 import { CardsBlockSettings } from "@/features/blocks/inputs/cards/components/CardsBlockSettings";
+import { CtaUrlSettings } from "@/features/blocks/inputs/ctaUrl/components/CtaUrlSettings";
 import { DateInputSettings } from "@/features/blocks/inputs/date/components/DateInputSettings";
 import { EmailInputSettings } from "@/features/blocks/inputs/emailInput/components/EmailInputSettings";
 import { FileInputSettings } from "@/features/blocks/inputs/fileUpload/components/FileInputSettings";
@@ -231,6 +232,14 @@ export const NodeSettings = ({
     case InputBlockType.CARDS: {
       return (
         <CardsBlockSettings
+          options={node.options}
+          onOptionsChange={updateOptions}
+        />
+      );
+    }
+    case InputBlockType.CTA_URL: {
+      return (
+        <CtaUrlSettings
           options={node.options}
           onOptionsChange={updateOptions}
         />
