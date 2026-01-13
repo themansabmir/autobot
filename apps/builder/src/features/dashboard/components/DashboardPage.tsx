@@ -4,6 +4,7 @@ import type { Plan } from "@typebot.io/prisma/enum";
 import { LoaderCircleIcon } from "@typebot.io/ui/icons/LoaderCircleIcon";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { DashboardLayout } from "@/components/DashboardLayout";
 import { Seo } from "@/components/Seo";
 import {
   PreCheckoutDialog,
@@ -14,7 +15,6 @@ import { TypebotDndProvider } from "@/features/folders/TypebotDndProvider";
 import { useUser } from "@/features/user/hooks/useUser";
 import { useWorkspace } from "@/features/workspace/WorkspaceProvider";
 import { trpc } from "@/lib/queryClient";
-import { DashboardHeader } from "./DashboardHeader";
 
 export const DashboardPage = () => {
   const { t } = useTranslate();
@@ -56,27 +56,28 @@ export const DashboardPage = () => {
   }, [createCustomCheckoutSession, router.query, user, workspace]);
 
   return (
-    <div className="flex flex-col gap-2 min-h-screen">
-      <Seo title={workspace?.name ?? t("dashboard.title")} />
-      <DashboardHeader />
-      {!workspace?.stripeId && (
-        <PreCheckoutDialog
-          selectedSubscription={preCheckoutPlan}
-          existingEmail={user?.email ?? undefined}
-          existingCompany={workspace?.name ?? undefined}
-          onClose={() => setPreCheckoutPlan(undefined)}
-        />
-      )}
-      <TypebotDndProvider>
-        {isLoading ? (
-          <div className="flex flex-col w-full justify-center pt-10 gap-6">
-            <p>{t("dashboard.redirectionMessage")}</p>
-            <LoaderCircleIcon className="animate-spin" />
-          </div>
-        ) : (
-          <FolderContent folder={null} />
+    <DashboardLayout>
+      <div className="flex flex-col gap-2 min-h-screen">
+        <Seo title={workspace?.name ?? t("dashboard.title")} />
+        {!workspace?.stripeId && (
+          <PreCheckoutDialog
+            selectedSubscription={preCheckoutPlan}
+            existingEmail={user?.email ?? undefined}
+            existingCompany={workspace?.name ?? undefined}
+            onClose={() => setPreCheckoutPlan(undefined)}
+          />
         )}
-      </TypebotDndProvider>
-    </div>
+        <TypebotDndProvider>
+          {isLoading ? (
+            <div className="flex flex-col w-full justify-center pt-10 gap-6">
+              <p>{t("dashboard.redirectionMessage")}</p>
+              <LoaderCircleIcon className="animate-spin" />
+            </div>
+          ) : (
+            <FolderContent folder={null} />
+          )}
+        </TypebotDndProvider>
+      </div>
+    </DashboardLayout>
   );
 };

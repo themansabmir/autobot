@@ -5,6 +5,7 @@ import { imageBubbleContentSchema } from "@typebot.io/blocks-bubbles/image/schem
 import { videoBubbleContentSchema } from "@typebot.io/blocks-bubbles/video/schema";
 import { cardsBlockSchema } from "@typebot.io/blocks-inputs/cards/schema";
 import { buttonsInputSchemas } from "@typebot.io/blocks-inputs/choice/schema";
+import { ctaUrlInputSchema } from "@typebot.io/blocks-inputs/ctaUrl/schema";
 import { dateInputSchema } from "@typebot.io/blocks-inputs/date/schema";
 import { emailInputSchema } from "@typebot.io/blocks-inputs/email/schema";
 import { fileInputBlockSchemas } from "@typebot.io/blocks-inputs/file/schema";
@@ -348,6 +349,7 @@ const chatResponseBaseSchema = z.object({
         fileInputBlockSchemas.v6,
         pictureChoiceBlockSchemas.v6,
         cardsBlockSchema,
+        ctaUrlInputSchema,
       ]),
       z.discriminatedUnion("type", [
         buttonsInputSchemas.v5,

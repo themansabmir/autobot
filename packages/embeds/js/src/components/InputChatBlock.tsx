@@ -1,6 +1,7 @@
 import type { CardsBlock } from "@typebot.io/blocks-inputs/cards/schema";
 import type { ChoiceInputBlock } from "@typebot.io/blocks-inputs/choice/schema";
 import { InputBlockType } from "@typebot.io/blocks-inputs/constants";
+import type { CtaUrlInputBlock } from "@typebot.io/blocks-inputs/ctaUrl/schema";
 import type { DateInputBlock } from "@typebot.io/blocks-inputs/date/schema";
 import type { EmailInputBlock } from "@typebot.io/blocks-inputs/email/schema";
 import type { FileInputBlock } from "@typebot.io/blocks-inputs/file/schema";
@@ -24,6 +25,7 @@ import { Match, Show, Switch } from "solid-js";
 import { Buttons } from "@/features/blocks/inputs/buttons/components/Buttons";
 import { MultipleChoicesForm } from "@/features/blocks/inputs/buttons/components/MultipleChoicesForm";
 import { CardsCaroussel } from "@/features/blocks/inputs/cards/CardsCaroussel";
+import { CtaUrlButton } from "@/features/blocks/inputs/ctaUrl/CtaUrlButton";
 import { DateForm } from "@/features/blocks/inputs/date/components/DateForm";
 import { EmailInput } from "@/features/blocks/inputs/email/components/EmailInput";
 import { FileUploadForm } from "@/features/blocks/inputs/fileUpload/components/FileUploadForm";
@@ -262,6 +264,12 @@ const Input = (props: {
           block={props.block as CardsBlock}
           onSubmit={props.onSubmit}
           onTransitionEnd={props.onTransitionEnd}
+        />
+      </Match>
+      <Match when={props.block.type === InputBlockType.CTA_URL}>
+        <CtaUrlButton
+          block={props.block as CtaUrlInputBlock}
+          onSubmit={props.onSubmit}
         />
       </Match>
     </Switch>

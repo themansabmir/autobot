@@ -31,7 +31,7 @@ export const OnboardingPage = () => {
   useEffect(() => {
     if (!user?.createdAt) return;
     if (!env.NEXT_PUBLIC_ONBOARDING_TYPEBOT_ID)
-      replace({ pathname: "/typebots", query });
+      replace({ pathname: "/dashboard", query });
   }, [query, replace, user?.createdAt]);
 
   const initConfettis = () => {
@@ -81,13 +81,13 @@ export const OnboardingPage = () => {
   };
 
   const skipOnboarding = () => {
-    replace({ pathname: "/typebots", query });
+    replace({ pathname: "/dashboard", query });
   };
 
   const redirectToDashboard = () => {
     setTimeout(() => {
       replace({
-        pathname: "/typebots",
+        pathname: "/dashboard",
         query: { ...query },
       });
     }, 2000);
