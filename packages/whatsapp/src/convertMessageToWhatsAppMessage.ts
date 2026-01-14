@@ -176,6 +176,27 @@ export const convertMessageToWhatsAppMessage = async ({
           preview_url: true,
         },
       };
+    case BubbleBlockType.STICKER: {
+      if (!message.content?.url) return null;
+
+      if (mediaCache) {
+        const mediaId = await getOrUploadMedia({
+          url: message.content.url,
+          cache: mediaCache,
+        });
+
+        if (mediaId) {
+          return {
+            type: "sticker",
+            sticker: { id: mediaId },
+          };
+        }
+      }
+      return {
+        type: "sticker",
+        sticker: { link: message.content.url },
+      };
+    }
     case "custom-embed":
       if (!message.content.url) return null;
       return {

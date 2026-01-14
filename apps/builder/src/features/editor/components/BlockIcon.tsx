@@ -10,6 +10,7 @@ import { cn } from "@typebot.io/ui/lib/cn";
 import { AudioBubbleIcon } from "@/features/blocks/bubbles/audio/components/AudioBubbleIcon";
 import { EmbedBubbleIcon } from "@/features/blocks/bubbles/embed/components/EmbedBubbleIcon";
 import { ImageBubbleIcon } from "@/features/blocks/bubbles/image/components/ImageBubbleIcon";
+import { StickerBubbleIcon } from "@/features/blocks/bubbles/sticker/components/StickerBubbleIcon";
 import { TextBubbleIcon } from "@/features/blocks/bubbles/textBubble/components/TextBubbleIcon";
 import { VideoBubbleIcon } from "@/features/blocks/bubbles/video/components/VideoBubbleIcon";
 import { ButtonsInputIcon } from "@/features/blocks/inputs/buttons/components/ButtonsIcon";
@@ -73,6 +74,10 @@ export const BlockIcon = ({ type, className }: BlockIconProps): JSX.Element => {
     case BubbleBlockType.AUDIO:
       return (
         <AudioBubbleIcon className={cn("text-gray-12 stroke-2", className)} />
+      );
+    case BubbleBlockType.STICKER:
+      return (
+        <StickerBubbleIcon className={cn("text-gray-12 stroke-2", className)} />
       );
     case InputBlockType.TEXT:
       return (

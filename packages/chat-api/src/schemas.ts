@@ -2,6 +2,7 @@ import { audioBubbleContentSchema } from "@typebot.io/blocks-bubbles/audio/schem
 import { BubbleBlockType } from "@typebot.io/blocks-bubbles/constants";
 import { embedBubbleContentSchema } from "@typebot.io/blocks-bubbles/embed/schema";
 import { imageBubbleContentSchema } from "@typebot.io/blocks-bubbles/image/schema";
+import { stickerBubbleContentSchema } from "@typebot.io/blocks-bubbles/sticker/schema";
 import { videoBubbleContentSchema } from "@typebot.io/blocks-bubbles/video/schema";
 import { cardsBlockSchema } from "@typebot.io/blocks-inputs/cards/schema";
 import { buttonsInputSchemas } from "@typebot.io/blocks-inputs/choice/schema";
@@ -145,6 +146,16 @@ const embedBubbleSchema = z
     ref: "embedBubble",
   });
 
+const stickerBubbleSchema = z
+  .object({
+    type: z.enum([BubbleBlockType.STICKER]),
+    content: stickerBubbleContentSchema,
+  })
+  .openapi({
+    title: "Sticker",
+    ref: "stickerBubble",
+  });
+
 const displayEmbedBubbleSchema = z.object({
   url: z.string().optional(),
   waitForEventFunction: z
@@ -178,6 +189,7 @@ export const chatBubbleSchema = z
       videoBubbleSchema,
       audioBubbleSchema,
       embedBubbleSchema,
+      stickerBubbleSchema,
       customBubbleSchema,
     ]),
   );
