@@ -28,6 +28,11 @@ const parseDefaultItems = (type: BlockWithItems["type"]): ItemV6[] => {
       ];
     case InputBlockType.WHATSAPP_LIST:
       return [{ id: createId() }];
+    case InputBlockType.WHATSAPP_CAROUSEL:
+      return [
+        { id: createId() },
+        { id: createId() },
+      ];
   }
 };
 

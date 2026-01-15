@@ -20,6 +20,7 @@ import { ratingInputBlockSchema } from "@typebot.io/blocks-inputs/rating/schema"
 import { textInputSchema } from "@typebot.io/blocks-inputs/text/schema";
 import { timeInputSchema } from "@typebot.io/blocks-inputs/time/schema";
 import { urlInputSchema } from "@typebot.io/blocks-inputs/url/schema";
+import { whatsAppCarouselBlockSchema } from "@typebot.io/blocks-inputs/whatsappCarousel/schema";
 import { whatsAppListBlockSchema } from "@typebot.io/blocks-inputs/whatsappList/schema";
 import { logInSessionSchema } from "@typebot.io/logs/schemas";
 import { settingsSchema } from "@typebot.io/settings/schemas";
@@ -352,6 +353,7 @@ const chatResponseBaseSchema = z.object({
         cardsBlockSchema,
         ctaUrlInputSchema,
         whatsAppListBlockSchema,
+        whatsAppCarouselBlockSchema,
       ]),
       z.discriminatedUnion("type", [
         buttonsInputSchemas.v5,
