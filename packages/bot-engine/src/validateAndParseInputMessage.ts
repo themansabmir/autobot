@@ -158,4 +158,5 @@ export const validateAndParseInputMessage = (
       });
     }
   }
+  return { status: "fail" };
 };

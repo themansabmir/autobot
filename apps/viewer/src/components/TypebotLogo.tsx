@@ -1,3 +1,5 @@
+"use client";
+
 export const TypebotLogo = (props: React.SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 40 48" fill="none" {...props}>
     <path
