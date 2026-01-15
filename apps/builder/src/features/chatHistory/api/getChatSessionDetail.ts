@@ -144,13 +144,13 @@ export const getChatSessionDetail = authenticatedProcedure
 
       const answers = parsedState.typebotsQueue[0]?.answers || [];
       answers.forEach((answer) => {
-        if (answer.content) {
+        if (answer.value) {
           messages.push({
             role: "user",
             content:
-              typeof answer.content === "string"
-                ? answer.content
-                : JSON.stringify(answer.content),
+              typeof answer.value === "string"
+                ? answer.value
+                : JSON.stringify(answer.value),
           });
         }
       });
