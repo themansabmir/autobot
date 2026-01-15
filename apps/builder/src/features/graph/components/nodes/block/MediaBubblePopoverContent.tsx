@@ -11,6 +11,7 @@ import { EmbedBubbleSettings } from "@/features/blocks/bubbles/embed/components/
 import { ImageBubbleSettings } from "@/features/blocks/bubbles/image/components/ImageBubbleSettings";
 import { VideoUploadContent } from "@/features/blocks/bubbles/video/components/VideoUploadContent";
 import type { FilePathUploadProps } from "@/features/upload/api/generateUploadUrl";
+import { StickerBubbleSettings } from "@/features/blocks/bubbles/sticker/components/StickerBubbleSettings";
 
 type Props = {
   uploadFileProps: FilePathUploadProps;
@@ -69,6 +70,15 @@ export const MediaBubbleContent = ({
         <AudioBubbleForm
           content={block.content}
           uploadFileProps={uploadFileProps}
+          onContentChange={onContentChange}
+        />
+      );
+    }
+    case BubbleBlockType.STICKER: {
+      return (
+        <StickerBubbleSettings
+          uploadFileProps={uploadFileProps}
+          block={block}
           onContentChange={onContentChange}
         />
       );
