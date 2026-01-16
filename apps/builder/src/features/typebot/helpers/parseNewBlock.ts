@@ -30,9 +30,25 @@ const parseDefaultItems = (type: BlockWithItems["type"]): ItemV6[] => {
       return [{ id: createId() }];
     case InputBlockType.WHATSAPP_CAROUSEL:
       return [
-        { id: createId() },
-        { id: createId() },
-      ];
+        {
+          id: createId(),
+          headerType: "image" as const,
+          headerUrl: undefined,
+          bodyText: undefined,
+          buttonType: "cta_url" as const,
+          ctaUrlButton: undefined,
+          quickReplyButtons: undefined,
+        },
+        {
+          id: createId(),
+          headerType: "image" as const,
+          headerUrl: undefined,
+          bodyText: undefined,
+          buttonType: "cta_url" as const,
+          ctaUrlButton: undefined,
+          quickReplyButtons: undefined,
+        },
+      ] as any; // Type assertion needed since carousel items have fields beyond generic ItemV6
   }
 };
 

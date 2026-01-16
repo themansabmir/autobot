@@ -23,6 +23,7 @@ export const sendWhatsAppMessage = async ({
   try {
     const json = {
       messaging_product: "whatsapp",
+      recipient_type: "individual",
       to,
       ...message,
     };

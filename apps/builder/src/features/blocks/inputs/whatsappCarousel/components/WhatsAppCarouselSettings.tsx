@@ -2,7 +2,6 @@ import { DebouncedTextInputWithVariablesButton } from "@/components/inputs/Debou
 import { VariablesCombobox } from "@/components/inputs/VariablesCombobox";
 import { createId } from "@paralleldrive/cuid2";
 import { useTranslate } from "@tolgee/react";
-import { defaultWhatsAppCarouselItem } from "@typebot.io/blocks-inputs/whatsappCarousel/constants";
 import type { WhatsAppCarouselBlock } from "@typebot.io/blocks-inputs/whatsappCarousel/schema";
 import { Button } from "@typebot.io/ui/components/Button";
 import { Field } from "@typebot.io/ui/components/Field";
@@ -35,8 +34,13 @@ export const WhatsAppCarouselSettings = ({
 
   const addCard = () => {
     const newCard = {
-      ...defaultWhatsAppCarouselItem,
       id: createId(),
+      headerType: "image" as const,
+      headerUrl: undefined,
+      bodyText: undefined,
+      buttonType: "cta_url" as const,
+      ctaUrlButton: undefined,
+      quickReplyButtons: undefined,
     };
     onItemsChange([...items, newCard]);
     setSelectedCardIndex(items.length);
@@ -114,7 +118,7 @@ export const WhatsAppCarouselSettings = ({
 
       {/* Selected card editor */}
       {selectedCard && (
-        <div className="flex flex-col gap-4 p-4 border rounded-md">
+        <div key={selectedCardIndex} className="flex flex-col gap-4 p-4 border rounded-md">
           <div className="flex flex-row justify-between items-center">
             <p className="font-semibold">Card {selectedCardIndex + 1} Settings</p>
             {canRemoveCard && (
@@ -261,13 +265,86 @@ export const WhatsAppCarouselSettings = ({
 
           {/* Quick Reply buttons settings */}
           {selectedCard.buttonType === "quick_reply" && (
-            <Field.Root>
-              <Field.Label>Quick Reply Buttons (1-2)</Field.Label>
-              <Field.Description>
-                Note: Quick reply buttons for carousels may have limited support.
-                Consider using URL buttons instead.
-              </Field.Description>
-            </Field.Root>
+            <>
+              <Field.Root>
+                <Field.Label>Quick Reply Buttons (1-2) *</Field.Label>
+                <Field.Description>
+                  Add 1-2 quick reply buttons. Each button needs an ID and title (max 20 chars).
+                </Field.Description>
+              </Field.Root>
+
+              {/* Quick reply button list */}
+              {(selectedCard.quickReplyButtons || []).map((button, btnIndex) => (
+                <div key={button.id || btnIndex} className="flex flex-col gap-2 p-3 border rounded-md">
+                  <div className="flex flex-row justify-between items-center">
+                    <p className="text-sm font-medium">Button {btnIndex + 1}</p>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      aria-label="Remove button"
+                      onClick={() => {
+                        const newButtons = (selectedCard.quickReplyButtons || []).filter(
+                          (_, i) => i !== btnIndex
+                        );
+                        updateCard(selectedCardIndex, {
+                          quickReplyButtons: newButtons.length > 0 ? newButtons : undefined,
+                        });
+                      }}
+                    >
+                      <TrashIcon />
+                    </Button>
+                  </div>
+
+                  <Field.Root>
+                    <Field.Label>Button Title *</Field.Label>
+                    <DebouncedTextInputWithVariablesButton
+                      defaultValue={button.title ?? ""}
+                      onValueChange={(title) => {
+                        const newButtons = [...(selectedCard.quickReplyButtons || [])];
+                        newButtons[btnIndex] = { ...newButtons[btnIndex], title };
+                        updateCard(selectedCardIndex, { quickReplyButtons: newButtons });
+                      }}
+                      placeholder="Button label..."
+                      maxLength={20}
+                    />
+                  </Field.Root>
+
+                  <Field.Root>
+                    <Field.Label>Button ID *</Field.Label>
+                    <DebouncedTextInputWithVariablesButton
+                      defaultValue={button.id ?? ""}
+                      onValueChange={(id) => {
+                        const newButtons = [...(selectedCard.quickReplyButtons || [])];
+                        newButtons[btnIndex] = { ...newButtons[btnIndex], id };
+                        updateCard(selectedCardIndex, { quickReplyButtons: newButtons });
+                      }}
+                      placeholder="unique-button-id"
+                      maxLength={256}
+                    />
+                  </Field.Root>
+                </div>
+              ))}
+
+              {/* Add button */}
+              {(!selectedCard.quickReplyButtons || selectedCard.quickReplyButtons.length < 2) && (
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    const newButton = {
+                      id: createId(),
+                      title: "",
+                    };
+                    const currentButtons = selectedCard.quickReplyButtons || [];
+                    updateCard(selectedCardIndex, {
+                      quickReplyButtons: [...currentButtons, newButton],
+                    });
+                  }}
+                >
+                  <PlusSignIcon />
+                  Add Quick Reply Button
+                </Button>
+              )}
+            </>
           )}
         </div>
       )}
