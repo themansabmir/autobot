@@ -1,11 +1,11 @@
 import { LayoutDashboardIcon } from "@typebot.io/ui/icons/LayoutDashboardIcon";
-import { RobotIcon } from "@typebot.io/ui/icons/RobotIcon";
 import { MegaphoneIcon } from "@typebot.io/ui/icons/MegaphoneIcon";
-import { UsersIcon } from "@typebot.io/ui/icons/UsersIcon";
+import { RobotIcon } from "@typebot.io/ui/icons/RobotIcon";
 import { Settings01Icon } from "@typebot.io/ui/icons/Settings01Icon";
+import { UsersIcon } from "@typebot.io/ui/icons/UsersIcon";
+import { cn } from "@typebot.io/ui/lib/cn";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { cn } from "@typebot.io/ui/lib/cn";
 
 type NavItem = {
   label: string;
@@ -39,7 +39,7 @@ export const Sidebar = () => {
                 "flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors",
                 isActive
                   ? "bg-orange-3 text-orange-11 dark:bg-orange-4 dark:text-orange-11"
-                  : "text-gray-11 hover:bg-gray-3 hover:text-gray-12"
+                  : "text-gray-11 hover:bg-gray-3 hover:text-gray-12",
               )}
             >
               <item.icon className="size-5" />

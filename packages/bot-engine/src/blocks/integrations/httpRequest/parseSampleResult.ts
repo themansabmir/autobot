@@ -117,7 +117,7 @@ const parseResultSample = (
     {},
   );
 
-const getSampleValue = (block: InputBlock, userEmail?: string): string => {
+const getSampleValue = (block: InputBlock, userEmail?: string) => {
   switch (block.type) {
     case InputBlockType.CHOICE:
       return block.options?.isMultipleChoice

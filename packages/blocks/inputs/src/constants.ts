@@ -16,6 +16,7 @@ export enum InputBlockType {
   CARDS = "cards",
   CTA_URL = "cta url",
   WHATSAPP_LIST = "whatsapp list",
+  WHATSAPP_CAROUSEL = "whatsapp carousel",
 }
 
 export const replyEventInputTypeFromEnum = {
@@ -34,4 +35,5 @@ export const replyEventInputTypeFromEnum = {
   [InputBlockType.CARDS]: "cards",
   [InputBlockType.CTA_URL]: "cta url",
   [InputBlockType.WHATSAPP_LIST]: "whatsapp list",
+  [InputBlockType.WHATSAPP_CAROUSEL]: "whatsapp carousel",
 };

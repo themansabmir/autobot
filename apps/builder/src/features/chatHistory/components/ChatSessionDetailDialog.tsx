@@ -1,7 +1,7 @@
-import { trpc } from "@/lib/queryClient";
 import { useQuery } from "@tanstack/react-query";
 import { Dialog } from "@typebot.io/ui/components/Dialog";
 import { LoaderCircleIcon } from "@typebot.io/ui/icons/LoaderCircleIcon";
+import { trpc } from "@/lib/queryClient";
 
 type Props = {
   sessionId: string;

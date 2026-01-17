@@ -1,11 +1,11 @@
 import { type TFnType, useTranslate } from "@tolgee/react";
 import { BubbleBlockType } from "@typebot.io/blocks-bubbles/constants";
 import {
-  isBubbleBlockType,
-  isForgedBlockType,
-  isInputBlockType,
-  isIntegrationBlockType,
-  isLogicBlockType,
+    isBubbleBlockType,
+    isForgedBlockType,
+    isInputBlockType,
+    isIntegrationBlockType,
+    isLogicBlockType,
 } from "@typebot.io/blocks-core/helpers";
 import type { Block } from "@typebot.io/blocks-core/schemas/schema";
 import { InputBlockType } from "@typebot.io/blocks-inputs/constants";
@@ -64,6 +64,7 @@ export const getInputBlockLabel = (
   [InputBlockType.CARDS]: "Cards",
   [InputBlockType.CTA_URL]: "URL Button",
   [InputBlockType.WHATSAPP_LIST]: "WhatsApp List",
+  [InputBlockType.WHATSAPP_CAROUSEL]: "WhatsApp Carousel",
 });
 
 export const getLogicBlockLabel = (

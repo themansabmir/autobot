@@ -1,8 +1,8 @@
 import { TRPCError } from "@trpc/server";
+import { sessionStateSchema } from "@typebot.io/chat-session/schemas";
 import prisma from "@typebot.io/prisma";
 import { z } from "@typebot.io/zod";
 import { authenticatedProcedure } from "@/helpers/server/trpc";
-import { sessionStateSchema } from "@typebot.io/chat-session/schemas";
 
 export const getChatSessionDetail = authenticatedProcedure
   .input(
@@ -144,13 +144,13 @@ export const getChatSessionDetail = authenticatedProcedure
 
       const answers = parsedState.typebotsQueue[0]?.answers || [];
       answers.forEach((answer) => {
-        if (answer.content) {
+        if (answer.value) {
           messages.push({
             role: "user",
             content:
-              typeof answer.content === "string"
-                ? answer.content
-                : JSON.stringify(answer.content),
+              typeof answer.value === "string"
+                ? answer.value
+                : JSON.stringify(answer.value),
           });
         }
       });
@@ -172,7 +172,7 @@ export const getChatSessionDetail = authenticatedProcedure
           messages,
         },
       };
-    } catch (error) {
+    } catch (_error) {
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Failed to parse chat session",

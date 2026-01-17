@@ -1,0 +1,31 @@
+{
+  "name": "@typebot.io/campaign-worker",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "dotenv -e ./.env -e ../../.env -- tsx watch src/main.ts",
+    "start": "dotenv -e ./.env -e ../../.env -- tsx src/main.ts",
+    "start:all": "concurrently -n scheduler,campaign,whatsapp,completion -c blue,green,yellow,magenta \"bun run scheduler\" \"bun run campaign-worker\" \"bun run whatsapp-worker\" \"bun run completion-checker\"",
+    "scheduler": "dotenv -e ./.env -e ../../.env -- tsx src/scheduler.ts",
+    "campaign-worker": "dotenv -e ./.env -e ../../.env -- tsx src/campaignWorker.ts",
+    "whatsapp-worker": "dotenv -e ./.env -e ../../.env -- tsx src/whatsappWorker.ts",
+    "completion-checker": "dotenv -e ./.env -e ../../.env -- tsx src/completionChecker.ts"
+  },
+  "dependencies": {
+    "@typebot.io/lib": "workspace:*",
+    "@typebot.io/prisma": "workspace:*",
+    "@typebot.io/whatsapp": "workspace:*",
+    "@typebot.io/credentials": "workspace:*",
+    "@typebot.io/env": "workspace:*",
+    "amqplib": "^0.10.4",
+    "papaparse": "^5.4.1",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@types/amqplib": "^0.10.5",
+    "@types/papaparse": "^5.3.14",
+    "concurrently": "^8.2.2",
+    "dotenv-cli": "^8.0.0",
+    "tsx": "^4.19.1"
+  }
+}

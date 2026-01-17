@@ -86,6 +86,7 @@ model Workspace {
   members                       MemberInWorkspace[]
   typebots                      Typebot[]
   invitations                   WorkspaceInvitation[]
+  campaigns                     Campaign[]
   additionalChatsIndex          Int                   @default(0)
   additionalStorageIndex        Int                   @default(0)
   chatsLimitFirstEmailSentAt    DateTime?
@@ -213,6 +214,7 @@ model Typebot {
   whatsAppCredentialsId   String?
   riskLevel               Int?
   bannedIps               BannedIp[]
+  campaigns               Campaign[]
 
   @@index([workspaceId])
   @@index([isArchived, createdAt(sort: Desc)])
@@ -443,4 +445,68 @@ enum CollaborationType {
   READ
   WRITE
   FULL_ACCESS
+}
+
+enum CampaignExecutionMode {
+  NOW
+  SCHEDULED
+}
+
+enum CampaignStatus {
+  PENDING
+  SCHEDULED
+  RUNNING
+  COMPLETED
+  FAILED
+  PAUSED
+}
+
+enum RecipientStatus {
+  PENDING
+  QUEUED
+  SENT
+  FAILED
+}
+
+model Campaign {
+  id              String                @id @default(cuid())
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @default(now()) @updatedAt
+  title           String
+  fileUrl         String
+  executionMode   CampaignExecutionMode
+  executeAt       DateTime?
+  status          CampaignStatus        @default(PENDING)
+  totalRecipients Int?
+  sentCount       Int                   @default(0)
+  failedCount     Int                   @default(0)
+  startedAt       DateTime?
+  completedAt     DateTime?
+  errorMessage    String?
+  workspaceId     String
+  workspace       Workspace             @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  typebotId       String
+  typebot         Typebot               @relation(fields: [typebotId], references: [id], onDelete: Cascade)
+  recipients      CampaignRecipient[]
+
+  @@index([workspaceId])
+  @@index([status, executeAt])
+  @@index([typebotId])
+}
+
+model CampaignRecipient {
+  id           String          @id @default(cuid())
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @default(now()) @updatedAt
+  campaignId   String
+  phoneNumber  String
+  variables    Json?
+  status       RecipientStatus @default(PENDING)
+  retryCount   Int             @default(0)
+  sentAt       DateTime?
+  errorMessage String?
+  campaign     Campaign        @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId, status])
+  @@index([campaignId])
 }

@@ -1,9 +1,9 @@
-import { trpc } from "@/lib/queryClient";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
 import { Button } from "@typebot.io/ui/components/Button";
 import { LoaderCircleIcon } from "@typebot.io/ui/icons/LoaderCircleIcon";
+import { useState } from "react";
 import { BasicSelect } from "@/components/inputs/BasicSelect";
+import { trpc } from "@/lib/queryClient";
 import { ChatSessionDetailDialog } from "./ChatSessionDetailDialog";
 
 type Props = {
@@ -64,7 +64,7 @@ export const ChatHistoryTable = ({ workspaceId }: Props) => {
   return (
     <div className="flex flex-col w-full h-full px-8 pb-8">
       <div className="mb-4 flex items-center gap-4">
-        <label className="text-sm font-medium">Filter by Typebot:</label>
+        <span className="text-sm font-medium">Filter by Typebot:</span>
         <BasicSelect
           value={selectedTypebotId || "all"}
           onChange={handleTypebotFilterChange}

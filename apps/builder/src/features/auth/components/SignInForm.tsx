@@ -93,29 +93,28 @@ export const SignInForm = ({ defaultEmail, className }: Props) => {
     );
   return (
     <div className={cn("flex flex-col gap-6 w-[330px]", className)}>
-      <>
-        <SocialLoginButtons providers={providers} />
-        <DividerWithText>{t("auth.orEmailLabel")}</DividerWithText>
-        <form className="flex items-center gap-2" onSubmit={handleEmailSubmit}>
-          <Input
-            name="email"
-            type="email"
-            autoComplete="email"
-            placeholder="email@company.com"
-            required
-            value={emailValue}
-            onValueChange={setEmailValue}
-          />
-          <Button
-            type="submit"
-            disabled={
-              ["loading", "authenticated"].includes(status) || authLoading
-            }
-          >
-            {t("auth.emailSubmitButton.label")}
-          </Button>
-        </form>
-      </>
+      <SocialLoginButtons providers={providers} />
+      <DividerWithText>{t("auth.orEmailLabel")}</DividerWithText>
+      <form className="flex items-center gap-2" onSubmit={handleEmailSubmit}>
+        <Input
+          name="email"
+          type="email"
+          autoComplete="email"
+          placeholder="email@company.com"
+          required
+          value={emailValue}
+          onValueChange={setEmailValue}
+        />
+        <Button
+          type="submit"
+          disabled={
+            ["loading", "authenticated"].includes(status) || authLoading
+          }
+        >
+          {t("auth.emailSubmitButton.label")}
+        </Button>
+      </form>
+
       {authError && <SignInError error={authError} />}
     </div>
   );
