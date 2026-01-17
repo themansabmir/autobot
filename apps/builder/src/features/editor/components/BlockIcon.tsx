@@ -136,9 +136,7 @@ export const BlockIcon = ({ type, className }: BlockIconProps): JSX.Element => {
         />
       );
     case InputBlockType.CTA_URL:
-      return (
-        <CtaUrlIcon className={cn("text-orange-9 stroke-2", className)} />
-      );
+      return <CtaUrlIcon className={cn("text-orange-9 stroke-2", className)} />;
     case InputBlockType.WHATSAPP_LIST:
       return (
         <WhatsAppListIcon className={cn("text-orange-9 stroke-2", className)} />
