@@ -268,7 +268,9 @@ export const convertInputToWhatsAppMessages = async ({
       }
       const options = input.options;
       if (!options?.url || !options?.bodyText) {
-        console.log("⚠️ [WhatsApp Converter] CTA_URL missing required fields (url or bodyText)");
+        console.log(
+          "⚠️ [WhatsApp Converter] CTA_URL missing required fields (url or bodyText)",
+        );
         return [];
       }
 
@@ -286,9 +288,7 @@ export const convertInputToWhatsAppMessages = async ({
           });
           header = {
             type: "image" as const,
-            image: mediaId
-              ? { id: mediaId }
-              : { link: options.headerImageUrl },
+            image: mediaId ? { id: mediaId } : { link: options.headerImageUrl },
           };
         } else {
           header = {
@@ -312,17 +312,17 @@ export const convertInputToWhatsAppMessages = async ({
           action: {
             name: "cta_url" as const,
             parameters: {
-              display_text: (options.displayText || "Click here").slice(
-                0,
-                20,
-              ),
+              display_text: (options.displayText || "Click here").slice(0, 20),
               url: options.url,
             },
           },
         },
       };
 
-      console.log("✅ [WhatsApp Converter] CTA_URL message converted:", JSON.stringify(ctaUrlMessage, null, 2));
+      console.log(
+        "✅ [WhatsApp Converter] CTA_URL message converted:",
+        JSON.stringify(ctaUrlMessage, null, 2),
+      );
       return [ctaUrlMessage];
     }
     case InputBlockType.WHATSAPP_LIST: {

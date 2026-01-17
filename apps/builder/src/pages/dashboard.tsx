@@ -1,6 +1,6 @@
 import { useTranslate } from "@tolgee/react";
-import { Seo } from "@/components/Seo";
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { Seo } from "@/components/Seo";
 import { useWorkspace } from "@/features/workspace/WorkspaceProvider";
 
 export default function DashboardPage() {

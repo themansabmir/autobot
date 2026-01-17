@@ -95,9 +95,11 @@ const interactiveCtaUrlSchema = z.object({
   type: z.literal("cta_url"),
   header: headerSchema.optional(),
   body: bodySchema,
-  footer: z.object({
-    text: z.string(),
-  }).optional(),
+  footer: z
+    .object({
+      text: z.string(),
+    })
+    .optional(),
   action: ctaUrlActionSchema,
 });
 
@@ -366,22 +368,22 @@ export type WhatsAppSendingMessage = z.infer<typeof sendingMessageSchema>;
 
 // Re-export extended schemas for use when feature flags are enabled
 export {
-  locationMessageSchema,
   contactsMessageSchema,
-  stickerMessageSchema,
-  reactionMessageSchema,
-  interactiveListSchema,
-  interactiveCtaUrlSchema,
-  extendedTemplateSchema,
   extendedSendingMessageSchema,
-  type WhatsAppLocationMessage,
-  type WhatsAppContactsMessage,
-  type WhatsAppStickerMessage,
-  type WhatsAppReactionMessage,
-  type WhatsAppInteractiveListMessage,
-  type WhatsAppInteractiveCtaUrlMessage,
-  type WhatsAppExtendedTemplateMessage,
-  type WhatsAppExtendedSendingMessage,
-  type WhatsAppFeatureFlags,
+  extendedTemplateSchema,
+  interactiveCtaUrlSchema,
+  interactiveListSchema,
   isMessageTypeEnabled,
+  locationMessageSchema,
+  reactionMessageSchema,
+  stickerMessageSchema,
+  type WhatsAppContactsMessage,
+  type WhatsAppExtendedSendingMessage,
+  type WhatsAppExtendedTemplateMessage,
+  type WhatsAppFeatureFlags,
+  type WhatsAppInteractiveCtaUrlMessage,
+  type WhatsAppInteractiveListMessage,
+  type WhatsAppLocationMessage,
+  type WhatsAppReactionMessage,
+  type WhatsAppStickerMessage,
 } from "./extendedSchemas";

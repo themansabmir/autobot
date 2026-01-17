@@ -7,7 +7,9 @@ import type { WhatsAppExtendedSendingMessage } from "./extendedSchemas";
 import type { WhatsAppSendingMessage } from "./schemas";
 
 // Union type that supports both base and extended message types
-type AnyWhatsAppMessage = WhatsAppSendingMessage | WhatsAppExtendedSendingMessage;
+type AnyWhatsAppMessage =
+  | WhatsAppSendingMessage
+  | WhatsAppExtendedSendingMessage;
 
 type Props = {
   to: string;
@@ -48,9 +50,8 @@ export const sendWhatsAppMessage = async ({
       const apiUrl = `${env.WHATSAPP_CLOUD_API_URL}/v21.0/${credentials.phoneNumberId}/messages`;
       console.log("🔗 [WhatsApp API] Meta API URL:", apiUrl);
 
+      console.log("DEBUG WHATSAPP MESSAGE BODY", JSON.stringify(json, null, 2));
 
-      console.log("DEBUG WHATSAPP MESSAGE BODY" , JSON.stringify(json, null, 2))
-      
       const response = await ky.post(apiUrl, {
         headers: {
           Authorization: `Bearer ${credentials.systemUserAccessToken}`,

@@ -1,5 +1,4 @@
 import type { ContinueChatResponse } from "@typebot.io/chat-api/schemas";
-import { deleteSession } from "@typebot.io/chat-session/queries/deleteSession";
 import { updateSession } from "@typebot.io/chat-session/queries/updateSession";
 import { upsertSession } from "@typebot.io/chat-session/queries/upsertSession";
 import type { ChatSession } from "@typebot.io/chat-session/schemas";
@@ -53,19 +52,19 @@ export const saveStateToDatabase = async ({
     //   console.log("🗑️ [DEBUG] Deleting completed session:", sessionId.id);
     //   queries.push(deleteSession(sessionId.id));
     // } else {
-      console.log("🔄 [DEBUG] Updating existing session:", sessionId.id, {
-        isCompleted,
-        hasState: !!state,
-        currentBlockId: state.currentBlockId,
+    console.log("🔄 [DEBUG] Updating existing session:", sessionId.id, {
+      isCompleted,
+      hasState: !!state,
+      currentBlockId: state.currentBlockId,
+      isReplying: isWaitingForExternalEvent ?? false,
+    });
+    queries.push(
+      updateSession({
+        id: sessionId.id,
+        state,
         isReplying: isWaitingForExternalEvent ?? false,
-      });
-      queries.push(
-        updateSession({
-          id: sessionId.id,
-          state,
-          isReplying: isWaitingForExternalEvent ?? false,
-        }),
-      );
+      }),
+    );
     // }
   }
 

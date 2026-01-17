@@ -1,6 +1,6 @@
+import type { StickerBubbleBlock } from "@typebot.io/blocks-bubbles/sticker/schema";
 import { ImageUploadContent } from "@/components/ImageUploadContent";
 import type { FilePathUploadProps } from "@/features/upload/api/generateUploadUrl";
-import type { StickerBubbleBlock } from "@typebot.io/blocks-bubbles/sticker/schema";
 
 type Props = {
   uploadFileProps: FilePathUploadProps;
@@ -25,8 +25,8 @@ export const StickerBubbleSettings = ({
         onSubmit={updateSticker}
       />
       <div className="text-sm text-gray-11">
-        <strong>Note:</strong> WhatsApp stickers must be .webp format (animated or
-        static), max 500KB
+        <strong>Note:</strong> WhatsApp stickers must be .webp format (animated
+        or static), max 500KB
       </div>
     </div>
   );

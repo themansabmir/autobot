@@ -1,13 +1,13 @@
 import { env } from "@typebot.io/env";
 import type {
-  WhatsAppLocationMessage,
   WhatsAppContactsMessage,
-  WhatsAppStickerMessage,
-  WhatsAppReactionMessage,
-  WhatsAppInteractiveListMessage,
-  WhatsAppInteractiveCtaUrlMessage,
   WhatsAppExtendedTemplateMessage,
   WhatsAppFeatureFlags,
+  WhatsAppInteractiveCtaUrlMessage,
+  WhatsAppInteractiveListMessage,
+  WhatsAppLocationMessage,
+  WhatsAppReactionMessage,
+  WhatsAppStickerMessage,
 } from "./extendedSchemas";
 
 // ============================================================================
@@ -34,7 +34,7 @@ export const getWhatsAppFeatureFlags = (): WhatsAppFeatureFlags => ({
  * Check if a specific feature is enabled
  */
 export const isFeatureEnabled = (
-  feature: keyof WhatsAppFeatureFlags
+  feature: keyof WhatsAppFeatureFlags,
 ): boolean => {
   const flags = getWhatsAppFeatureFlags();
   return flags[feature] ?? false;
@@ -51,11 +51,11 @@ export type LocationMessageInput = {
 };
 
 export const createLocationMessage = (
-  input: LocationMessageInput
+  input: LocationMessageInput,
 ): WhatsAppLocationMessage | null => {
   if (!isFeatureEnabled("enableLocationMessages")) {
     console.warn(
-      "Location messages are disabled. Set WHATSAPP_ENABLE_LOCATION_MESSAGES=true to enable."
+      "Location messages are disabled. Set WHATSAPP_ENABLE_LOCATION_MESSAGES=true to enable.",
     );
     return null;
   }
@@ -92,11 +92,11 @@ export type ContactInput = {
 };
 
 export const createContactsMessage = (
-  contacts: ContactInput[]
+  contacts: ContactInput[],
 ): WhatsAppContactsMessage | null => {
   if (!isFeatureEnabled("enableContactsMessages")) {
     console.warn(
-      "Contacts messages are disabled. Set WHATSAPP_ENABLE_CONTACTS_MESSAGES=true to enable."
+      "Contacts messages are disabled. Set WHATSAPP_ENABLE_CONTACTS_MESSAGES=true to enable.",
     );
     return null;
   }
@@ -137,11 +137,11 @@ export type StickerMessageInput = {
 };
 
 export const createStickerMessage = (
-  input: StickerMessageInput
+  input: StickerMessageInput,
 ): WhatsAppStickerMessage | null => {
   if (!isFeatureEnabled("enableStickerMessages")) {
     console.warn(
-      "Sticker messages are disabled. Set WHATSAPP_ENABLE_STICKER_MESSAGES=true to enable."
+      "Sticker messages are disabled. Set WHATSAPP_ENABLE_STICKER_MESSAGES=true to enable.",
     );
     return null;
   }
@@ -169,11 +169,11 @@ export type ReactionMessageInput = {
 };
 
 export const createReactionMessage = (
-  input: ReactionMessageInput
+  input: ReactionMessageInput,
 ): WhatsAppReactionMessage | null => {
   if (!isFeatureEnabled("enableReactionMessages")) {
     console.warn(
-      "Reaction messages are disabled. Set WHATSAPP_ENABLE_REACTION_MESSAGES=true to enable."
+      "Reaction messages are disabled. Set WHATSAPP_ENABLE_REACTION_MESSAGES=true to enable.",
     );
     return null;
   }
@@ -210,11 +210,11 @@ export type ListMessageInput = {
 };
 
 export const createListMessage = (
-  input: ListMessageInput
+  input: ListMessageInput,
 ): WhatsAppInteractiveListMessage | null => {
   if (!isFeatureEnabled("enableListMessages")) {
     console.warn(
-      "List messages are disabled. Set WHATSAPP_ENABLE_LIST_MESSAGES=true to enable."
+      "List messages are disabled. Set WHATSAPP_ENABLE_LIST_MESSAGES=true to enable.",
     );
     return null;
   }
@@ -282,11 +282,11 @@ export type CtaUrlMessageInput = {
 };
 
 export const createCtaUrlMessage = (
-  input: CtaUrlMessageInput
+  input: CtaUrlMessageInput,
 ): WhatsAppInteractiveCtaUrlMessage | null => {
   if (!isFeatureEnabled("enableCtaUrlMessages")) {
     console.warn(
-      "CTA URL messages are disabled. Set WHATSAPP_ENABLE_CTA_URL_MESSAGES=true to enable."
+      "CTA URL messages are disabled. Set WHATSAPP_ENABLE_CTA_URL_MESSAGES=true to enable.",
     );
     return null;
   }
@@ -358,7 +358,7 @@ export type ExtendedTemplateMessageInput = {
 };
 
 export const createExtendedTemplateMessage = (
-  input: ExtendedTemplateMessageInput
+  input: ExtendedTemplateMessageInput,
 ): WhatsAppExtendedTemplateMessage | null => {
   if (!isFeatureEnabled("enableExtendedTemplates")) {
     // Fall back to basic template if extended templates are disabled
