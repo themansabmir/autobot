@@ -127,6 +127,7 @@ const baseEnv = {
       .string()
       .optional()
       .default("The bot you're looking for doesn't exist"),
+    NEXT_PUBLIC_SHOW_INTEGRATIONS: boolean.optional().default("false"),
   },
   runtimeEnv: {
     NEXT_PUBLIC_VIEWER_URL: getRuntimeVariable("NEXT_PUBLIC_VIEWER_URL"),
@@ -145,6 +146,9 @@ const baseEnv = {
     ),
     NEXT_PUBLIC_VIEWER_404_SUBTITLE: getRuntimeVariable(
       "NEXT_PUBLIC_VIEWER_404_SUBTITLE",
+    ),
+    NEXT_PUBLIC_SHOW_INTEGRATIONS: getRuntimeVariable(
+      "NEXT_PUBLIC_SHOW_INTEGRATIONS",
     ),
   },
 };
