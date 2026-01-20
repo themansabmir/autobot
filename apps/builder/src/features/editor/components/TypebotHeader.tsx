@@ -306,46 +306,54 @@ const TypebotNav = ({
 }: {
   typebotId?: string;
   isResultsDisplayed: boolean;
-  className?: string;
+  className?: string; // Add className prop to definition
 }) => {
   const { t } = useTranslate();
   const router = useRouter();
 
+  const getVariant = (path: string) =>
+    router.pathname.endsWith(path) ? "secondary" : "ghost";
+
   return (
-    <div className={cn("flex items-center gap-2", className)}>
+    <div className={cn("flex items-center gap-1 bg-gray-2 p-1 rounded-lg border border-gray-6", className)}>
       <ButtonLink
         href={`/typebots/${typebotId}/edit`}
-        variant={router.pathname.includes("/edit") ? "outline" : "ghost"}
+        variant={router.pathname.includes("/edit") ? "secondary" : "ghost"}
         size="sm"
+        className={cn("text-xs font-medium px-4", router.pathname.includes("/edit") && "bg-gray-4 text-white")}
       >
         {t("editor.header.flowButton.label")}
       </ButtonLink>
       <ButtonLink
         href={`/typebots/${typebotId}/theme`}
-        variant={router.pathname.endsWith("theme") ? "outline" : "ghost"}
+        variant={getVariant("theme")}
         size="sm"
+        className={cn("text-xs font-medium px-4", router.pathname.endsWith("theme") && "bg-gray-4 text-white")}
       >
         {t("editor.header.themeButton.label")}
       </ButtonLink>
       <ButtonLink
         href={`/typebots/${typebotId}/settings`}
-        variant={router.pathname.endsWith("settings") ? "outline" : "ghost"}
+        variant={getVariant("settings")}
         size="sm"
+        className={cn("text-xs font-medium px-4", router.pathname.endsWith("settings") && "bg-gray-4 text-white")}
       >
         {t("editor.header.settingsButton.label")}
       </ButtonLink>
       <ButtonLink
         href={`/typebots/${typebotId}/share`}
-        variant={router.pathname.endsWith("share") ? "outline" : "ghost"}
+        variant={getVariant("share")}
         size="sm"
+        className={cn("text-xs font-medium px-4", router.pathname.endsWith("share") && "bg-gray-4 text-white")}
       >
         {t("share.button.label")}
       </ButtonLink>
       {isResultsDisplayed && (
         <ButtonLink
           href={`/typebots/${typebotId}/results`}
-          variant={router.pathname.includes("results") ? "outline" : "ghost"}
+          variant={router.pathname.includes("results") ? "secondary" : "ghost"}
           size="sm"
+          className={cn("text-xs font-medium px-4", router.pathname.includes("results") && "bg-gray-4 text-white")}
         >
           {t("editor.header.resultsButton.label")}
         </ButtonLink>

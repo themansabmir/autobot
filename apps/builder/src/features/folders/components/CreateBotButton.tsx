@@ -24,16 +24,19 @@ export const CreateBotButton = ({
   return (
     <Button
       onClick={handleClick}
+      variant="outline"
       className={cn(
-        "px-6 whitespace-normal w-[225px] h-[270px] [&_svg]:size-10",
+        "flex-col w-[225px] h-[270px] rounded-xl whitespace-normal bg-white dark:bg-[#1A1A1A] border-gray-300 dark:border-gray-800 border-dashed hover:border-yellow-400 hover:bg-white dark:hover:bg-[#1A1A1A] transition-all group",
         draggedTypebot && "opacity-30",
       )}
       {...props}
     >
       <div className="flex flex-col items-center gap-6">
-        <PlusSignIcon />
-        <p className="font-medium max-w-40 text-center mt-6 text-lg">
-          {t("folders.createTypebotButton.label")}
+        <div className="flex items-center justify-center size-16 rounded-full border border-yellow-400/50 text-yellow-500 dark:text-yellow-400 group-hover:bg-yellow-400 group-hover:text-black dark:group-hover:text-black transition-all">
+          <PlusSignIcon className="size-8" />
+        </div>
+        <p className="font-semibold text-lg text-gray-900 dark:text-white">
+          Create a typebot
         </p>
       </div>
     </Button>

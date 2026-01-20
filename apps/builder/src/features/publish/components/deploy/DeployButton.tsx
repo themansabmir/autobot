@@ -68,8 +68,8 @@ export const DeployButton = ({
   return (
     <>
       <Button
-        className="w-[225px] h-[270px] text-center whitespace-normal rounded-lg bg-gray-1"
-        variant="outline-secondary"
+        className="w-[225px] h-[270px] text-center whitespace-normal rounded-xl bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-gray-800 hover:border-yellow-400 hover:bg-white dark:hover:bg-[#1A1A1A] shadow-sm hover:shadow-md transition-all"
+        variant="ghost"
         onClick={onOpen}
         iconStyle="none"
         size="lg"

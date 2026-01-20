@@ -1,5 +1,5 @@
 import { Standard } from "@typebot.io/react";
-import { defaultBackgroundColor } from "@typebot.io/theme/constants";
+
 import { Seo } from "@/components/Seo";
 import { TypebotHeader } from "@/features/editor/components/TypebotHeader";
 import { useTypebot } from "@/features/editor/providers/TypebotProvider";
@@ -23,8 +23,7 @@ export const SettingsPage = () => {
                 width: "100%",
                 height: "100%",
                 backgroundColor:
-                  typebot.theme.general?.background?.content ??
-                  defaultBackgroundColor[typebot.version],
+                  typebot.theme.general?.background?.content,
               }}
             />
           )}
