@@ -1,13 +1,3 @@
-import { ButtonLink } from "@/components/ButtonLink";
-import { CopyInput } from "@/components/inputs/CopyInput";
-import { Dialog360Logo } from "@/components/logos/Dialog360Logo";
-import { MetaLogo } from "@/components/logos/MetaLogo";
-import { TextLink } from "@/components/TextLink";
-import { useFeatureFlagsQuery } from "@/features/featureFlags/useFeatureFlagsQuery";
-import { formatPhoneNumberDisplayName } from "@/features/whatsapp/formatPhoneNumberDisplayName";
-import { useWorkspace } from "@/features/workspace/WorkspaceProvider";
-import { queryClient, trpc, trpcClient } from "@/lib/queryClient";
-import { toast } from "@/lib/toast";
 import { createId } from "@paralleldrive/cuid2";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { TRPCClientError } from "@trpc/client";
@@ -24,6 +14,16 @@ import { ArrowUpRight01Icon } from "@typebot.io/ui/icons/ArrowUpRight01Icon";
 import { TickIcon } from "@typebot.io/ui/icons/TickIcon";
 import { cx } from "@typebot.io/ui/lib/cva";
 import { useState } from "react";
+import { ButtonLink } from "@/components/ButtonLink";
+import { CopyInput } from "@/components/inputs/CopyInput";
+import { Dialog360Logo } from "@/components/logos/Dialog360Logo";
+import { MetaLogo } from "@/components/logos/MetaLogo";
+import { TextLink } from "@/components/TextLink";
+import { useFeatureFlagsQuery } from "@/features/featureFlags/useFeatureFlagsQuery";
+import { formatPhoneNumberDisplayName } from "@/features/whatsapp/formatPhoneNumberDisplayName";
+import { useWorkspace } from "@/features/workspace/WorkspaceProvider";
+import { queryClient, trpc, trpcClient } from "@/lib/queryClient";
+import { toast } from "@/lib/toast";
 
 const metaSteps = [
   { title: "Requirements" },

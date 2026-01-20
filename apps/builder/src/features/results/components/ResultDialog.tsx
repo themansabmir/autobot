@@ -1,9 +1,8 @@
-import { useTypebot } from "@/features/editor/providers/TypebotProvider";
 import { byId, isDefined } from "@typebot.io/lib/utils";
 import { parseColumnsOrder } from "@typebot.io/results/parseColumnsOrder";
 import type {
-    ResultHeaderCell,
-    TableData,
+  ResultHeaderCell,
+  TableData,
 } from "@typebot.io/results/schemas/results";
 import type { TypebotV6 } from "@typebot.io/typebot/schemas/typebot";
 import { Badge } from "@typebot.io/ui/components/Badge";
@@ -12,6 +11,7 @@ import { Dialog } from "@typebot.io/ui/components/Dialog";
 import { LoaderCircleIcon } from "@typebot.io/ui/icons/LoaderCircleIcon";
 import { cx } from "@typebot.io/ui/lib/cva";
 import { useState } from "react";
+import { useTypebot } from "@/features/editor/providers/TypebotProvider";
 import { useResultTranscriptQuery } from "../hooks/useResultTranscriptQuery";
 import { useResults } from "../ResultsProvider";
 import { HeaderIcon } from "./HeaderIcon";
