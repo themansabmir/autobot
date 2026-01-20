@@ -47,7 +47,7 @@ export const Sidebar = () => {
         <div className="flex items-center justify-center w-8 h-8 bg-[#FFE600] rounded-sm text-black font-bold text-sm">
           EY
         </div>
-        <span className="font-bold text-lg tracking-tight">Typebots</span>
+        <span className="font-bold text-lg tracking-tight">Whatsapp Bot</span>
       </div>
 
       {/* Navigation */}

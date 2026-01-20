@@ -24,7 +24,7 @@ export const AuthLayout = ({ children }: Props) => {
             <header className="relative z-10 w-full p-8 flex justify-between items-center">
                 <div className="flex items-center gap-2">
                     <div className="bg-[#FFE600] text-black font-bold px-2 py-1 text-xl rounded-sm">EY</div>
-                    <span className="font-bold text-xl tracking-wide uppercase text-gray-12">Secure Gateway</span>
+                    <span className="font-bold text-xl tracking-wide uppercase text-gray-12">Whatsapp Bot</span>
                 </div>
                 <div className="flex items-center gap-4">
                     <Button
