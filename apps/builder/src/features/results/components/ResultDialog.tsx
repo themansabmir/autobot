@@ -1,8 +1,9 @@
+import { useTypebot } from "@/features/editor/providers/TypebotProvider";
 import { byId, isDefined } from "@typebot.io/lib/utils";
 import { parseColumnsOrder } from "@typebot.io/results/parseColumnsOrder";
 import type {
-  ResultHeaderCell,
-  TableData,
+    ResultHeaderCell,
+    TableData,
 } from "@typebot.io/results/schemas/results";
 import type { TypebotV6 } from "@typebot.io/typebot/schemas/typebot";
 import { Badge } from "@typebot.io/ui/components/Badge";
@@ -11,7 +12,6 @@ import { Dialog } from "@typebot.io/ui/components/Dialog";
 import { LoaderCircleIcon } from "@typebot.io/ui/icons/LoaderCircleIcon";
 import { cx } from "@typebot.io/ui/lib/cva";
 import { useState } from "react";
-import { useTypebot } from "@/features/editor/providers/TypebotProvider";
 import { useResultTranscriptQuery } from "../hooks/useResultTranscriptQuery";
 import { useResults } from "../ResultsProvider";
 import { HeaderIcon } from "./HeaderIcon";
@@ -110,7 +110,7 @@ const Transcript = ({
                 "max-w-[70%] border px-3 py-2 rounded-lg",
                 isBot
                   ? "bg-gray-3 text-gray-12 rounded-bl-sm rounded-br-lg"
-                  : "bg-orange-9 text-white rounded-bl-lg rounded-br-sm",
+                  : "bg-orange-9 text-gray-12 dark:text-gray-1 rounded-bl-lg rounded-br-sm",
               )}
             >
               <p className="text-sm whitespace-pre-wrap overflow-hidden">
