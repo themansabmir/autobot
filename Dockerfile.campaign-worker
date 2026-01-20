@@ -65,6 +65,7 @@ WORKDIR /app
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/packages/prisma ./packages/prisma
 COPY --from=builder /app/packages/campaign-worker ./packages/campaign-worker
+COPY --from=builder /app/packages/bot-engine ./packages/bot-engine
 COPY --from=builder /app/packages/lib ./packages/lib
 COPY --from=builder /app/packages/env ./packages/env
 COPY --from=builder /app/packages/whatsapp ./packages/whatsapp
