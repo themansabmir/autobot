@@ -268,7 +268,9 @@ export const convertInputToWhatsAppMessages = async ({
       }
       const options = input.options;
       if (!options?.url || !options?.bodyText) {
-        console.log("⚠️ [WhatsApp Converter] CTA_URL missing required fields (url or bodyText)");
+        console.log(
+          "⚠️ [WhatsApp Converter] CTA_URL missing required fields (url or bodyText)",
+        );
         return [];
       }
 
@@ -286,9 +288,7 @@ export const convertInputToWhatsAppMessages = async ({
           });
           header = {
             type: "image" as const,
-            image: mediaId
-              ? { id: mediaId }
-              : { link: options.headerImageUrl },
+            image: mediaId ? { id: mediaId } : { link: options.headerImageUrl },
           };
         } else {
           header = {
@@ -312,17 +312,17 @@ export const convertInputToWhatsAppMessages = async ({
           action: {
             name: "cta_url" as const,
             parameters: {
-              display_text: (options.displayText || "Click here").slice(
-                0,
-                20,
-              ),
+              display_text: (options.displayText || "Click here").slice(0, 20),
               url: options.url,
             },
           },
         },
       };
 
-      console.log("✅ [WhatsApp Converter] CTA_URL message converted:", JSON.stringify(ctaUrlMessage, null, 2));
+      console.log(
+        "✅ [WhatsApp Converter] CTA_URL message converted:",
+        JSON.stringify(ctaUrlMessage, null, 2),
+      );
       return [ctaUrlMessage];
     }
     case InputBlockType.WHATSAPP_LIST: {
@@ -389,6 +389,124 @@ export const convertInputToWhatsAppMessages = async ({
           },
         },
       ];
+    }
+    case InputBlockType.WHATSAPP_CAROUSEL: {
+      // Type assertion needed because discriminated union doesn't fully narrow carousel type
+      const carouselInput = input as any;
+      const options = carouselInput.options;
+      const items = carouselInput.items as any[];
+
+      // Use default bodyText if not provided (consistent with UI defaults)
+      const bodyText = options?.bodyText || "Choose an option below:";
+
+      if (items.length < 2) {
+        console.log("⚠️ [WhatsApp Carousel] Insufficient cards:", {
+          cardCount: items.length,
+          required: "minimum 2 cards"
+        });
+        return [];
+      }
+
+      console.log("🎠 [WhatsApp Carousel] Converting carousel:", {
+        bodyText,
+        cardCount: items.length,
+        hasOptions: !!options,
+        optionsData: options,
+      });
+
+      const cards = items.map((item, index) => {
+        console.log(`🔍 [WhatsApp Carousel] Processing card ${index}:`, {
+          headerType: item.headerType,
+          headerUrl: item.headerUrl,
+          hasHeader: !!(item.headerType && item.headerUrl),
+          buttonType: item.buttonType,
+        });
+
+        const card: any = {
+          card_index: index,
+        };
+
+        // Set card type based on button type (required by Meta API)
+        if (item.buttonType === "cta_url") {
+          card.type = "cta_url";
+        } else if (item.buttonType === "quick_reply") {
+          card.type = "quick_reply";
+        }
+
+        // Header (required)
+        if (item.headerType && item.headerUrl) {
+          card.header = {
+            type: item.headerType,
+            [item.headerType]: {
+              link: item.headerUrl,
+            },
+          };
+        }
+
+        // Body text (optional)
+        if (item.bodyText) {
+          card.body = {
+            text: item.bodyText.slice(0, 160),
+          };
+        }
+
+        // Action (buttons)
+        if (item.buttonType === "cta_url" && item.ctaUrlButton) {
+          card.action = {
+            name: "cta_url",
+            parameters: {
+              display_text: item.ctaUrlButton.displayText?.slice(0, 20) || "Visit",
+              url: item.ctaUrlButton.url,
+            },
+          };
+        } else if (item.buttonType === "quick_reply" && item.quickReplyButtons) {
+          card.action = {
+            buttons: item.quickReplyButtons.slice(0, 2).map((btn: any) => ({
+              type: "quick_reply",
+              quick_reply: {
+                id: btn.id,
+                title: btn.title.slice(0, 20),
+              },
+            })),
+          };
+        }
+
+        return card;
+      });
+
+      // Filter out cards without required headers (Meta API requirement)
+      const validCards = cards.filter((card, index) => {
+        if (!card.header) {
+          console.log(`⚠️ [WhatsApp Carousel] Card ${index} skipped: missing required header`);
+          return false;
+        }
+        return true;
+      });
+
+      if (validCards.length < 2) {
+        console.log("⚠️ [WhatsApp Carousel] Insufficient valid cards after filtering:", {
+          totalCards: items.length,
+          validCards: validCards.length,
+          required: "minimum 2 cards with headers"
+        });
+        return [];
+      }
+
+      const carouselMessage: WhatsAppSendingMessage = {
+        type: "interactive" as const,
+        interactive: {
+          type: "carousel" as const,
+          body: {
+            text: bodyText.slice(0, 1024),
+          },
+          action: {
+            cards: validCards,
+          },
+        } as any,
+      };
+
+      console.log("✅ [WhatsApp Carousel] Converted:", JSON.stringify(carouselMessage, null, 2));
+      return [carouselMessage];
     }
   }
 };

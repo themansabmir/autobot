@@ -1,5 +1,5 @@
-import type { CtaUrlInputBlock } from "@typebot.io/blocks-inputs/ctaUrl/schema";
 import { defaultCtaUrlOptions } from "@typebot.io/blocks-inputs/ctaUrl/constants";
+import type { CtaUrlInputBlock } from "@typebot.io/blocks-inputs/ctaUrl/schema";
 import { Field } from "@typebot.io/ui/components/Field";
 import { Input } from "@typebot.io/ui/components/Input";
 import { Select } from "@typebot.io/ui/components/Select";

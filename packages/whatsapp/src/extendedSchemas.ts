@@ -289,7 +289,7 @@ const templateButtonComponentSchema = z.object({
       payload: z.string().optional(),
       text: z.string().optional(),
       coupon_code: z.string().optional(),
-    })
+    }),
   ),
 });
 
@@ -349,7 +349,7 @@ export type WhatsAppFeatureFlags = {
 // ----------------------------------------------------------------------------
 export const isMessageTypeEnabled = (
   type: keyof WhatsAppFeatureFlags,
-  flags: WhatsAppFeatureFlags
+  flags: WhatsAppFeatureFlags,
 ): boolean => {
   return flags[type] ?? false;
 };

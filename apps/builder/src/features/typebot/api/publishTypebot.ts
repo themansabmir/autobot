@@ -1,5 +1,8 @@
 import { TRPCError } from "@trpc/server";
+import { BubbleBlockType } from "@typebot.io/blocks-bubbles/constants";
 import { InputBlockType } from "@typebot.io/blocks-inputs/constants";
+import { decrypt } from "@typebot.io/credentials/decrypt";
+import type { WhatsAppCredentials } from "@typebot.io/credentials/schemas";
 import { env } from "@typebot.io/env";
 import { parseGroups } from "@typebot.io/groups/helpers/parseGroups";
 import prisma from "@typebot.io/prisma";
@@ -20,6 +23,7 @@ import { edgeSchema } from "@typebot.io/typebot/schemas/edge";
 import { publicTypebotSchemaV6 } from "@typebot.io/typebot/schemas/publicTypebot";
 import { typebotV6Schema } from "@typebot.io/typebot/schemas/typebot";
 import { variableSchema } from "@typebot.io/variables/schemas";
+import { getOrUploadMedia } from "@typebot.io/whatsapp/getOrUploadMedia";
 import { z } from "@typebot.io/zod";
 import { parseTypebotPublishEvents } from "@/features/telemetry/helpers/parseTypebotPublishEvents";
 import { authenticatedProcedure } from "@/helpers/server/trpc";
@@ -30,6 +34,98 @@ const warningSchema = z.object({
   trademark: z.string(),
 });
 type Warning = z.infer<typeof warningSchema>;
+
+// Helper function to auto-upload stickers during publish
+async function uploadStickersIfNeeded(typebot: any) {
+  console.log("🔍 Checking for stickers to upload...");
+  try {
+    // Get WhatsApp credentials for this workspace
+    const credentials = await prisma.credentials.findFirst({
+      where: {
+        workspaceId: typebot.workspaceId,
+        type: "whatsApp",
+      },
+    });
+
+    console.log(`📋 WhatsApp credentials found: ${!!credentials}`);
+    console.log(`📋 Typebot publicId: ${typebot.publicId}`);
+
+    // If no WhatsApp credentials, skip upload
+    if (!credentials || !typebot.publicId) {
+      console.log("⏭️  Skipping sticker upload - no credentials or publicId");
+      return;
+    }
+
+    // Decrypt credentials
+    const decryptedData = (await decrypt(
+      credentials.data,
+      credentials.iv
+    )) as WhatsAppCredentials["data"];
+
+    // Parse groups to find sticker blocks
+    const groups = parseGroups(typebot.groups, {
+      typebotVersion: typebot.version,
+    });
+
+    let hasChanges = false;
+
+    // Process each group and block
+    for (const group of groups) {
+      for (const block of group.blocks) {
+        if (
+          block.type === BubbleBlockType.STICKER &&
+          block.content?.url &&
+          !block.content?.mediaId
+        ) {
+          console.log(
+            `🔄 Auto-uploading sticker for block ${block.id} to WhatsApp...`
+          );
+          try {
+            // Upload to WhatsApp and save mediaId
+            const mediaId = await getOrUploadMedia({
+              url: block.content.url,
+              cache: {
+                credentials: decryptedData,
+                publicTypebotId: typebot.publicId,
+              },
+            }).catch((error) => {
+              // If caching fails (e.g., FK constraint), try without cache
+              console.log("⚠️  Cache failed, retrying without cache...");
+              return null;
+            });
+
+            if (mediaId) {
+              // Update block content with mediaId
+              block.content.mediaId = mediaId;
+              hasChanges = true;
+              console.log(
+                `✅ Sticker uploaded! mediaId: ${mediaId}`
+              );
+            }
+          } catch (error) {
+            console.error(
+              `❌ Failed to upload sticker for block ${block.id}:`,
+              error
+            );
+            // Continue with other stickers even if one fails
+          }
+        }
+      }
+    }
+
+    // If any stickers were uploaded, update the typebot
+    if (hasChanges) {
+      await prisma.typebot.update({
+        where: { id: typebot.id },
+        data: { groups },
+      });
+      console.log(`✅ Updated typebot with ${groups.length} sticker mediaIds`);
+    }
+  } catch (error) {
+    // Log error but don't block publish
+    console.error("Error during sticker auto-upload:", error);
+  }
+}
 export const publishTypebot = authenticatedProcedure
   .meta({
     openapi: {
@@ -179,6 +275,9 @@ export const publishTypebot = authenticatedProcedure
       userId: user.id,
       hasFileUploadBlocks,
     });
+
+    // Auto-upload stickers to WhatsApp before publishing
+    await uploadStickersIfNeeded(existingTypebot);
 
     if (existingTypebot.publishedTypebot)
       await prisma.publicTypebot.updateMany({

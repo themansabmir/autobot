@@ -119,7 +119,9 @@ export const WhatsAppListItemNode = ({ item, indices, isMouseOver }: Props) => {
                 }}
               />
               {item.description && (
-                <p className="text-xs text-gray-9 truncate">{item.description}</p>
+                <p className="text-xs text-gray-9 truncate">
+                  {item.description}
+                </p>
               )}
             </div>
             {isMouseOver && (

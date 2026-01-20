@@ -21,6 +21,7 @@ import { RatingInputSettings } from "@/features/blocks/inputs/rating/components/
 import { TextInputSettings } from "@/features/blocks/inputs/textInput/components/TextInputSettings";
 import { TimeInputSettings } from "@/features/blocks/inputs/time/components/TimeInputSettings";
 import { UrlInputSettings } from "@/features/blocks/inputs/url/components/UrlInputSettings";
+import { WhatsAppCarouselSettings } from "@/features/blocks/inputs/whatsappCarousel/components/WhatsAppCarouselSettings";
 import { WhatsAppListSettings } from "@/features/blocks/inputs/whatsappList/components/WhatsAppListSettings";
 import { ChatwootSettings } from "@/features/blocks/integrations/chatwoot/components/ChatwootSettings";
 import { GoogleAnalyticsSettings } from "@/features/blocks/integrations/googleAnalytics/components/GoogleAnalyticsSettings";
@@ -131,6 +132,10 @@ export const NodeSettings = ({
     options: BlockWithOptions["options"] | TEventWithOptions["options"],
   ) => {
     onNodeChange({ options });
+  };
+
+  const updateItems = (items: any[]) => {
+    onNodeChange({ items } as any);
   };
 
   switch (node.type) {
@@ -251,6 +256,16 @@ export const NodeSettings = ({
         <WhatsAppListSettings
           options={node.options}
           onOptionsChange={updateOptions}
+        />
+      );
+    }
+    case InputBlockType.WHATSAPP_CAROUSEL: {
+      return (
+        <WhatsAppCarouselSettings
+          options={node.options}
+          items={(node as any).items || []}
+          onOptionsChange={updateOptions}
+          onItemsChange={updateItems}
         />
       );
     }

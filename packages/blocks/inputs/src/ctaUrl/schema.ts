@@ -1,8 +1,16 @@
-import { blockBaseSchema, optionBaseSchema } from "@typebot.io/blocks-base/schemas";
+import {
+  blockBaseSchema,
+  optionBaseSchema,
+} from "@typebot.io/blocks-base/schemas";
 import { z } from "@typebot.io/zod";
 import { InputBlockType } from "../constants";
 
-export const ctaUrlHeaderTypeSchema = z.enum(["text", "image", "video", "document"]);
+export const ctaUrlHeaderTypeSchema = z.enum([
+  "text",
+  "image",
+  "video",
+  "document",
+]);
 export type CtaUrlHeaderType = z.infer<typeof ctaUrlHeaderTypeSchema>;
 
 export const ctaUrlOptionsSchema = optionBaseSchema.merge(
@@ -16,7 +24,7 @@ export const ctaUrlOptionsSchema = optionBaseSchema.merge(
     footerText: z.string().optional(),
     displayText: z.string().max(20).optional(),
     url: z.string().optional(),
-  })
+  }),
 );
 
 export const ctaUrlInputSchema = blockBaseSchema
@@ -24,7 +32,7 @@ export const ctaUrlInputSchema = blockBaseSchema
     z.object({
       type: z.enum([InputBlockType.CTA_URL]),
       options: ctaUrlOptionsSchema.optional(),
-    })
+    }),
   )
   .openapi({
     title: "CTA URL",

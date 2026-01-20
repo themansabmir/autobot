@@ -1,7 +1,7 @@
 import { LayoutDashboardIcon } from "@typebot.io/ui/icons/LayoutDashboardIcon";
 import { HardDriveIcon } from "@typebot.io/ui/icons/HardDriveIcon";
 import { MegaphoneIcon } from "@typebot.io/ui/icons/MegaphoneIcon";
-import { UsersIcon } from "@typebot.io/ui/icons/UsersIcon";
+import { RobotIcon } from "@typebot.io/ui/icons/RobotIcon";
 import { Settings01Icon } from "@typebot.io/ui/icons/Settings01Icon";
 import { SquareLock01Icon } from "@typebot.io/ui/icons/SquareLock01Icon";
 import Link from "next/link";

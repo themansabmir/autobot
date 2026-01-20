@@ -1,7 +1,8 @@
 import { env } from "@typebot.io/env";
 import { getAtPath } from "@typebot.io/lib/utils";
-import { userSchema } from "@typebot.io/user/schemas";
 import prisma from "@typebot.io/prisma";
+import { userSchema } from "@typebot.io/user/schemas";
+import CredentialsProvider from "next-auth/providers/credentials";
 import FacebookProvider from "next-auth/providers/facebook";
 import GitHubProvider from "next-auth/providers/github";
 import GitlabProvider from "next-auth/providers/gitlab";
@@ -10,7 +11,6 @@ import type { Provider } from "next-auth/providers/index";
 import KeycloakProvider from "next-auth/providers/keycloak";
 import MicrosoftEntraID from "next-auth/providers/microsoft-entra-id";
 import Nodemailer from "next-auth/providers/nodemailer";
-import CredentialsProvider from "next-auth/providers/credentials";
 import { sendVerificationRequest } from "../helpers/sendVerificationRequest";
 
 export const providers: Provider[] = [];

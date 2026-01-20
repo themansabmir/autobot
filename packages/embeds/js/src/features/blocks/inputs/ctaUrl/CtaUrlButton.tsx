@@ -23,7 +23,9 @@ export const CtaUrlButton = (props: Props) => {
   return (
     <div class="flex flex-col gap-2 w-full typebot-cta-url-input">
       <Show when={props.block.options?.bodyText}>
-        <p class="text-sm whitespace-pre-wrap">{props.block.options?.bodyText}</p>
+        <p class="text-sm whitespace-pre-wrap">
+          {props.block.options?.bodyText}
+        </p>
       </Show>
       <div class="flex justify-end">
         <Button on:click={handleClick} class="flex items-center gap-2">
