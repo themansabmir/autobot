@@ -402,7 +402,7 @@ export const convertInputToWhatsAppMessages = async ({
       if (items.length < 2) {
         console.log("⚠️ [WhatsApp Carousel] Insufficient cards:", {
           cardCount: items.length,
-          required: "minimum 2 cards"
+          required: "minimum 2 cards",
         });
         return [];
       }
@@ -455,11 +455,15 @@ export const convertInputToWhatsAppMessages = async ({
           card.action = {
             name: "cta_url",
             parameters: {
-              display_text: item.ctaUrlButton.displayText?.slice(0, 20) || "Visit",
+              display_text:
+                item.ctaUrlButton.displayText?.slice(0, 20) || "Visit",
               url: item.ctaUrlButton.url,
             },
           };
-        } else if (item.buttonType === "quick_reply" && item.quickReplyButtons) {
+        } else if (
+          item.buttonType === "quick_reply" &&
+          item.quickReplyButtons
+        ) {
           card.action = {
             buttons: item.quickReplyButtons.slice(0, 2).map((btn: any) => ({
               type: "quick_reply",
@@ -477,18 +481,23 @@ export const convertInputToWhatsAppMessages = async ({
       // Filter out cards without required headers (Meta API requirement)
       const validCards = cards.filter((card, index) => {
         if (!card.header) {
-          console.log(`⚠️ [WhatsApp Carousel] Card ${index} skipped: missing required header`);
+          console.log(
+            `⚠️ [WhatsApp Carousel] Card ${index} skipped: missing required header`,
+          );
           return false;
         }
         return true;
       });
 
       if (validCards.length < 2) {
-        console.log("⚠️ [WhatsApp Carousel] Insufficient valid cards after filtering:", {
-          totalCards: items.length,
-          validCards: validCards.length,
-          required: "minimum 2 cards with headers"
-        });
+        console.log(
+          "⚠️ [WhatsApp Carousel] Insufficient valid cards after filtering:",
+          {
+            totalCards: items.length,
+            validCards: validCards.length,
+            required: "minimum 2 cards with headers",
+          },
+        );
         return [];
       }
 
@@ -505,7 +514,10 @@ export const convertInputToWhatsAppMessages = async ({
         } as any,
       };
 
-      console.log("✅ [WhatsApp Carousel] Converted:", JSON.stringify(carouselMessage, null, 2));
+      console.log(
+        "✅ [WhatsApp Carousel] Converted:",
+        JSON.stringify(carouselMessage, null, 2),
+      );
       return [carouselMessage];
     }
   }

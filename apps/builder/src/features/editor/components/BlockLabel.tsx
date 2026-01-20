@@ -1,11 +1,11 @@
 import { type TFnType, useTranslate } from "@tolgee/react";
 import { BubbleBlockType } from "@typebot.io/blocks-bubbles/constants";
 import {
-    isBubbleBlockType,
-    isForgedBlockType,
-    isInputBlockType,
-    isIntegrationBlockType,
-    isLogicBlockType,
+  isBubbleBlockType,
+  isForgedBlockType,
+  isInputBlockType,
+  isIntegrationBlockType,
+  isLogicBlockType,
 } from "@typebot.io/blocks-core/helpers";
 import type { Block } from "@typebot.io/blocks-core/schemas/schema";
 import { InputBlockType } from "@typebot.io/blocks-inputs/constants";

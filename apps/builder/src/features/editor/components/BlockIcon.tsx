@@ -144,7 +144,9 @@ export const BlockIcon = ({ type, className }: BlockIconProps): JSX.Element => {
       );
     case InputBlockType.WHATSAPP_CAROUSEL:
       return (
-        <WhatsAppCarouselIcon className={cn("text-orange-9 stroke-2", className)} />
+        <WhatsAppCarouselIcon
+          className={cn("text-orange-9 stroke-2", className)}
+        />
       );
     case LogicBlockType.SET_VARIABLE:
       return (

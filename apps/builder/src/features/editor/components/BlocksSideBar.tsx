@@ -148,14 +148,14 @@ export const BlocksSideBar = () => {
   const filteredBubbleBlockTypes = Object.values(BubbleBlockType).filter(
     (type) =>
       getBubbleBlockLabel(t)
-      [type].toLowerCase()
+        [type].toLowerCase()
         .includes(searchInput.toLowerCase()),
   );
 
   const filteredInputBlockTypes = Object.values(InputBlockType).filter(
     (type) => {
       return getInputBlockLabel(t)
-      [type].toLowerCase()
+        [type].toLowerCase()
         .includes(searchInput.toLowerCase());
     },
   );
@@ -165,14 +165,14 @@ export const BlocksSideBar = () => {
       type === LogicBlockType.WEBHOOK
         ? isDefined(env.NEXT_PUBLIC_PARTYKIT_HOST)
         : true &&
-        getLogicBlockLabel(t)
-        [type].toLowerCase()
-          .includes(searchInput.toLowerCase()),
+          getLogicBlockLabel(t)
+            [type].toLowerCase()
+            .includes(searchInput.toLowerCase()),
   );
 
   const filteredEventBlockTypes = Object.values(EventType).filter((type) =>
     getEventBlockLabel(t)
-    [type].toLowerCase()
+      [type].toLowerCase()
       .includes(searchInput.toLowerCase()),
   );
 
@@ -181,7 +181,7 @@ export const BlocksSideBar = () => {
   ).filter(
     (type) =>
       getIntegrationBlockLabel(t)
-      [type].toLowerCase()
+        [type].toLowerCase()
         .includes(searchInput.toLowerCase()) &&
       !legacyIntegrationBlocks.includes(type),
   );

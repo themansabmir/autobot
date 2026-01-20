@@ -4,7 +4,6 @@ import type { SessionState } from "@typebot.io/chat-session/schemas";
 import { decrypt } from "@typebot.io/credentials/decrypt";
 import { getCredentials } from "@typebot.io/credentials/getCredentials";
 import type { WhatsAppCredentials } from "@typebot.io/credentials/schemas";
-import { env } from "@typebot.io/env";
 import prisma from "@typebot.io/prisma";
 
 // Rate limiting tracking
@@ -12,6 +11,7 @@ let messagesSentLastMinute = 0;
 let messagesSentLastHour = 0;
 let lastMinuteReset = Date.now();
 let lastHourReset = Date.now();
+
 import {
   deleteSessionStore,
   getSessionStore,
@@ -118,7 +118,7 @@ const sendWhatsAppMessage = async (
 
   // Check if we should actually send WhatsApp messages (for testing)
   const skipWhatsAppSending = process.env.CAMPAIGN_SKIP_WHATSAPP === "true";
-  
+
   if (skipWhatsAppSending) {
     console.log(`🧪 TEST MODE: Skipping WhatsApp API call for ${phoneNumber}`);
     console.log(`🧪 Would have sent ${startResponse.messages.length} messages`);
@@ -157,7 +157,10 @@ const checkRateLimit = async (): Promise<void> => {
   }
 
   // Check per-minute limit
-  if (maxMessagesPerMinute > 0 && messagesSentLastMinute >= maxMessagesPerMinute) {
+  if (
+    maxMessagesPerMinute > 0 &&
+    messagesSentLastMinute >= maxMessagesPerMinute
+  ) {
     const waitTime = 60000 - (now - lastMinuteReset);
     console.log(
       `⏱️ Rate limit: ${maxMessagesPerMinute}/min reached. Waiting ${Math.ceil(waitTime / 1000)}s...`,
