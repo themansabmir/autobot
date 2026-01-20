@@ -1,7 +1,7 @@
 import {
-    blockBaseSchema,
-    itemBaseSchemas,
-    optionBaseSchema,
+  blockBaseSchema,
+  itemBaseSchemas,
+  optionBaseSchema,
 } from "@typebot.io/blocks-base/schemas";
 import { z } from "@typebot.io/zod";
 import { InputBlockType } from "../constants";
@@ -23,7 +23,7 @@ export const whatsAppCarouselItemSchema = itemBaseSchemas.v6.extend({
   headerType: z.enum(["image", "video"]).nullish(),
   headerUrl: z.string().nullish(),
   bodyText: z.string().max(160).nullish(),
-  
+
   // Button configuration
   buttonType: z.enum(["cta_url", "quick_reply"]).nullish(),
   ctaUrlButton: carouselCtaUrlButtonSchema.nullish(),
@@ -44,7 +44,7 @@ export const whatsAppCarouselBlockSchema = blockBaseSchema.merge(
     type: z.literal(InputBlockType.WHATSAPP_CAROUSEL),
     items: z.array(whatsAppCarouselItemSchema),
     options: whatsAppCarouselOptionsSchema.optional(),
-  })
+  }),
 );
 
 export type WhatsAppCarouselBlock = z.infer<typeof whatsAppCarouselBlockSchema>;

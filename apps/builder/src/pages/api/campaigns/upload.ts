@@ -1,6 +1,6 @@
 import { env } from "@typebot.io/env";
-import { uploadCampaignFile } from "@typebot.io/lib/campaign/uploadCampaignFile";
 import { methodNotAllowed, notAuthenticated } from "@typebot.io/lib/api/utils";
+import { uploadCampaignFile } from "@typebot.io/lib/campaign/uploadCampaignFile";
 import formidable from "formidable";
 import fs from "fs";
 import type { NextApiRequest, NextApiResponse } from "next";

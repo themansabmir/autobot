@@ -26,27 +26,34 @@ const normalizePhoneNumber = (phone: string): string => {
 };
 
 const extractPhoneNumber = (row: RecipientRow): string | null => {
-  const phoneValue = row.phone || row.phoneNumber || row.phone_number || row.mobile;
-  
+  const phoneValue =
+    row.phone || row.phoneNumber || row.phone_number || row.mobile;
+
   if (!phoneValue) {
     console.log(`⚠️ No phone found. Available columns:`, Object.keys(row));
     return null;
   }
-  
+
   // Convert to string if it's a number (common in Excel files)
-  const phone = typeof phoneValue === "number" ? String(phoneValue) : phoneValue;
-  
+  const phone =
+    typeof phoneValue === "number" ? String(phoneValue) : phoneValue;
+
   if (typeof phone !== "string") {
-    console.log(`⚠️ Phone is invalid type. Type: ${typeof phoneValue}, Value:`, phoneValue);
+    console.log(
+      `⚠️ Phone is invalid type. Type: ${typeof phoneValue}, Value:`,
+      phoneValue,
+    );
     return null;
   }
-  
+
   const normalized = normalizePhoneNumber(phone);
   if (normalized.length < 10) {
-    console.log(`⚠️ Phone too short after normalization. Original: "${phone}", Normalized: "${normalized}" (${normalized.length} digits)`);
+    console.log(
+      `⚠️ Phone too short after normalization. Original: "${phone}", Normalized: "${normalized}" (${normalized.length} digits)`,
+    );
     return null;
   }
-  
+
   return normalized;
 };
 

@@ -4,7 +4,6 @@ import type { SessionState } from "@typebot.io/chat-session/schemas";
 import { decrypt } from "@typebot.io/credentials/decrypt";
 import { getCredentials } from "@typebot.io/credentials/getCredentials";
 import type { WhatsAppCredentials } from "@typebot.io/credentials/schemas";
-import { env } from "@typebot.io/env";
 import { downloadCampaignFile } from "@typebot.io/lib/campaign/downloadCampaignFile";
 import prisma from "@typebot.io/prisma";
 import {
@@ -41,13 +40,15 @@ const normalizePhoneNumber = (phone: string): string => {
 };
 
 const extractPhoneNumber = (row: RecipientRow): string | null => {
-  const phoneValue = row.phone || row.phoneNumber || row.phone_number || row.mobile;
+  const phoneValue =
+    row.phone || row.phoneNumber || row.phone_number || row.mobile;
   if (!phoneValue) return null;
-  
+
   // Convert to string if it's a number (common in Excel files)
-  const phone = typeof phoneValue === "number" ? String(phoneValue) : phoneValue;
+  const phone =
+    typeof phoneValue === "number" ? String(phoneValue) : phoneValue;
   if (typeof phone !== "string") return null;
-  
+
   const normalized = normalizePhoneNumber(phone);
   if (normalized.length < 10) return null;
   return normalized;
@@ -245,7 +246,10 @@ const checkRateLimit = async (): Promise<void> => {
     lastHourReset = now;
   }
 
-  if (maxMessagesPerMinute > 0 && messagesSentLastMinute >= maxMessagesPerMinute) {
+  if (
+    maxMessagesPerMinute > 0 &&
+    messagesSentLastMinute >= maxMessagesPerMinute
+  ) {
     const waitTime = 60000 - (now - lastMinuteReset);
     console.log(
       `⏱️ Rate limit: ${maxMessagesPerMinute}/min reached. Waiting ${Math.ceil(waitTime / 1000)}s...`,
@@ -365,7 +369,7 @@ const sendWhatsAppMessage = async (
 
   // Check if we should actually send WhatsApp messages (for testing)
   const skipWhatsAppSending = process.env.CAMPAIGN_SKIP_WHATSAPP === "true";
-  
+
   if (skipWhatsAppSending) {
     console.log(`🧪 TEST MODE: Skipping WhatsApp API call for ${phoneNumber}`);
     console.log(`🧪 Would have sent ${startResponse.messages.length} messages`);
@@ -390,9 +394,9 @@ const sendWhatsAppMessage = async (
 
 const processRecipientJob = async (job: RecipientJob): Promise<void> => {
   const { recipientId, phoneNumber, variables, campaignId } = job;
-  
+
   await checkRateLimit();
-  
+
   const recipient = await prisma.campaignRecipient.findUnique({
     where: { id: recipientId },
     select: { id: true, status: true, retryCount: true },
@@ -412,10 +416,10 @@ const processRecipientJob = async (job: RecipientJob): Promise<void> => {
 
   try {
     await sendWhatsAppMessage(campaignId, recipientId, phoneNumber, variables);
-    
+
     messagesSentLastMinute++;
     messagesSentLastHour++;
-    
+
     await prisma.$transaction([
       prisma.campaignRecipient.update({
         where: { id: recipientId },
