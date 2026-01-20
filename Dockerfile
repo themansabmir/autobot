@@ -73,7 +73,15 @@ RUN groupadd bun \
     && which bun \
     && which bunx \
     && bun --version
-RUN apt-get -qy update && apt-get -qy --no-install-recommends install openssl git python3 g++ build-essential
+RUN apt-get update -qq \
+    && apt-get install -qq --no-install-recommends \
+    openssl \
+    git \
+    python3 \
+    g++ \
+    build-essential \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
 # ================= TURBO PRUNE ===================
@@ -111,7 +119,7 @@ RUN ./node_modules/.bin/prisma generate --schema=packages/prisma/postgresql/sche
 
 COPY scripts/${SCOPE}-entrypoint.sh ./
 RUN chmod +x ./${SCOPE}-entrypoint.sh
-ENTRYPOINT ./${SCOPE}-entrypoint.sh
+ENTRYPOINT ["/bin/sh", "-c", "./${SCOPE}-entrypoint.sh"]
 
 EXPOSE 3000
 ENV PORT=3000
