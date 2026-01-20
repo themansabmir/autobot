@@ -43,6 +43,7 @@ const nextConfig = {
     "next-auth",
     "@typebot.io/billing",
     "@typebot.io/blocks-bubbles",
+    "@typebot.io/ui",
   ],
   reactStrictMode: true,
   output: "standalone",

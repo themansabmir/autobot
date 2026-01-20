@@ -78,7 +78,7 @@ const FolderButton = ({
             iconStyle: "none",
             size: "lg",
           }),
-          "w-[225px] h-[270px] relative px-6 whitespace-normal transition-all duration-100 justify-center bg-gray-1",
+          "w-full h-[270px] relative px-6 whitespace-normal transition-all duration-100 justify-center bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-gray-800 hover:border-yellow-400/50 hover:shadow-lg",
           isTypebotOver && "border-2 border-orange-8",
         )}
         onClick={handleClick}
@@ -160,7 +160,7 @@ const FolderButton = ({
 
 export const ButtonSkeleton = () => (
   <Button
-    className="w-[225px] h-[270px] relative px-6 whitespace-normal"
+    className="w-full h-[270px] relative px-6 whitespace-normal"
     variant="outline-secondary"
   >
     <div className="flex flex-col items-center gap-2">

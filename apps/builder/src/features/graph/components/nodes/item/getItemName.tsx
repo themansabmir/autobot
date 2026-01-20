@@ -16,5 +16,7 @@ export const getItemName = (blockType: BlockWithItems["type"]): string => {
       return "AB Test";
     case InputBlockType.WHATSAPP_LIST:
       return "Option";
+    case InputBlockType.WHATSAPP_CAROUSEL:
+      return "Carousel Card";
   }
 };

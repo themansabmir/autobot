@@ -52,6 +52,10 @@ services:
         SCOPE: builder
     ports:
       - "8080:3000"
+    environment:
+      REDIS_URL: redis://typebot-redis:6379
+      S3_ENDPOINT: typebot-minio
+      S3_PORT: 9000
 
   typebot-viewer:
     <<: *typebot-common
@@ -62,6 +66,148 @@ services:
         SCOPE: viewer
     ports:
       - "8081:3000"
+    environment:
+      REDIS_URL: redis://typebot-redis:6379
+      S3_ENDPOINT: typebot-minio
+      S3_PORT: 9000
+
+  typebot-rabbitmq:
+    image: rabbitmq:3-management-alpine
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: typebot
+      RABBITMQ_DEFAULT_PASS: typebot
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - typebot-network
+
+  typebot-scheduler:
+    restart: always
+    depends_on:
+      typebot-rabbitmq:
+        condition: service_healthy
+      typebot-db:
+        condition: service_healthy
+      typebot-minio:
+        condition: service_healthy
+    build:
+      context: .
+      dockerfile: Dockerfile.campaign-worker
+    command: ["bun", "run", "scheduler"]
+    networks:
+      - typebot-network
+    env_file: .env
+    environment:
+      RABBITMQ_URL: amqp://typebot:typebot@typebot-rabbitmq:5672
+      DATABASE_URL: postgresql://postgres:typebot@typebot-db:5432/typebot
+      S3_ENDPOINT: typebot-minio
+      S3_PORT: 9000
+
+  typebot-campaign-worker:
+    restart: always
+    depends_on:
+      typebot-rabbitmq:
+        condition: service_healthy
+      typebot-db:
+        condition: service_healthy
+      typebot-minio:
+        condition: service_healthy
+    build:
+      context: .
+      dockerfile: Dockerfile.campaign-worker
+    command: ["bun", "run", "campaign-worker"]
+    networks:
+      - typebot-network
+    env_file: .env
+    environment:
+      RABBITMQ_URL: amqp://typebot:typebot@typebot-rabbitmq:5672
+      DATABASE_URL: postgresql://postgres:typebot@typebot-db:5432/typebot
+      S3_ENDPOINT: typebot-minio
+      S3_PORT: 9000
+
+  typebot-whatsapp-worker:
+    restart: always
+    depends_on:
+      typebot-rabbitmq:
+        condition: service_healthy
+      typebot-db:
+        condition: service_healthy
+      typebot-minio:
+        condition: service_healthy
+    build:
+      context: .
+      dockerfile: Dockerfile.campaign-worker
+    command: ["bun", "run", "whatsapp-worker"]
+    networks:
+      - typebot-network
+    env_file: .env
+    environment:
+      RABBITMQ_URL: amqp://typebot:typebot@typebot-rabbitmq:5672
+      DATABASE_URL: postgresql://postgres:typebot@typebot-db:5432/typebot
+      S3_ENDPOINT: typebot-minio
+      S3_PORT: 9000
+    deploy:
+      replicas: 3
+
+  typebot-completion-checker:
+    restart: always
+    depends_on:
+      typebot-db:
+        condition: service_healthy
+    build:
+      context: .
+      dockerfile: Dockerfile.campaign-worker
+    command: ["bun", "run", "completion-checker"]
+    networks:
+      - typebot-network
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://postgres:typebot@typebot-db:5432/typebot
+
+  typebot-minio:
+    image: minio/minio
+    restart: always
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+    volumes:
+      - s3-data:/data
+    networks:
+      - typebot-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  typebot-createbuckets:
+    image: minio/mc
+    depends_on:
+      typebot-minio:
+        condition: service_healthy
+    networks:
+      - typebot-network
+    entrypoint: >
+      /bin/sh -c "
+      sleep 10;
+      /usr/bin/mc alias set minio http://typebot-minio:9000 minio minio123;
+      /usr/bin/mc mb --ignore-existing minio/typebot;
+      /usr/bin/mc anonymous set public minio/typebot/public;
+      exit 0;
+      "
 
 networks:
   typebot-network:
@@ -70,3 +216,5 @@ networks:
 volumes:
   db-data:
   redis-data:
+  rabbitmq-data:
+  s3-data:

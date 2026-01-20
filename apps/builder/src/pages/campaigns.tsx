@@ -1,11 +1,32 @@
-import { useTranslate } from "@tolgee/react";
-import { Seo } from "@/components/Seo";
+import { useQuery } from "@tanstack/react-query";
+import { Button } from "@typebot.io/ui/components/Button";
+import { useOpenControls } from "@typebot.io/ui/hooks/useOpenControls";
+import { PlusSignIcon } from "@typebot.io/ui/icons/PlusSignIcon";
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { Seo } from "@/components/Seo";
+import { CampaignTable } from "@/features/campaign/components/CampaignTable";
+import { CreateCampaignDialog } from "@/features/campaign/components/CreateCampaignDialog";
 import { useWorkspace } from "@/features/workspace/WorkspaceProvider";
+import { trpc } from "@/lib/queryClient";
 
 export default function CampaignsPage() {
-  const { t } = useTranslate();
   const { workspace } = useWorkspace();
+  const createDialogControls = useOpenControls();
+
+  const {
+    data: campaignsData,
+    isLoading,
+    refetch,
+  } = useQuery(
+    trpc.campaigns.listCampaigns.queryOptions(
+      {
+        workspaceId: workspace?.id ?? "",
+      },
+      {
+        enabled: !!workspace?.id,
+      },
+    ),
+  );
 
   return (
     <DashboardLayout>
@@ -14,15 +35,25 @@ export default function CampaignsPage() {
         <div className="flex flex-col gap-6 p-8">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-semibold text-gray-12">Campaigns</h1>
+            <Button onClick={createDialogControls.onOpen}>
+              <PlusSignIcon className="size-4" />
+              Create Campaign
+            </Button>
           </div>
-          <div className="p-6 rounded-lg border border-gray-6 bg-gray-2">
-            <p className="text-gray-11">
-              Campaigns feature coming soon. You will be able to create and
-              manage marketing campaigns here.
-            </p>
-          </div>
+
+          <CampaignTable
+            campaigns={campaignsData?.campaigns}
+            isLoading={isLoading}
+            onCampaignDeleted={refetch}
+          />
         </div>
       </div>
+
+      <CreateCampaignDialog
+        isOpen={createDialogControls.isOpen}
+        onClose={createDialogControls.onClose}
+        onCampaignCreated={refetch}
+      />
     </DashboardLayout>
   );
 }

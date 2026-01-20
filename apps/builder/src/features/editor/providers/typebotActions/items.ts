@@ -13,6 +13,7 @@ import type {
 import type { ButtonItem } from "@typebot.io/blocks-inputs/choice/schema";
 import { InputBlockType } from "@typebot.io/blocks-inputs/constants";
 import type { PictureChoiceItem } from "@typebot.io/blocks-inputs/pictureChoice/schema";
+import type { WhatsAppCarouselItem } from "@typebot.io/blocks-inputs/whatsappCarousel/schema";
 import type { WhatsAppListItem } from "@typebot.io/blocks-inputs/whatsappList/schema";
 import type { AbTestBlock } from "@typebot.io/blocks-logic/abTest/schema";
 import type { ConditionItem } from "@typebot.io/blocks-logic/condition/schema";
@@ -222,6 +223,15 @@ const createItem = (
       block.items.splice(itemIndex, 0, newItem);
       return newItem;
     }
+    case InputBlockType.WHATSAPP_CAROUSEL: {
+      const baseItem = item as WhatsAppCarouselItem;
+      const newItem = {
+        ...baseItem,
+        id: "id" in item && item.id ? item.id : createId(),
+      };
+      block.items.splice(itemIndex, 0, newItem);
+      return newItem;
+    }
   }
 };
 
@@ -317,6 +327,15 @@ export const duplicateItemDraft = (
         id: newItemId,
         content: baseItem.content,
       } satisfies WhatsAppListItem;
+      return { newItem, newEdges };
+    }
+    case InputBlockType.WHATSAPP_CAROUSEL: {
+      const baseItem = item as WhatsAppCarouselItem;
+      const newItem = {
+        ...baseItem,
+        outgoingEdgeId: newDefaultOutgoingEdge?.id,
+        id: newItemId,
+      } satisfies WhatsAppCarouselItem;
       return { newItem, newEdges };
     }
   }

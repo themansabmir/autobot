@@ -13,7 +13,9 @@ export function middleware(req: NextRequest) {
 
   if (pathname === "/") {
     const toSignedIn =
-      locale && locale !== defaultLocale ? `/${locale}/dashboard` : "/dashboard";
+      locale && locale !== defaultLocale
+        ? `/${locale}/dashboard`
+        : "/dashboard";
     const toSignin =
       locale && locale !== defaultLocale ? `/${locale}/signin` : "/signin";
 

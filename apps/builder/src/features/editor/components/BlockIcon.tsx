@@ -26,6 +26,7 @@ import { RatingInputIcon } from "@/features/blocks/inputs/rating/components/Rati
 import { TextInputIcon } from "@/features/blocks/inputs/textInput/components/TextInputIcon";
 import { TimeInputIcon } from "@/features/blocks/inputs/time/components/TimeInputIcon";
 import { UrlInputIcon } from "@/features/blocks/inputs/url/components/UrlInputIcon";
+import { WhatsAppCarouselIcon } from "@/features/blocks/inputs/whatsappCarousel/components/WhatsAppCarouselIcon";
 import { WhatsAppListIcon } from "@/features/blocks/inputs/whatsappList/components/WhatsAppListIcon";
 import { ChatwootLogo } from "@/features/blocks/integrations/chatwoot/components/ChatwootLogo";
 import { GoogleAnalyticsLogo } from "@/features/blocks/integrations/googleAnalytics/components/GoogleAnalyticsLogo";
@@ -136,12 +137,16 @@ export const BlockIcon = ({ type, className }: BlockIconProps): JSX.Element => {
         />
       );
     case InputBlockType.CTA_URL:
-      return (
-        <CtaUrlIcon className={cn("text-orange-9 stroke-2", className)} />
-      );
+      return <CtaUrlIcon className={cn("text-orange-9 stroke-2", className)} />;
     case InputBlockType.WHATSAPP_LIST:
       return (
         <WhatsAppListIcon className={cn("text-orange-9 stroke-2", className)} />
+      );
+    case InputBlockType.WHATSAPP_CAROUSEL:
+      return (
+        <WhatsAppCarouselIcon
+          className={cn("text-orange-9 stroke-2", className)}
+        />
       );
     case LogicBlockType.SET_VARIABLE:
       return (

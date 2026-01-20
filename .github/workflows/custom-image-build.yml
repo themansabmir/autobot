@@ -2,7 +2,7 @@ name: Build and Push Docker Images
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "dev"]
   workflow_dispatch:
 
 env:
@@ -18,8 +18,13 @@ jobs:
         include:
           - scope: builder
             image_suffix: -builder
+            dockerfile: Dockerfile
           - scope: viewer
             image_suffix: -viewer
+            dockerfile: Dockerfile
+          - scope: campaign-worker
+            image_suffix: -campaign-worker
+            dockerfile: Dockerfile.campaign-worker
 
     permissions:
       contents: read
@@ -49,8 +54,9 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
+          file: ${{ matrix.dockerfile }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-             SCOPE=${{ matrix.scope }}
+            SCOPE=${{ matrix.scope }}

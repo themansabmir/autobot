@@ -1,4 +1,3 @@
-import { useTranslate } from "@tolgee/react";
 import type { WhatsAppListItem } from "@typebot.io/blocks-inputs/whatsappList/schema";
 import { Field } from "@typebot.io/ui/components/Field";
 import { DebouncedTextInputWithVariablesButton } from "@/components/inputs/DebouncedTextInput";
@@ -9,8 +8,6 @@ type Props = {
 };
 
 export const WhatsAppListItemSettings = ({ item, onSettingsChange }: Props) => {
-  const { t } = useTranslate();
-
   const updateDescription = (description: string) =>
     onSettingsChange({
       ...item,

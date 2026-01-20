@@ -34,14 +34,14 @@ export const WorkspaceDropdown = ({
   return (
     <Menu.Root>
       <Menu.TriggerButton variant="outline-secondary">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 text-black dark:text-white">
           {!isLoggingOut && currentWorkspace && (
             <>
               <p className="max-w-[300px] truncate">{currentWorkspace.name}</p>
               <PlanBadge plan={currentWorkspace.plan} />
             </>
           )}
-          <ArrowDown01Icon />
+          <ArrowDown01Icon className="text-gray-400" />
         </div>
       </Menu.TriggerButton>
       <Menu.Popup align="end">

@@ -4,6 +4,7 @@ import { BubbleBlockType } from "../constants";
 
 export const stickerBubbleContentSchema = z.object({
   url: z.string().optional(),
+  mediaId: z.string().optional(), // WhatsApp Media ID from Meta API upload
 });
 
 export const stickerBubbleBlockSchema = blockBaseSchema
