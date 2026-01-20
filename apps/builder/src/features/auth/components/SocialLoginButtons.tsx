@@ -47,7 +47,7 @@ export const SocialLoginButtons = ({ providers }: Props) => {
   const handleKeyCloackClick = () => handleSignIn("keycloak");
 
   return (
-    <div className="flex flex-col gap-3 w-full">
+    <div className="flex flex-col gap-2">
       {providers?.github && (
         <Button
           onClick={handleGitHubClick}
@@ -55,7 +55,7 @@ export const SocialLoginButtons = ({ providers }: Props) => {
             ["loading", "authenticated"].includes(status) ||
             authLoading === "github"
           }
-          className="w-full bg-[#FFE600] hover:bg-[#FFE600]/90 text-black font-bold h-12"
+          variant="outline-secondary"
         >
           <GithubIcon />
           {t("auth.socialLogin.githubButton.label")}
@@ -68,7 +68,7 @@ export const SocialLoginButtons = ({ providers }: Props) => {
             ["loading", "authenticated"].includes(status) ||
             authLoading === "google"
           }
-          className="w-full bg-[#FFE600] hover:bg-[#FFE600]/90 text-black font-bold h-12"
+          variant="outline-secondary"
         >
           <GoogleLogo />
           {t("auth.socialLogin.googleButton.label")}
@@ -81,7 +81,7 @@ export const SocialLoginButtons = ({ providers }: Props) => {
             ["loading", "authenticated"].includes(status) ||
             authLoading === "facebook"
           }
-          className="w-full bg-[#FFE600] hover:bg-[#FFE600]/90 text-black font-bold h-12"
+          variant="outline-secondary"
         >
           <FacebookLogo />
           {t("auth.socialLogin.facebookButton.label")}
@@ -94,7 +94,7 @@ export const SocialLoginButtons = ({ providers }: Props) => {
             ["loading", "authenticated"].includes(status) ||
             authLoading === "gitlab"
           }
-          className="w-full bg-[#FFE600] hover:bg-[#FFE600]/90 text-black font-bold h-12"
+          variant="outline-secondary"
         >
           <GitlabLogo />
           {t("auth.socialLogin.gitlabButton.label", {
@@ -109,7 +109,7 @@ export const SocialLoginButtons = ({ providers }: Props) => {
             ["loading", "authenticated"].includes(status) ||
             authLoading === "microsoft-entra-id"
           }
-          className="w-full bg-[#FFE600] hover:bg-[#FFE600]/90 text-black font-bold h-12"
+          variant="outline"
         >
           <AzureAdLogo />
           {t("auth.socialLogin.azureButton.label", {
@@ -124,7 +124,7 @@ export const SocialLoginButtons = ({ providers }: Props) => {
             ["loading", "authenticated"].includes(status) ||
             authLoading === "custom-oauth"
           }
-          className="w-full bg-[#FFE600] hover:bg-[#FFE600]/90 text-black font-bold h-12"
+          variant="outline-secondary"
         >
           {t("auth.socialLogin.customButton.label", {
             customProviderName: providers["custom-oauth"].name,
@@ -138,7 +138,7 @@ export const SocialLoginButtons = ({ providers }: Props) => {
             ["loading", "authenticated"].includes(status) ||
             authLoading === "keycloak"
           }
-          className="w-full bg-[#FFE600] hover:bg-[#FFE600]/90 text-black font-bold h-12"
+          variant="outline-secondary"
         >
           <KeycloackLogo />
           {t("auth.socialLogin.keycloakButton.label")}

@@ -17,25 +17,17 @@ export const DashboardHeader = () => {
   const { theme, setTheme } = useTheme();
 
   const handleCreateNewBot = () => {
-    // Logic to create new bot - likely redirect or modal
-    // existing: createWorkspace typically creates workspace (project?)
-    // Actually "Create New Bot" creates a Typebot.
-    // I will link to the typebot creation flow or keep it visual for now.
     router.push("/typebots/new");
   };
 
   return (
     <header className="flex w-full h-20 bg-white dark:bg-[#1A1A1A] border-b border-gray-200 dark:border-gray-800 px-8 items-center justify-between shrink-0 transition-colors">
 
-      {/* Left Action: Create Folder */}
-      <div className="flex items-center">
-        { /* Note: Create Folder button visibility might be contextual, but keeping it as requested */}
-      </div>
-
+      {/* Left Action: Dashboard Title & Info */}
       <div className="flex items-center gap-4">
         <h1 className="text-xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
         <div className="h-6 w-px bg-gray-300 dark:bg-gray-700 mx-2" />
-        <span className="text-sm text-gray-500 flex items-center gap-1">
+        <span className="text-sm text-gray-500 flex items-center gap-1 whitespace-nowrap">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
           Last updated: 2 mins ago
         </span>
@@ -61,7 +53,10 @@ export const DashboardHeader = () => {
         </button>
 
         {/* Create Bot Button (Yellow) */}
-        <Button className="bg-[#FFE600] hover:bg-yellow-400 text-black font-bold border border-yellow-500/50">
+        <Button
+          className="bg-[#FFE600] hover:bg-yellow-400 text-black font-bold border border-yellow-500/50"
+          onClick={handleCreateNewBot}
+        >
           <PlusSignIcon className="w-4 h-4 mr-2" />
           Create New Bot
         </Button>
