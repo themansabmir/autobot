@@ -129,7 +129,7 @@ const TypebotButton = ({
             iconStyle: "none",
             size: "lg",
           }),
-          "flex-col w-[225px] h-[270px] rounded-xl whitespace-normal bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-gray-800 hover:border-yellow-400/50 hover:shadow-lg transition-all group relative",
+          "flex-col w-full h-[270px] rounded-xl whitespace-normal bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-gray-800 hover:border-yellow-400/50 hover:shadow-lg transition-all group relative",
           draggedTypebot && "opacity-30",
         )}
       >

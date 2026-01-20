@@ -148,7 +148,7 @@ export const FolderContent = ({ folder }: Props) => {
 
   return (
     <div className="flex w-full flex-1 justify-center">
-      <div className="flex flex-col w-[1000px] gap-6 pt-4">
+      <div className="flex flex-col w-full max-w-[1600px] px-6 gap-6 pt-4">
         {folder?.name !== undefined ? (
           <h1 className="text-2xl font-medium text-gray-900 dark:text-white">{folder.name}</h1>
         ) : null}
@@ -162,7 +162,7 @@ export const FolderContent = ({ folder }: Props) => {
               />
             )}
           </div>
-          <div className="flex flex-wrap gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
             {currentUserMode !== "guest" && (
               <CreateBotButton
                 folderId={folder?.id}

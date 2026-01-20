@@ -320,7 +320,7 @@ const TypebotNav = ({
         href={`/typebots/${typebotId}/edit`}
         variant={router.pathname.includes("/edit") ? "secondary" : "ghost"}
         size="sm"
-        className={cn("text-xs font-medium px-4", router.pathname.includes("/edit") && "bg-gray-4 text-white")}
+        className={cn("text-xs font-medium px-4", router.pathname.includes("/edit") && "bg-gray-200 text-black dark:bg-gray-700 dark:text-white")}
       >
         {t("editor.header.flowButton.label")}
       </ButtonLink>
@@ -328,7 +328,7 @@ const TypebotNav = ({
         href={`/typebots/${typebotId}/theme`}
         variant={getVariant("theme")}
         size="sm"
-        className={cn("text-xs font-medium px-4", router.pathname.endsWith("theme") && "bg-gray-4 text-white")}
+        className={cn("text-xs font-medium px-4", router.pathname.endsWith("theme") && "bg-gray-200 text-black dark:bg-gray-700 dark:text-white")}
       >
         {t("editor.header.themeButton.label")}
       </ButtonLink>
@@ -336,7 +336,7 @@ const TypebotNav = ({
         href={`/typebots/${typebotId}/settings`}
         variant={getVariant("settings")}
         size="sm"
-        className={cn("text-xs font-medium px-4", router.pathname.endsWith("settings") && "bg-gray-4 text-white")}
+        className={cn("text-xs font-medium px-4", router.pathname.endsWith("settings") && "bg-gray-200 text-black dark:bg-gray-700 dark:text-white")}
       >
         {t("editor.header.settingsButton.label")}
       </ButtonLink>
@@ -344,7 +344,7 @@ const TypebotNav = ({
         href={`/typebots/${typebotId}/share`}
         variant={getVariant("share")}
         size="sm"
-        className={cn("text-xs font-medium px-4", router.pathname.endsWith("share") && "bg-gray-4 text-white")}
+        className={cn("text-xs font-medium px-4", router.pathname.endsWith("share") && "bg-gray-200 text-black dark:bg-gray-700 dark:text-white")}
       >
         {t("share.button.label")}
       </ButtonLink>
@@ -353,7 +353,7 @@ const TypebotNav = ({
           href={`/typebots/${typebotId}/results`}
           variant={router.pathname.includes("results") ? "secondary" : "ghost"}
           size="sm"
-          className={cn("text-xs font-medium px-4", router.pathname.includes("results") && "bg-gray-4 text-white")}
+          className={cn("text-xs font-medium px-4", router.pathname.includes("results") && "bg-gray-200 text-black dark:bg-gray-700 dark:text-white")}
         >
           {t("editor.header.resultsButton.label")}
         </ButtonLink>

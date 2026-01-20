@@ -228,6 +228,7 @@ export const PublishButton = ({
               }}
               className={cn(
                 publishedTypebot && !isMoreMenuDisabled && "rounded-r-none",
+                "text-black dark:text-white",
                 className,
               )}
               {...props}
