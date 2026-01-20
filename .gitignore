@@ -63,3 +63,6 @@ snapshots
 .nitro
 
 **/test/.auth
+
+# Campaign uploads
+apps/builder/public/uploads/

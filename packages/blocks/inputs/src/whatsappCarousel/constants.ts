@@ -1,8 +1,9 @@
 import type { WhatsAppCarouselBlock } from "./schema";
 
-export const defaultWhatsAppCarouselOptions: WhatsAppCarouselBlock["options"] = {
-  bodyText: "Choose an option below:",
-};
+export const defaultWhatsAppCarouselOptions: WhatsAppCarouselBlock["options"] =
+  {
+    bodyText: "Choose an option below:",
+  };
 
 export const defaultWhatsAppCarouselItem = {
   id: "",
