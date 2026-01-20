@@ -25,7 +25,7 @@ export const CreateFolderButton = ({ isLoading, onClick }: Props) => {
         onClick={handleClick}
         disabled={isLoading}
         variant="outline-secondary"
-        className="bg-gray-1"
+        className="bg-white dark:bg-[#1A1A1A]"
       >
         <FolderAddIcon className="text-blue-10" />
         <div className="flex items-center gap-2">

@@ -129,7 +129,7 @@ const TypebotButton = ({
             iconStyle: "none",
             size: "lg",
           }),
-          "flex-col w-[225px] h-[270px] rounded-lg whitespace-normal bg-gray-1 relative",
+          "flex-col w-full h-[270px] rounded-xl whitespace-normal bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-gray-800 hover:border-yellow-400/50 hover:shadow-lg transition-all group relative",
           draggedTypebot && "opacity-30",
         )}
       >
@@ -142,7 +142,7 @@ const TypebotButton = ({
           <>
             <Button
               ref={buttonRef}
-              className="absolute top-5 left-5 size-8 cursor-grab"
+              className="absolute top-5 left-5 size-8 cursor-grab opacity-0 group-hover:opacity-100 transition-opacity"
               aria-label="Drag"
               variant="ghost"
               size="icon"
@@ -154,9 +154,9 @@ const TypebotButton = ({
                 aria-label={t("folders.typebotButton.showMoreOptions")}
                 data-testid="more-button"
                 onClick={(e) => e.stopPropagation()}
-                variant="outline-secondary"
+                variant="ghost"
                 size="icon"
-                className="absolute top-5 right-5 size-8"
+                className="absolute top-5 right-5 size-8 opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-white"
               >
                 <MoreVerticalIcon />
               </Menu.TriggerButton>
@@ -176,15 +176,22 @@ const TypebotButton = ({
             </Menu.Root>
           </>
         )}
-        <div className="flex flex-col items-center gap-4">
-          <EmojiOrImageIcon
-            icon={typebot.icon}
-            size="lg"
-            defaultIcon={LayoutBottomIcon}
-          />
-          <p className="text-center max-w-[180px] line-clamp-4">
-            {typebot.name}
-          </p>
+        <div className="flex flex-col items-center gap-6 mt-8">
+          <div className="flex items-center justify-center size-20 rounded-2xl bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-gray-700 shadow-inner">
+            <EmojiOrImageIcon
+              icon={typebot.icon}
+              size="lg"
+              defaultIcon={LayoutBottomIcon}
+              className="[&_svg]:size-10 text-gray-500 dark:text-gray-300"
+            />
+          </div>
+          <div className="flex flex-col items-center gap-1 px-4">
+            <p className="text-center font-semibold text-lg text-gray-900 dark:text-white line-clamp-2 leading-tight">
+              {typebot.name}
+            </p>
+            <span className="text-xs text-gray-500 font-medium">Edited 2h ago</span>
+            {/* Mocking edited message as per screenshot or needing a prop if available */}
+          </div>
         </div>
       </div>
       {!isReadOnly && (

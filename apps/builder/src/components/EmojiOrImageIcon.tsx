@@ -5,9 +5,15 @@ type Props = {
   icon?: string | null;
   size?: "sm" | "md" | "lg";
   defaultIcon: (props: React.SVGProps<SVGSVGElement>) => JSX.Element;
+  className?: string;
 };
 
-export const EmojiOrImageIcon = ({ icon, size = "md", defaultIcon }: Props) => {
+export const EmojiOrImageIcon = ({
+  icon,
+  size = "md",
+  defaultIcon,
+  className,
+}: Props) => {
   return (
     <>
       {icon ? (
@@ -19,6 +25,7 @@ export const EmojiOrImageIcon = ({ icon, size = "md", defaultIcon }: Props) => {
               size === "md" && "size-[25px]",
               size === "lg" && "size-[36px]",
               isSvgSrc(icon) ? undefined : "object-cover",
+              className,
             )}
             src={icon}
             alt="typebot icon"
@@ -30,6 +37,7 @@ export const EmojiOrImageIcon = ({ icon, size = "md", defaultIcon }: Props) => {
               size === "sm" && "text-xl",
               size === "md" && "text-2xl",
               size === "lg" && "text-[2.25rem]",
+              className,
             )}
           >
             {icon}
@@ -41,6 +49,7 @@ export const EmojiOrImageIcon = ({ icon, size = "md", defaultIcon }: Props) => {
             size === "sm" && "size-4!",
             size === "md" && "size-6!",
             size === "lg" && "size-9!",
+            className,
           ),
         })
       )}

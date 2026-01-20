@@ -6,6 +6,7 @@
 
 /* TODO: Remove this once migrated to explicit border color */
 @layer base {
+
   *,
   ::after,
   ::before,
@@ -47,7 +48,8 @@
   --color-orange-200: oklch(0.854 0.082 38.39);
   --color-orange-300: oklch(0.784 0.13 38.34);
   --color-orange-400: oklch(0.73 0.171 37.85);
-  --color-orange-500: oklch(0.682 0.211 36.62); /* Brand */
+  --color-orange-500: oklch(0.682 0.211 36.62);
+  /* Brand */
   --color-orange-600: oklch(0.615 0.22 34.14);
   --color-orange-700: oklch(0.491 0.173 34.71);
   --color-orange-800: oklch(0.373 0.128 36.02);
@@ -58,20 +60,21 @@
 }
 
 :root {
-  --background: var(--color-white);
-  --foreground: var(--color-stone-900);
-  --card: var(--color-white);
-  --card-foreground: var(--color-stone-900);
-  --popover: var(--color-white);
-  --popover-foreground: var(--color-stone-900);
-  --primary: var(--color-orange-500);
-  --primary-foreground: var(--color-white);
-  --secondary: var(--color-stone-100);
-  --secondary-foreground: var(--color-stone-900);
-  --muted: var(--color-neutral-100);
-  --muted-foreground: var(--color-neutral-500);
-  --accent: var(--color-neutral-100);
-  --accent-foreground: var(--color-neutral-900);
+  --background: var(--gray-1);
+  --foreground: var(--gray-12);
+  --card: var(--gray-2);
+  --card-foreground: var(--gray-12);
+  --popover: var(--gray-2);
+  --popover-foreground: var(--gray-12);
+  --primary: var(--orange-9);
+  --primary-foreground: var(--gray-1);
+  /* Black text on Yellow */
+  --secondary: var(--gray-3);
+  --secondary-foreground: var(--gray-12);
+  --muted: var(--gray-3);
+  --muted-foreground: var(--gray-10);
+  --accent: var(--gray-3);
+  --accent-foreground: var(--gray-12);
   --destructive: var(--color-red-600);
   --destructive-foreground: var(--color-white);
   --info: ;
@@ -80,28 +83,27 @@
   --success-foreground: ;
   --warning: ;
   --warning-foreground: ;
-  --border: var(--color-stone-200);
-  --input: var(--color-stone-250);
+  --border: var(--gray-6);
+  --input: var(--gray-6);
   --ring: var(--primary);
 
   --radius: 0.625rem;
 }
 
 .dark {
-  --background: var(--color-neutral-950);
-  --foreground: var(--color-stone-100);
-  --card: var(--color-stone-900);
-  --card-foreground: var(--color-stone-100);
-  --popover: var(--color-stone-900);
-  --popover-foreground: var(--color-stone-100);
-  --primary: var(--color-orange-600);
-  --primary-foreground: var(--color-white);
-  --secondary: var(--color-stone-800);
-  --secondary-foreground: var(--color-stone-50);
-  --muted: var(--color-stone-900);
-  --muted-foreground: var(--color-stone-500);
-  --accent: var(--color-neutral-900);
-  --accent-foreground: var(--color-neutral-50);
+  --background: var(--gray-1);
+  --foreground: var(--gray-12);
+  --card: var(--gray-2);
+  --card-foreground: var(--gray-12);
+  --popover: var(--gray-2);
+  --popover-foreground: var(--gray-12);
+  --primary: var(--orange-9);
+  --secondary: var(--gray-3);
+  --secondary-foreground: var(--gray-12);
+  --muted: var(--gray-3);
+  --muted-foreground: var(--gray-10);
+  --accent: var(--gray-3);
+  --accent-foreground: var(--gray-12);
   --destructive: oklch(0.637 0.237 25.331);
   --destructive-foreground: oklch(0.505 0.213 27.518);
   --info: oklch(0.623 0.214 259.815);
@@ -110,8 +112,8 @@
   --success-foreground: oklch(0.508 0.118 165.612);
   --warning: oklch(0.769 0.188 70.08);
   --warning-foreground: oklch(0.555 0.163 48.998);
-  --border: var(--color-neutral-800);
-  --input: var(--color-stone-800);
+  --border: var(--gray-6);
+  --input: var(--gray-6);
   --ring: var(--primary);
 }
 

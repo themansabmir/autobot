@@ -194,7 +194,7 @@ export const BlocksSideBar = () => {
       )}
       onMouseLeave={handleMouseLeave}
     >
-      <div className="flex flex-col w-full rounded-lg border pt-4 pb-10 px-4 gap-6 overflow-y-auto bg-gray-1 select-none">
+      <div className="flex flex-col w-full rounded-lg border border-gray-6 pt-4 pb-10 px-4 gap-6 overflow-y-auto bg-gray-1 select-none shadow-xl">
         <div className="flex justify-between w-full items-center gap-3">
           <Input
             placeholder="Search"

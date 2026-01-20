@@ -80,7 +80,7 @@ export const SettingsPopoverContent = (props: Props) => {
       ref={ref}
       onMouseDown={handleMouseDown}
       className={cn(
-        "p-4 min-w-[400px]",
+        "p-4 min-w-[400px] bg-gray-1 border border-gray-6 shadow-xl",
         props.isExpanded
           ? "w-[calc(var(--available-width)-42px)]"
           : "max-w-[400px]",

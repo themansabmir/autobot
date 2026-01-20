@@ -8,11 +8,13 @@ type Props = {
 
 export const DashboardLayout = ({ children }: Props) => {
   return (
-    <div className="flex flex-col min-h-screen">
-      <DashboardHeader />
-      <div className="flex flex-1">
-        <Sidebar />
-        <main className="flex-1 bg-gray-1 dark:bg-gray-1">{children}</main>
+    <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-1">
+      <Sidebar />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <DashboardHeader />
+        <main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-1 p-6">
+          {children}
+        </main>
       </div>
     </div>
   );
