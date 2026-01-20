@@ -1,8 +1,8 @@
 import { TRPCError } from "@trpc/server";
+import { sessionStateSchema } from "@typebot.io/chat-session/schemas";
 import prisma from "@typebot.io/prisma";
 import { z } from "@typebot.io/zod";
 import { authenticatedProcedure } from "@/helpers/server/trpc";
-import { sessionStateSchema } from "@typebot.io/chat-session/schemas";
 
 const MAX_LIMIT = 200;
 
@@ -72,9 +72,7 @@ export const getChatSessions = authenticatedProcedure
       },
     });
 
-    const typebotMap = new Map(
-      workspaceTypebots.map((tb) => [tb.id, tb.name]),
-    );
+    const typebotMap = new Map(workspaceTypebots.map((tb) => [tb.id, tb.name]));
 
     // Fetch more sessions to account for filtering
     const chatSessions = await prisma.chatSession.findMany({
@@ -116,14 +114,12 @@ export const getChatSessions = authenticatedProcedure
           typebotName,
           resultId,
         });
-      } catch (error) {
-        // Skip sessions with invalid state
-        continue;
-      }
+      } catch (_error) {}
     }
 
     const nextCursor =
-      validSessions.length === limit && chatSessions.length > validSessions.length
+      validSessions.length === limit &&
+      chatSessions.length > validSessions.length
         ? validSessions[validSessions.length - 1]?.id
         : undefined;
 

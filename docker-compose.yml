@@ -63,6 +63,96 @@ services:
     ports:
       - "8081:3000"
 
+  typebot-rabbitmq:
+    image: rabbitmq:3-management-alpine
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: typebot
+      RABBITMQ_DEFAULT_PASS: typebot
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - typebot-network
+
+  typebot-scheduler:
+    restart: always
+    depends_on:
+      typebot-rabbitmq:
+        condition: service_healthy
+      typebot-db:
+        condition: service_healthy
+    build:
+      context: .
+      dockerfile: Dockerfile.campaign-worker
+    command: ["bun", "run", "scheduler"]
+    networks:
+      - typebot-network
+    env_file: .env
+    environment:
+      RABBITMQ_URL: amqp://typebot:typebot@typebot-rabbitmq:5672
+      DATABASE_URL: postgresql://postgres:typebot@typebot-db:5432/typebot
+
+  typebot-campaign-worker:
+    restart: always
+    depends_on:
+      typebot-rabbitmq:
+        condition: service_healthy
+      typebot-db:
+        condition: service_healthy
+    build:
+      context: .
+      dockerfile: Dockerfile.campaign-worker
+    command: ["bun", "run", "campaign-worker"]
+    networks:
+      - typebot-network
+    env_file: .env
+    environment:
+      RABBITMQ_URL: amqp://typebot:typebot@typebot-rabbitmq:5672
+      DATABASE_URL: postgresql://postgres:typebot@typebot-db:5432/typebot
+
+  typebot-whatsapp-worker:
+    restart: always
+    depends_on:
+      typebot-rabbitmq:
+        condition: service_healthy
+      typebot-db:
+        condition: service_healthy
+    build:
+      context: .
+      dockerfile: Dockerfile.campaign-worker
+    command: ["bun", "run", "whatsapp-worker"]
+    networks:
+      - typebot-network
+    env_file: .env
+    environment:
+      RABBITMQ_URL: amqp://typebot:typebot@typebot-rabbitmq:5672
+      DATABASE_URL: postgresql://postgres:typebot@typebot-db:5432/typebot
+    deploy:
+      replicas: 3
+
+  typebot-completion-checker:
+    restart: always
+    depends_on:
+      typebot-db:
+        condition: service_healthy
+    build:
+      context: .
+      dockerfile: Dockerfile.campaign-worker
+    command: ["bun", "run", "completion-checker"]
+    networks:
+      - typebot-network
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://postgres:typebot@typebot-db:5432/typebot
+
 networks:
   typebot-network:
     driver: bridge
@@ -70,3 +160,4 @@ networks:
 volumes:
   db-data:
   redis-data:
+  rabbitmq-data:

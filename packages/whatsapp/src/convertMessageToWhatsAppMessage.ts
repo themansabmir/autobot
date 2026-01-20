@@ -177,25 +177,40 @@ export const convertMessageToWhatsAppMessage = async ({
         },
       };
     case BubbleBlockType.STICKER: {
-      if (!message.content?.url) return null;
-
-      if (mediaCache) {
-        const mediaId = await getOrUploadMedia({
-          url: message.content.url,
-          cache: mediaCache,
-        });
-
-        if (mediaId) {
-          return {
-            type: "sticker",
-            sticker: { id: mediaId },
-          };
-        }
+      // PRIORITY 1: Use pre-uploaded mediaId (preferred - no runtime upload)
+      if (message.content?.mediaId) {
+        return {
+          type: "sticker",
+          sticker: { id: message.content.mediaId },
+        };
       }
-      return {
-        type: "sticker",
-        sticker: { link: message.content.url },
-      };
+
+      // PRIORITY 2: Fallback to runtime upload (for backward compatibility)
+      // This path should rarely be used - mediaId should be set during builder time
+      if (message.content?.url) {
+        if (mediaCache) {
+          const mediaId = await getOrUploadMedia({
+            url: message.content.url,
+            cache: mediaCache,
+          });
+
+          if (mediaId) {
+            return {
+              type: "sticker",
+              sticker: { id: mediaId },
+            };
+          }
+        }
+
+        // PRIORITY 3: Use link as last resort (not recommended by Meta)
+        return {
+          type: "sticker",
+          sticker: { link: message.content.url },
+        };
+      }
+
+      // No url and no mediaId - cannot send sticker
+      return null;
     }
     case "custom-embed":
       if (!message.content.url) return null;

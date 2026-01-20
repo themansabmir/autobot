@@ -1,6 +1,6 @@
 import { useTranslate } from "@tolgee/react";
-import { Seo } from "@/components/Seo";
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { Seo } from "@/components/Seo";
 import { useWorkspace } from "@/features/workspace/WorkspaceProvider";
 import { MoreHorizontalIcon } from "@typebot.io/ui/icons/MoreHorizontalIcon";
 import { Edit03Icon } from "@typebot.io/ui/icons/Edit03Icon";

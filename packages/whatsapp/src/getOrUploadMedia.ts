@@ -52,6 +52,13 @@ export const getOrUploadMedia = async ({
     const mimeType =
       response.headers.get("content-type") ?? "application/octet-stream";
 
+    // Validate that we got actual media content, not HTML or other non-media types
+    if (mimeType.includes("text/html") || mimeType.includes("text/plain")) {
+      throw new Error(
+        `Invalid media URL: received ${mimeType} instead of image/video/audio. The URL may be a redirect or webpage instead of a direct media link. Please use a direct URL to the image/video/audio file.`
+      );
+    }
+
     // Upload to WhatsApp
     const formData = new FormData();
     const fileBlob = new Blob([arrayBuffer], { type: mimeType });

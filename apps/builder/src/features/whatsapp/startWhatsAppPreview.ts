@@ -1,21 +1,85 @@
+import { authenticatedProcedure } from "@/helpers/server/trpc";
+import { ClientToastError } from "@/lib/ClientToastError";
 import { TRPCError } from "@trpc/server";
+import { BubbleBlockType } from "@typebot.io/blocks-bubbles/constants";
 import { saveStateToDatabase } from "@typebot.io/bot-engine/saveStateToDatabase";
 import { startSession } from "@typebot.io/bot-engine/startSession";
 import { startFromSchema } from "@typebot.io/chat-api/schemas";
 import { restartSession } from "@typebot.io/chat-session/queries/restartSession";
 import type { SessionState } from "@typebot.io/chat-session/schemas";
 import { env } from "@typebot.io/env";
+import { parseGroups } from "@typebot.io/groups/helpers/parseGroups";
 import prisma from "@typebot.io/prisma";
 import {
   deleteSessionStore,
   getSessionStore,
 } from "@typebot.io/runtime-session-store";
 import { isReadTypebotForbidden } from "@typebot.io/typebot/helpers/isReadTypebotForbidden";
+import { getOrUploadMedia } from "@typebot.io/whatsapp/getOrUploadMedia";
 import { sendChatReplyToWhatsApp } from "@typebot.io/whatsapp/sendChatReplyToWhatsApp";
 import { sendWhatsAppMessage } from "@typebot.io/whatsapp/sendWhatsAppMessage";
 import { z } from "@typebot.io/zod";
-import { authenticatedProcedure } from "@/helpers/server/trpc";
-import { ClientToastError } from "@/lib/ClientToastError";
+
+// Helper function to auto-upload stickers during preview
+async function uploadStickersForPreview(typebot: any) {
+  try {
+    console.log("🔍 [Preview] Checking for stickers to upload...");
+    
+    if (!env.META_SYSTEM_USER_TOKEN) {
+      console.log("⏭️  [Preview] No META_SYSTEM_USER_TOKEN, skipping upload");
+      return;
+    }
+
+    const groups = parseGroups(typebot.groups, {
+      typebotVersion: typebot.version,
+    });
+
+    let hasChanges = false;
+
+    for (const group of groups) {
+      for (const block of group.blocks) {
+        if (
+          block.type === BubbleBlockType.STICKER &&
+          block.content?.url &&
+          !block.content?.mediaId
+        ) {
+          console.log(`🔄 [Preview] Auto-uploading sticker for block ${block.id}...`);
+          try {
+            const mediaId = await getOrUploadMedia({
+              url: block.content.url,
+              cache: {
+                credentials: {
+                  provider: "meta" as const,
+                  systemUserAccessToken: env.META_SYSTEM_USER_TOKEN,
+                  phoneNumberId: env.WHATSAPP_PREVIEW_FROM_PHONE_NUMBER_ID || "",
+                },
+                publicTypebotId: typebot.publicId || typebot.id,
+              },
+            }).catch(() => null);
+
+            if (mediaId) {
+              block.content.mediaId = mediaId;
+              hasChanges = true;
+              console.log(`✅ [Preview] Sticker uploaded! mediaId: ${mediaId}`);
+            }
+          } catch (error) {
+            console.error(`❌ [Preview] Failed to upload sticker:`, error);
+          }
+        }
+      }
+    }
+
+    if (hasChanges) {
+      await prisma.typebot.update({
+        where: { id: typebot.id },
+        data: { groups },
+      });
+      console.log(`✅ [Preview] Updated typebot with sticker mediaIds`);
+    }
+  } catch (error) {
+    console.error("[Preview] Error during sticker auto-upload:", error);
+  }
+}
 
 export const startWhatsAppPreview = authenticatedProcedure
   .meta({
@@ -62,6 +126,9 @@ export const startWhatsAppPreview = authenticatedProcedure
       },
       select: {
         id: true,
+        groups: true,
+        version: true,
+        publicId: true,
         workspace: {
           select: {
             isSuspended: true,
@@ -85,6 +152,9 @@ export const startWhatsAppPreview = authenticatedProcedure
       (await isReadTypebotForbidden(existingTypebot, user))
     )
       throw new TRPCError({ code: "NOT_FOUND", message: "Typebot not found" });
+
+    // Auto-upload stickers during preview
+    await uploadStickersForPreview(existingTypebot);
 
     const sessionId = `wa-preview-${to}`;
 

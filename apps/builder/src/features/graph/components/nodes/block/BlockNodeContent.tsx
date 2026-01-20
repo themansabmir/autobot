@@ -26,6 +26,7 @@ import { RatingInputContent } from "@/features/blocks/inputs/rating/components/R
 import { TextInputNodeContent } from "@/features/blocks/inputs/textInput/components/TextInputNodeContent";
 import { TimeNodeContent } from "@/features/blocks/inputs/time/components/TimeNodeContent";
 import { UrlNodeContent } from "@/features/blocks/inputs/url/components/UrlNodeContent";
+import { WhatsAppCarouselContent } from "@/features/blocks/inputs/whatsappCarousel/components/WhatsAppCarouselContent";
 import { WhatsAppListBlockNode } from "@/features/blocks/inputs/whatsappList/components/WhatsAppListBlockNode";
 import { ChatwootNodeBody } from "@/features/blocks/integrations/chatwoot/components/ChatwootNodeBody";
 import { GoogleAnalyticsNodeBody } from "@/features/blocks/integrations/googleAnalytics/components/GoogleAnalyticsNodeBody";
@@ -122,6 +123,9 @@ export const BlockNodeContent = ({
     }
     case InputBlockType.WHATSAPP_LIST: {
       return <WhatsAppListBlockNode block={block} indices={indices} />;
+    }
+    case InputBlockType.WHATSAPP_CAROUSEL: {
+      return <WhatsAppCarouselContent block={block} />;
     }
     case LogicBlockType.SET_VARIABLE: {
       return <SetVariableContent block={block} />;

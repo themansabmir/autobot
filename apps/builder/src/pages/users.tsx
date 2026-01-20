@@ -1,12 +1,7 @@
-import { useTranslate } from "@tolgee/react";
-import { Seo } from "@/components/Seo";
 import { DashboardLayout } from "@/components/DashboardLayout";
-import { useWorkspace } from "@/features/workspace/WorkspaceProvider";
+import { Seo } from "@/components/Seo";
 
 export default function UsersPage() {
-  const { t } = useTranslate();
-  const { workspace } = useWorkspace();
-
   return (
     <DashboardLayout>
       <div className="flex flex-col min-h-screen">
