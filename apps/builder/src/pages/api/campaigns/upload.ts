@@ -1,3 +1,5 @@
+import { env } from "@typebot.io/env";
+import { uploadCampaignFile } from "@typebot.io/lib/campaign/uploadCampaignFile";
 import { methodNotAllowed, notAuthenticated } from "@typebot.io/lib/api/utils";
 import formidable from "formidable";
 import fs from "fs";
@@ -30,10 +32,15 @@ const handler = async (
   const user = await getAuthenticatedUser(req, res);
   if (!user) return notAuthenticated(res);
 
-  ensureUploadDir();
+  const isS3Configured =
+    env.S3_ENDPOINT && env.S3_ACCESS_KEY && env.S3_SECRET_KEY;
+
+  if (!isS3Configured) {
+    ensureUploadDir();
+  }
 
   const form = formidable({
-    uploadDir: UPLOAD_DIR,
+    uploadDir: isS3Configured ? undefined : UPLOAD_DIR,
     keepExtensions: true,
     maxFileSize: 50 * 1024 * 1024, // 50MB
     filter: ({ mimetype }) => {
@@ -60,17 +67,34 @@ const handler = async (
       return res.status(400).json({ error: "No file uploaded" });
     }
 
-    const timestamp = Date.now();
-    const safeFileName = uploadedFile.originalFilename?.replace(
-      /[^a-zA-Z0-9.-]/g,
-      "_",
-    );
-    const newFileName = `${workspaceId}_${timestamp}_${safeFileName}`;
-    const newFilePath = path.join(UPLOAD_DIR, newFileName);
+    const fileBuffer = await fs.promises.readFile(uploadedFile.filepath);
+    const mimeType =
+      uploadedFile.mimetype ??
+      (uploadedFile.originalFilename?.endsWith(".csv")
+        ? "text/csv"
+        : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
-    fs.renameSync(uploadedFile.filepath, newFilePath);
+    let fileUrl: string;
 
-    const fileUrl = `/uploads/campaigns/${newFileName}`;
+    if (isS3Configured) {
+      fileUrl = await uploadCampaignFile({
+        workspaceId,
+        file: fileBuffer,
+        fileName: uploadedFile.originalFilename ?? "file.csv",
+        mimeType,
+      });
+      await fs.promises.unlink(uploadedFile.filepath);
+    } else {
+      const timestamp = Date.now();
+      const safeFileName = uploadedFile.originalFilename?.replace(
+        /[^a-zA-Z0-9.-]/g,
+        "_",
+      );
+      const newFileName = `${workspaceId}_${timestamp}_${safeFileName}`;
+      const newFilePath = path.join(UPLOAD_DIR, newFileName);
+      fs.renameSync(uploadedFile.filepath, newFilePath);
+      fileUrl = `/uploads/campaigns/${newFileName}`;
+    }
 
     return res.status(200).json({
       success: true,

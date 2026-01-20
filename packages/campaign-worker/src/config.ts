@@ -20,6 +20,23 @@ export const config = {
     maxRetries: parseInt(process.env.WORKER_MAX_RETRIES || "3", 10),
     prefetchCount: parseInt(process.env.WORKER_PREFETCH_COUNT || "10", 10),
   },
+  rateLimit: {
+    // Delay between each message in milliseconds
+    delayBetweenMessages: parseInt(
+      process.env.RATE_LIMIT_DELAY_MS || "1000",
+      10,
+    ),
+    // Maximum messages per minute (0 = unlimited)
+    maxMessagesPerMinute: parseInt(
+      process.env.RATE_LIMIT_MAX_PER_MINUTE || "0",
+      10,
+    ),
+    // Maximum messages per hour (0 = unlimited)
+    maxMessagesPerHour: parseInt(
+      process.env.RATE_LIMIT_MAX_PER_HOUR || "0",
+      10,
+    ),
+  },
   completionChecker: {
     pollIntervalMs: parseInt(
       process.env.COMPLETION_CHECKER_POLL_INTERVAL_MS || "10000",

@@ -73,7 +73,9 @@ export const CreateCampaignDialog = ({
       fileUrl,
       executionMode,
       executeAt:
-        executionMode === "SCHEDULED" && executeAt ? executeAt : undefined,
+        executionMode === "SCHEDULED" && executeAt
+          ? new Date(executeAt).toISOString()
+          : undefined,
     });
   };
 
