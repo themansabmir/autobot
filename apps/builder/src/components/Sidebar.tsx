@@ -22,7 +22,7 @@ const navItems: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
   { label: "Typebots", href: "/typebots", icon: HardDriveIcon },
   { label: "Campaigns", href: "/campaigns", icon: MegaphoneIcon },
-  { label: "Users", href: "/users", icon: UsersIcon },
+  { label: "Users", href: "/users", icon: RobotIcon },
   { label: "Settings", href: "/settings", icon: SquareLock01Icon },
 ];
 

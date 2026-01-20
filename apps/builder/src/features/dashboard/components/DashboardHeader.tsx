@@ -79,6 +79,7 @@ export const DashboardHeader = () => {
             )}
           </button>
         </div>
+        </div>
     </header>
   );
 };
