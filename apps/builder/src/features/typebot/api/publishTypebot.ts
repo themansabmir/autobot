@@ -59,7 +59,7 @@ async function uploadStickersIfNeeded(typebot: any) {
     // Decrypt credentials
     const decryptedData = (await decrypt(
       credentials.data,
-      credentials.iv
+      credentials.iv,
     )) as WhatsAppCredentials["data"];
 
     // Parse groups to find sticker blocks
@@ -78,7 +78,7 @@ async function uploadStickersIfNeeded(typebot: any) {
           !block.content?.mediaId
         ) {
           console.log(
-            `🔄 Auto-uploading sticker for block ${block.id} to WhatsApp...`
+            `🔄 Auto-uploading sticker for block ${block.id} to WhatsApp...`,
           );
           try {
             // Upload to WhatsApp and save mediaId
@@ -88,7 +88,7 @@ async function uploadStickersIfNeeded(typebot: any) {
                 credentials: decryptedData,
                 publicTypebotId: typebot.publicId,
               },
-            }).catch((error) => {
+            }).catch((_error) => {
               // If caching fails (e.g., FK constraint), try without cache
               console.log("⚠️  Cache failed, retrying without cache...");
               return null;
@@ -98,14 +98,12 @@ async function uploadStickersIfNeeded(typebot: any) {
               // Update block content with mediaId
               block.content.mediaId = mediaId;
               hasChanges = true;
-              console.log(
-                `✅ Sticker uploaded! mediaId: ${mediaId}`
-              );
+              console.log(`✅ Sticker uploaded! mediaId: ${mediaId}`);
             }
           } catch (error) {
             console.error(
               `❌ Failed to upload sticker for block ${block.id}:`,
-              error
+              error,
             );
             // Continue with other stickers even if one fails
           }

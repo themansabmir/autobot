@@ -1,11 +1,11 @@
-import { authenticatedProcedure } from "@/helpers/server/trpc";
-import { ClientToastError } from "@/lib/ClientToastError";
 import { TRPCError } from "@trpc/server";
 import { decrypt } from "@typebot.io/credentials/decrypt";
 import type { WhatsAppCredentials } from "@typebot.io/credentials/schemas";
 import prisma from "@typebot.io/prisma";
 import { getOrUploadMedia } from "@typebot.io/whatsapp/getOrUploadMedia";
 import { z } from "@typebot.io/zod";
+import { authenticatedProcedure } from "@/helpers/server/trpc";
+import { ClientToastError } from "@/lib/ClientToastError";
 
 export const uploadStickerMedia = authenticatedProcedure
   .input(
@@ -13,7 +13,7 @@ export const uploadStickerMedia = authenticatedProcedure
       url: z.string().url(),
       workspaceId: z.string(),
       typebotId: z.string(),
-    })
+    }),
   )
   .mutation(async ({ input, ctx: { user } }) => {
     const { url, workspaceId, typebotId } = input;
@@ -76,7 +76,7 @@ export const uploadStickerMedia = authenticatedProcedure
     // Decrypt credentials
     const decryptedData = (await decrypt(
       credentials.data,
-      credentials.iv
+      credentials.iv,
     )) as WhatsAppCredentials["data"];
 
     try {
@@ -92,7 +92,8 @@ export const uploadStickerMedia = authenticatedProcedure
       if (!mediaId) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to upload sticker to WhatsApp - no media ID returned",
+          message:
+            "Failed to upload sticker to WhatsApp - no media ID returned",
         });
       }
 

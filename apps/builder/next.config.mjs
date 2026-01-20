@@ -96,7 +96,8 @@ const nextConfig = {
               "default-src 'self'",
               "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:",
               "style-src 'self' 'unsafe-inline' https:",
-              `connect-src 'self' https: wss:${isDev ? " http://localhost:* ws://localhost:*" : ""
+              `connect-src 'self' https: wss:${
+                isDev ? " http://localhost:* ws://localhost:*" : ""
               }`,
               "frame-src 'self' https:",
               `img-src 'self' data: blob: https:${isDev ? " http://localhost:*" : ""}`,
@@ -122,10 +123,10 @@ const nextConfig = {
 
 export default process.env.SENTRY_DSN && process.env.SENTRY_AUTH_TOKEN
   ? withSentryConfig(nextConfig, {
-    telemetry: false,
-    org: process.env.SENTRY_ORG,
-    project: process.env.SENTRY_PROJECT,
-    authToken: process.env.SENTRY_AUTH_TOKEN,
-    widenClientFileUpload: true,
-  })
+      telemetry: false,
+      org: process.env.SENTRY_ORG,
+      project: process.env.SENTRY_PROJECT,
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+      widenClientFileUpload: true,
+    })
   : nextConfig;

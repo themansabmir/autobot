@@ -189,7 +189,9 @@ const TypebotButton = ({
             <p className="text-center font-semibold text-lg text-gray-900 dark:text-white line-clamp-2 leading-tight">
               {typebot.name}
             </p>
-            <span className="text-xs text-gray-500 font-medium">Edited 2h ago</span>
+            <span className="text-xs text-gray-500 font-medium">
+              Edited 2h ago
+            </span>
             {/* Mocking edited message as per screenshot or needing a prop if available */}
           </div>
         </div>

@@ -6,7 +6,6 @@
 
 /* TODO: Remove this once migrated to explicit border color */
 @layer base {
-
   *,
   ::after,
   ::before,

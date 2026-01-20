@@ -1,4 +1,3 @@
-import { useTranslate } from "@tolgee/react";
 import { Button, type ButtonProps } from "@typebot.io/ui/components/Button";
 import { PlusSignIcon } from "@typebot.io/ui/icons/PlusSignIcon";
 import { cn } from "@typebot.io/ui/lib/cn";
@@ -10,7 +9,6 @@ export const CreateBotButton = ({
   folderId,
   ...props
 }: { folderId?: string } & ButtonProps) => {
-  const { t } = useTranslate();
   const router = useRouter();
   const { draggedTypebot } = useTypebotDnd();
 

@@ -2,8 +2,8 @@ import { useTranslate } from "@tolgee/react";
 import { useRouter } from "next/router";
 import { Seo } from "@/components/Seo";
 import { TextLink } from "@/components/TextLink";
-import { SignInForm } from "./SignInForm";
 import { AuthLayout } from "./AuthLayout";
+import { SignInForm } from "./SignInForm";
 
 type Props = {
   type: "signin" | "signup";
@@ -33,14 +33,20 @@ export const SignInPage = ({ type }: Props) => {
           {type === "signin" ? (
             <p className="text-gray-500 dark:text-gray-400">
               {t("auth.signin.noAccountLabel.preLink")}{" "}
-              <TextLink href="/register" className="font-semibold text-[#FFE600] hover:text-[#E6CF00]">
+              <TextLink
+                href="/register"
+                className="font-semibold text-[#FFE600] hover:text-[#E6CF00]"
+              >
                 {t("auth.signin.noAccountLabel.link")}
               </TextLink>
             </p>
           ) : (
             <p className="text-gray-500 dark:text-gray-400">
               {t("auth.register.alreadyHaveAccountLabel.preLink")}{" "}
-              <TextLink href="/signin" className="font-semibold text-[#FFE600] hover:text-[#E6CF00]">
+              <TextLink
+                href="/signin"
+                className="font-semibold text-[#FFE600] hover:text-[#E6CF00]"
+              >
                 {t("auth.register.alreadyHaveAccountLabel.link")}
               </TextLink>
             </p>

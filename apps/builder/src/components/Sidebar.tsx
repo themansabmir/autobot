@@ -1,16 +1,16 @@
-import { LayoutDashboardIcon } from "@typebot.io/ui/icons/LayoutDashboardIcon";
 import { HardDriveIcon } from "@typebot.io/ui/icons/HardDriveIcon";
+import { LayoutDashboardIcon } from "@typebot.io/ui/icons/LayoutDashboardIcon";
 import { MegaphoneIcon } from "@typebot.io/ui/icons/MegaphoneIcon";
 import { RobotIcon } from "@typebot.io/ui/icons/RobotIcon";
 import { Settings01Icon } from "@typebot.io/ui/icons/Settings01Icon";
 import { SquareLock01Icon } from "@typebot.io/ui/icons/SquareLock01Icon";
+import { cn } from "@typebot.io/ui/lib/cn";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { cn } from "@typebot.io/ui/lib/cn";
-import { useUser } from "@/features/user/hooks/useUser";
-import { useWorkspace } from "@/features/workspace/WorkspaceProvider";
-import { WorkspaceDropdown } from "@/features/workspace/components/WorkspaceDropdown";
 import { useState } from "react";
+import { useUser } from "@/features/user/hooks/useUser";
+import { WorkspaceDropdown } from "@/features/workspace/components/WorkspaceDropdown";
+import { useWorkspace } from "@/features/workspace/WorkspaceProvider";
 
 type NavItem = {
   label: string;
@@ -55,7 +55,8 @@ export const Sidebar = () => {
         {navItems.map((item) => {
           const isActive =
             router.pathname === item.href ||
-            (item.href !== "/dashboard" && router.pathname.startsWith(`${item.href}/`));
+            (item.href !== "/dashboard" &&
+              router.pathname.startsWith(`${item.href}/`));
 
           return (
             <Link
@@ -65,13 +66,20 @@ export const Sidebar = () => {
                 "flex items-center gap-3 px-4 py-3 rounded-md text-sm font-medium transition-all group relative",
                 isActive
                   ? "text-white bg-[#2E2E38]"
-                  : "text-gray-400 hover:text-white hover:bg-[#2E2E38]/50"
+                  : "text-gray-400 hover:text-white hover:bg-[#2E2E38]/50",
               )}
             >
               {isActive && (
                 <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#FFE600] rounded-l-md" />
               )}
-              <item.icon className={cn("size-5", isActive ? "text-[#FFE600]" : "text-gray-500 group-hover:text-gray-300")} />
+              <item.icon
+                className={cn(
+                  "size-5",
+                  isActive
+                    ? "text-[#FFE600]"
+                    : "text-gray-500 group-hover:text-gray-300",
+                )}
+              />
               {item.label}
             </Link>
           );
@@ -83,7 +91,7 @@ export const Sidebar = () => {
         <Link
           href="/settings"
           className={cn(
-            "flex items-center gap-3 px-4 py-3 rounded-md text-sm font-medium transition-all group text-gray-400 hover:text-white hover:bg-[#2E2E38]/50"
+            "flex items-center gap-3 px-4 py-3 rounded-md text-sm font-medium transition-all group text-gray-400 hover:text-white hover:bg-[#2E2E38]/50",
           )}
         >
           <Settings01Icon className="size-5 text-gray-500 group-hover:text-gray-300" />
