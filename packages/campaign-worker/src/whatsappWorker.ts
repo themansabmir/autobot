@@ -1,5 +1,22 @@
 import { RecipientStatus } from "@prisma/client";
+import { startSession } from "@typebot.io/bot-engine/startSession";
+import type { SessionState } from "@typebot.io/chat-session/schemas";
+import { decrypt } from "@typebot.io/credentials/decrypt";
+import { getCredentials } from "@typebot.io/credentials/getCredentials";
+import type { WhatsAppCredentials } from "@typebot.io/credentials/schemas";
+import { env } from "@typebot.io/env";
 import prisma from "@typebot.io/prisma";
+
+// Rate limiting tracking
+let messagesSentLastMinute = 0;
+let messagesSentLastHour = 0;
+let lastMinuteReset = Date.now();
+let lastHourReset = Date.now();
+import {
+  deleteSessionStore,
+  getSessionStore,
+} from "@typebot.io/runtime-session-store";
+import { sendChatReplyToWhatsApp } from "@typebot.io/whatsapp/sendChatReplyToWhatsApp";
 import type { ConsumeMessage } from "amqplib";
 import { config } from "./config";
 import { closeRabbitMQ, connectRabbitMQ, type RecipientJob } from "./rabbitmq";
@@ -7,16 +24,171 @@ import { closeRabbitMQ, connectRabbitMQ, type RecipientJob } from "./rabbitmq";
 const MAX_RETRIES = config.worker.maxRetries;
 
 const sendWhatsAppMessage = async (
+  campaignId: string,
+  recipientId: string,
   phoneNumber: string,
-  _variables?: Record<string, unknown>,
+  variables?: Record<string, unknown>,
 ): Promise<void> => {
-  // TODO: Implement actual WhatsApp sending logic using @typebot.io/whatsapp
-  console.log(`📱 Sending WhatsApp message to: ${phoneNumber}`);
-  await new Promise((resolve) => setTimeout(resolve, 100));
+  console.log(`📱 Starting WhatsApp campaign message to: ${phoneNumber}`);
+
+  const campaign = await prisma.campaign.findUnique({
+    where: { id: campaignId },
+    select: {
+      id: true,
+      workspaceId: true,
+      typebotId: true,
+      typebot: {
+        select: {
+          id: true,
+          publicId: true,
+          whatsAppCredentialsId: true,
+        },
+      },
+    },
+  });
+
+  if (!campaign) {
+    throw new Error(`Campaign not found: ${campaignId}`);
+  }
+
+  if (!campaign.typebot.publicId) {
+    throw new Error(
+      `Typebot ${campaign.typebotId} is not published. Please publish the typebot first.`,
+    );
+  }
+
+  if (!campaign.typebot.whatsAppCredentialsId) {
+    throw new Error(
+      `Typebot ${campaign.typebotId} does not have WhatsApp credentials configured.`,
+    );
+  }
+
+  const credentialsRecord = await getCredentials(
+    campaign.typebot.whatsAppCredentialsId,
+    campaign.workspaceId,
+  );
+
+  if (!credentialsRecord) {
+    throw new Error(
+      `WhatsApp credentials not found: ${campaign.typebot.whatsAppCredentialsId}`,
+    );
+  }
+
+  const credentials = (await decrypt(
+    credentialsRecord.data,
+    credentialsRecord.iv,
+  )) as WhatsAppCredentials["data"];
+
+  const sessionId = `campaign-${campaignId}-${recipientId}`;
+  const sessionStore = getSessionStore(sessionId);
+
+  console.log(`� Starting typebot session for campaign recipient`, {
+    sessionId,
+    typebotId: campaign.typebotId,
+    publicId: campaign.typebot.publicId,
+    phoneNumber,
+  });
+
+  const initialSessionState: Pick<SessionState, "whatsApp" | "expiryTimeout"> =
+    {
+      whatsApp: {
+        contact: {
+          name: phoneNumber,
+          phoneNumber,
+        },
+      },
+      expiryTimeout: 24 * 60 * 60 * 1000,
+    };
+
+  const startResponse = await startSession({
+    version: 2,
+    startParams: {
+      type: "live",
+      publicId: campaign.typebot.publicId,
+      isOnlyRegistering: false,
+      isStreamEnabled: false,
+      textBubbleContentFormat: "richText",
+      prefilledVariables: variables,
+    },
+    initialSessionState,
+    sessionStore,
+  });
+
+  console.log(`✅ Typebot session started, sending messages to ${phoneNumber}`);
+
+  // Check if we should actually send WhatsApp messages (for testing)
+  const skipWhatsAppSending = process.env.CAMPAIGN_SKIP_WHATSAPP === "true";
+  
+  if (skipWhatsAppSending) {
+    console.log(`🧪 TEST MODE: Skipping WhatsApp API call for ${phoneNumber}`);
+    console.log(`🧪 Would have sent ${startResponse.messages.length} messages`);
+  } else {
+    await sendChatReplyToWhatsApp({
+      to: phoneNumber,
+      messages: startResponse.messages,
+      input: startResponse.input,
+      isFirstChatChunk: true,
+      clientSideActions: startResponse.clientSideActions,
+      credentials,
+      state: startResponse.newSessionState,
+    });
+  }
+
+  deleteSessionStore(sessionId);
+
+  console.log(
+    `✅ Campaign message sent successfully to ${phoneNumber} (${startResponse.messages.length} messages)`,
+  );
+};
+
+const checkRateLimit = async (): Promise<void> => {
+  const now = Date.now();
+  const { maxMessagesPerMinute, maxMessagesPerHour, delayBetweenMessages } =
+    config.rateLimit;
+
+  // Reset counters if time windows have passed
+  if (now - lastMinuteReset >= 60000) {
+    messagesSentLastMinute = 0;
+    lastMinuteReset = now;
+  }
+  if (now - lastHourReset >= 3600000) {
+    messagesSentLastHour = 0;
+    lastHourReset = now;
+  }
+
+  // Check per-minute limit
+  if (maxMessagesPerMinute > 0 && messagesSentLastMinute >= maxMessagesPerMinute) {
+    const waitTime = 60000 - (now - lastMinuteReset);
+    console.log(
+      `⏱️ Rate limit: ${maxMessagesPerMinute}/min reached. Waiting ${Math.ceil(waitTime / 1000)}s...`,
+    );
+    await new Promise((resolve) => setTimeout(resolve, waitTime));
+    messagesSentLastMinute = 0;
+    lastMinuteReset = Date.now();
+  }
+
+  // Check per-hour limit
+  if (maxMessagesPerHour > 0 && messagesSentLastHour >= maxMessagesPerHour) {
+    const waitTime = 3600000 - (now - lastHourReset);
+    console.log(
+      `⏱️ Rate limit: ${maxMessagesPerHour}/hour reached. Waiting ${Math.ceil(waitTime / 60000)}min...`,
+    );
+    await new Promise((resolve) => setTimeout(resolve, waitTime));
+    messagesSentLastHour = 0;
+    lastHourReset = Date.now();
+  }
+
+  // Apply delay between messages
+  if (delayBetweenMessages > 0) {
+    await new Promise((resolve) => setTimeout(resolve, delayBetweenMessages));
+  }
 };
 
 const processRecipientJob = async (job: RecipientJob): Promise<void> => {
   const { recipientId, phoneNumber, variables, campaignId } = job;
+
+  // Apply rate limiting before processing
+  await checkRateLimit();
 
   const recipient = await prisma.campaignRecipient.findUnique({
     where: { id: recipientId },
@@ -40,7 +212,11 @@ const processRecipientJob = async (job: RecipientJob): Promise<void> => {
   }
 
   try {
-    await sendWhatsAppMessage(phoneNumber, variables);
+    await sendWhatsAppMessage(campaignId, recipientId, phoneNumber, variables);
+
+    // Increment rate limit counters
+    messagesSentLastMinute++;
+    messagesSentLastHour++;
 
     await prisma.$transaction([
       prisma.campaignRecipient.update({

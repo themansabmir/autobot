@@ -1,4 +1,5 @@
 import { CampaignStatus, RecipientStatus } from "@prisma/client";
+import { downloadCampaignFile } from "@typebot.io/lib/campaign/downloadCampaignFile";
 import prisma from "@typebot.io/prisma";
 import type { ConsumeMessage } from "amqplib";
 import Papa from "papaparse";
@@ -25,41 +26,38 @@ const normalizePhoneNumber = (phone: string): string => {
 };
 
 const extractPhoneNumber = (row: RecipientRow): string | null => {
-  const phone = row.phone || row.phoneNumber || row.phone_number || row.mobile;
-  if (!phone || typeof phone !== "string") return null;
+  const phoneValue = row.phone || row.phoneNumber || row.phone_number || row.mobile;
+  
+  if (!phoneValue) {
+    console.log(`⚠️ No phone found. Available columns:`, Object.keys(row));
+    return null;
+  }
+  
+  // Convert to string if it's a number (common in Excel files)
+  const phone = typeof phoneValue === "number" ? String(phoneValue) : phoneValue;
+  
+  if (typeof phone !== "string") {
+    console.log(`⚠️ Phone is invalid type. Type: ${typeof phoneValue}, Value:`, phoneValue);
+    return null;
+  }
+  
   const normalized = normalizePhoneNumber(phone);
-  if (normalized.length < 10) return null;
+  if (normalized.length < 10) {
+    console.log(`⚠️ Phone too short after normalization. Original: "${phone}", Normalized: "${normalized}" (${normalized.length} digits)`);
+    return null;
+  }
+  
   return normalized;
 };
 
 const parseFile = async (fileUrl: string): Promise<RecipientRow[]> => {
   console.log(`📂 Fetching file: ${fileUrl}`);
 
-  let buffer: ArrayBuffer;
-
-  // Handle local file paths (starting with / or relative paths)
-  if (fileUrl.startsWith("/") || !fileUrl.startsWith("http")) {
-    const fs = await import("fs/promises");
-    const path = await import("path");
-
-    // For local paths like /uploads/campaigns/..., resolve from builder's public folder
-    const localPath = fileUrl.startsWith("/uploads/")
-      ? path.join(process.cwd(), "..", "apps", "builder", "public", fileUrl)
-      : path.join(process.cwd(), fileUrl);
-
-    console.log(`📂 Reading local file: ${localPath}`);
-    const fileBuffer = await fs.readFile(localPath);
-    buffer = new Uint8Array(fileBuffer).buffer;
-  } else {
-    // Handle remote URLs (S3, etc.)
-    const response = await fetch(fileUrl);
-    buffer = await response.arrayBuffer();
-  }
-
+  const buffer = await downloadCampaignFile(fileUrl);
   const fileName = fileUrl.toLowerCase();
 
   if (fileName.endsWith(".csv")) {
-    const text = new TextDecoder().decode(buffer);
+    const text = new TextDecoder().decode(new Uint8Array(buffer));
     const result = Papa.parse<RecipientRow>(text, {
       header: true,
       skipEmptyLines: true,
@@ -68,7 +66,7 @@ const parseFile = async (fileUrl: string): Promise<RecipientRow[]> => {
   }
 
   if (fileName.endsWith(".xlsx") || fileName.endsWith(".xls")) {
-    const workbook = XLSX.read(buffer, { type: "array" });
+    const workbook = XLSX.read(buffer, { type: "buffer" });
     const sheetName = workbook.SheetNames[0];
     const sheet = workbook.Sheets[sheetName];
     return XLSX.utils.sheet_to_json<RecipientRow>(sheet);

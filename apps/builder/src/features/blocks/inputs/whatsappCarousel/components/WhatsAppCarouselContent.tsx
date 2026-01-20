@@ -1,4 +1,3 @@
-import { useTranslate } from "@tolgee/react";
 import type { WhatsAppCarouselBlock } from "@typebot.io/blocks-inputs/whatsappCarousel/schema";
 
 type Props = {
@@ -6,8 +5,6 @@ type Props = {
 };
 
 export const WhatsAppCarouselContent = ({ block }: Props) => {
-  const { t } = useTranslate();
-  
   const cardCount = block.items?.length ?? 0;
   const bodyText = block.options?.bodyText;
 
