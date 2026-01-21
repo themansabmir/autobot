@@ -73,6 +73,19 @@ COPY --from=builder /app/packages/credentials ./packages/credentials
 COPY --from=builder /app/packages/schemas ./packages/schemas
 COPY --from=builder /app/packages/zod ./packages/zod
 COPY --from=builder /app/packages/telemetry ./packages/telemetry
+COPY --from=builder /app/packages/blocks ./packages/blocks
+COPY --from=builder /app/packages/chat-api ./packages/chat-api
+COPY --from=builder /app/packages/chat-session ./packages/chat-session
+COPY --from=builder /app/packages/conditions ./packages/conditions
+COPY --from=builder /app/packages/groups ./packages/groups
+COPY --from=builder /app/packages/logs ./packages/logs
+COPY --from=builder /app/packages/results ./packages/results
+COPY --from=builder /app/packages/rich-text ./packages/rich-text
+COPY --from=builder /app/packages/runtime-session-store ./packages/runtime-session-store
+COPY --from=builder /app/packages/settings ./packages/settings
+COPY --from=builder /app/packages/theme ./packages/theme
+COPY --from=builder /app/packages/typebot ./packages/typebot
+COPY --from=builder /app/packages/variables ./packages/variables
 COPY --from=builder /app/package.json ./package.json
 
 # Generate Prisma client
