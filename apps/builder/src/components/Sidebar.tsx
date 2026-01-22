@@ -4,6 +4,7 @@ import { MegaphoneIcon } from "@typebot.io/ui/icons/MegaphoneIcon";
 import { RobotIcon } from "@typebot.io/ui/icons/RobotIcon";
 import { Settings01Icon } from "@typebot.io/ui/icons/Settings01Icon";
 import { SquareLock01Icon } from "@typebot.io/ui/icons/SquareLock01Icon";
+import { UsersIcon } from "@typebot.io/ui/icons/UsersIcon";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { cn } from "@typebot.io/ui/lib/cn";
@@ -80,15 +81,7 @@ export const Sidebar = () => {
 
       {/* Footer / Settings / Profile */}
       <div className="p-4 border-t border-gray-800 space-y-2">
-        <Link
-          href="/settings"
-          className={cn(
-            "flex items-center gap-3 px-4 py-3 rounded-md text-sm font-medium transition-all group text-gray-400 hover:text-white hover:bg-[#2E2E38]/50"
-          )}
-        >
-          <Settings01Icon className="size-5 text-gray-500 group-hover:text-gray-300" />
-          Settings
-        </Link>
+
 
         <div className="pt-2">
           <WorkspaceDropdown
