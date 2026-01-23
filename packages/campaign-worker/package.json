@@ -12,11 +12,15 @@
     "completion-checker": "dotenv -e ./.env -e ../../.env -- tsx src/completionChecker.ts"
   },
   "dependencies": {
+    "@typebot.io/ai": "workspace:*",
+    "@typebot.io/bot-engine": "workspace:*",
+    "@typebot.io/credentials": "workspace:*",
+    "@typebot.io/env": "workspace:*",
+    "@typebot.io/forge": "workspace:*",
+    "@typebot.io/forge-repository": "workspace:*",
     "@typebot.io/lib": "workspace:*",
     "@typebot.io/prisma": "workspace:*",
     "@typebot.io/whatsapp": "workspace:*",
-    "@typebot.io/credentials": "workspace:*",
-    "@typebot.io/env": "workspace:*",
     "amqplib": "^0.10.4",
     "papaparse": "^5.4.1",
     "xlsx": "^0.18.5"
