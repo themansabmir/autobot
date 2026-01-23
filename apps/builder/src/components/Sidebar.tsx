@@ -11,6 +11,7 @@ import { cn } from "@typebot.io/ui/lib/cn";
 import { useUser } from "@/features/user/hooks/useUser";
 import { useWorkspace } from "@/features/workspace/WorkspaceProvider";
 import { WorkspaceDropdown } from "@/features/workspace/components/WorkspaceDropdown";
+import { WorkspaceSettingsDialog } from "@/features/workspace/components/WorkspaceSettingsDialog";
 import { useState } from "react";
 
 type NavItem = {
@@ -24,7 +25,6 @@ const navItems: NavItem[] = [
   { label: "Typebots", href: "/typebots", icon: HardDriveIcon },
   { label: "Campaigns", href: "/campaigns", icon: MegaphoneIcon },
   { label: "Users", href: "/users", icon: UsersIcon },
-  { label: "Settings", href: "/settings", icon: SquareLock01Icon },
 ];
 
 export const Sidebar = () => {
@@ -32,6 +32,7 @@ export const Sidebar = () => {
   const { user, logOut } = useUser();
   const { workspace, switchWorkspace, createWorkspace } = useWorkspace();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const handleCreateNewWorkspace = () =>
     createWorkspace(user?.name ?? undefined);
@@ -81,7 +82,13 @@ export const Sidebar = () => {
 
       {/* Footer / Settings / Profile */}
       <div className="p-4 border-t border-gray-800 space-y-2">
-
+        <button
+          onClick={() => setIsSettingsOpen(true)}
+          className="flex items-center gap-3 px-4 py-3 rounded-md text-sm font-medium w-full text-left transition-all text-gray-400 hover:text-white hover:bg-[#2E2E38]/50"
+        >
+          <Settings01Icon className="size-5 text-gray-500" />
+          Settings
+        </button>
 
         <div className="pt-2">
           <WorkspaceDropdown
@@ -93,6 +100,14 @@ export const Sidebar = () => {
           />
         </div>
       </div>
+      {user && workspace && (
+        <WorkspaceSettingsDialog
+          isOpen={isSettingsOpen}
+          onClose={() => setIsSettingsOpen(false)}
+          user={user}
+          workspace={workspace}
+        />
+      )}
     </aside>
   );
 };

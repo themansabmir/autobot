@@ -1,4 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
+import { formatDistanceToNow } from "date-fns";
 import { T, useTranslate } from "@tolgee/react";
 import { Alert } from "@typebot.io/ui/components/Alert";
 import { Badge } from "@typebot.io/ui/components/Badge";
@@ -189,8 +190,12 @@ const TypebotButton = ({
             <p className="text-center font-semibold text-lg text-gray-900 dark:text-white line-clamp-2 leading-tight">
               {typebot.name}
             </p>
-            <span className="text-xs text-gray-500 font-medium">Edited 2h ago</span>
-            {/* Mocking edited message as per screenshot or needing a prop if available */}
+            <span className="text-[10px] text-gray-500 font-medium whitespace-nowrap w-full text-center truncate px-2">
+              {t("folders.typebotButton.edited")}{" "}
+              {formatDistanceToNow(new Date(typebot.updatedAt), {
+                addSuffix: true,
+              }).replace("about ", "")}
+            </span>
           </div>
         </div>
       </div>

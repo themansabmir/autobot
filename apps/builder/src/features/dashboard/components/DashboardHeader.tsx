@@ -8,6 +8,8 @@ import { useUser } from "@/features/user/hooks/useUser";
 import { useWorkspace } from "@/features/workspace/WorkspaceProvider";
 import { useRouter } from "next/router";
 import { useTheme } from "next-themes";
+import { formatDistanceToNow } from "date-fns";
+
 
 import { useEffect, useState } from "react";
 
@@ -36,7 +38,7 @@ export const DashboardHeader = () => {
         <div className="h-6 w-px bg-gray-300 dark:bg-gray-700 mx-2" />
         <span className="text-sm text-gray-500 flex items-center gap-1 whitespace-nowrap">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-          Last updated: 2 mins ago
+          <LastUpdated />
         </span>
       </div>
 
@@ -90,3 +92,20 @@ export const DashboardHeader = () => {
     </header>
   );
 };
+
+const LastUpdated = () => {
+    const [updatedAt] = useState(new Date());
+    const [timeAgo, setTimeAgo] = useState("just now");
+  
+    useEffect(() => {
+      const interval = setInterval(() => {
+        setTimeAgo(
+          formatDistanceToNow(updatedAt, { addSuffix: true }).replace("about ", "")
+        );
+      }, 60000);
+      
+      return () => clearInterval(interval);
+    }, [updatedAt]);
+  
+    return <span>Last updated: {timeAgo}</span>;
+  };
