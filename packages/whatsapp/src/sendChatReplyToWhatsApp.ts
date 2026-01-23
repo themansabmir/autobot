@@ -67,12 +67,15 @@ export const sendChatReplyToWhatsApp = async ({
     }
     const whatsAppMessage = await convertMessageToWhatsAppMessage({
       message,
-      mediaCache: state.publicTypebotId
-        ? {
-            publicTypebotId: state.publicTypebotId,
-            credentials,
-          }
-        : undefined,
+      mediaCache:
+        state.publicTypebotId || state.typebotsQueue[0]?.typebot?.id
+          ? {
+              publicTypebotId:
+                state.publicTypebotId ?? state.typebotsQueue[0].typebot.id,
+              credentials,
+              skipCache: !state.publicTypebotId,
+            }
+          : undefined,
     });
     if (isNotDefined(whatsAppMessage)) continue;
     const lastSentMessageIsMedia = ["audio", "video", "image"].includes(
@@ -117,12 +120,15 @@ export const sendChatReplyToWhatsApp = async ({
       input,
       lastMessage: messages.at(-1),
       systemMessages: state.typebotsQueue[0].typebot.systemMessages,
-      mediaCache: state.publicTypebotId
-        ? {
-            publicTypebotId: state.publicTypebotId,
-            credentials,
-          }
-        : undefined,
+      mediaCache:
+        state.publicTypebotId || state.typebotsQueue[0]?.typebot?.id
+          ? {
+              publicTypebotId:
+                state.publicTypebotId ?? state.typebotsQueue[0].typebot.id,
+              credentials,
+              skipCache: !state.publicTypebotId,
+            }
+          : undefined,
     });
     for (const message of inputWhatsAppMessages) {
       const lastSentMessageIsMedia = ["audio", "video", "image"].includes(

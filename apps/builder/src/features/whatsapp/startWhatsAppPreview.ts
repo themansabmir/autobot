@@ -20,10 +20,10 @@ import { z } from "@typebot.io/zod";
 import { authenticatedProcedure } from "@/helpers/server/trpc";
 import { ClientToastError } from "@/lib/ClientToastError";
 
-// Helper function to auto-upload stickers during preview
-async function uploadStickersForPreview(typebot: any) {
+// Helper function to auto-upload media (stickers/images) during preview
+async function uploadMediaForPreview(typebot: any) {
   try {
-    console.log("🔍 [Preview] Checking for stickers to upload...");
+    console.log("🔍 [Preview] Checking for stickers/images to upload...");
 
     if (!env.META_SYSTEM_USER_TOKEN) {
       console.log("⏭️  [Preview] No META_SYSTEM_USER_TOKEN, skipping upload");
@@ -39,16 +39,17 @@ async function uploadStickersForPreview(typebot: any) {
     for (const group of groups) {
       for (const block of group.blocks) {
         if (
-          block.type === BubbleBlockType.STICKER &&
-          block.content?.url &&
-          !block.content?.mediaId
+          (block.type === BubbleBlockType.STICKER ||
+            block.type === BubbleBlockType.IMAGE) &&
+          (block.content as any)?.url &&
+          !(block.content as any)?.mediaId
         ) {
           console.log(
-            `🔄 [Preview] Auto-uploading sticker for block ${block.id}...`,
+            `🔄 [Preview] Auto-uploading ${block.type} for block ${block.id}...`,
           );
           try {
             const mediaId = await getOrUploadMedia({
-              url: block.content.url,
+              url: (block.content as any).url,
               cache: {
                 credentials: {
                   provider: "meta" as const,
@@ -57,16 +58,22 @@ async function uploadStickersForPreview(typebot: any) {
                     env.WHATSAPP_PREVIEW_FROM_PHONE_NUMBER_ID || "",
                 },
                 publicTypebotId: typebot.publicId || typebot.id,
+                skipCache: true, // Prevents Prisma FK error in preview/draft mode
               },
             }).catch(() => null);
 
             if (mediaId) {
-              block.content.mediaId = mediaId;
+              ;(block.content as any).mediaId = mediaId;
               hasChanges = true;
-              console.log(`✅ [Preview] Sticker uploaded! mediaId: ${mediaId}`);
+              console.log(
+                `✅ [Preview] ${block.type} uploaded! mediaId: ${mediaId}`,
+              );
             }
           } catch (error) {
-            console.error(`❌ [Preview] Failed to upload sticker:`, error);
+            console.error(
+              `❌ [Preview] Failed to upload ${block.type}:`,
+              error,
+            );
           }
         }
       }
@@ -77,10 +84,10 @@ async function uploadStickersForPreview(typebot: any) {
         where: { id: typebot.id },
         data: { groups },
       });
-      console.log(`✅ [Preview] Updated typebot with sticker mediaIds`);
+      console.log(`✅ [Preview] Updated typebot with mediaIds`);
     }
   } catch (error) {
-    console.error("[Preview] Error during sticker auto-upload:", error);
+    console.error("[Preview] Error during media auto-upload:", error);
   }
 }
 
@@ -156,8 +163,8 @@ export const startWhatsAppPreview = authenticatedProcedure
     )
       throw new TRPCError({ code: "NOT_FOUND", message: "Typebot not found" });
 
-    // Auto-upload stickers during preview
-    await uploadStickersForPreview(existingTypebot);
+    // Auto-upload media (stickers/images) during preview
+    await uploadMediaForPreview(existingTypebot);
 
     const sessionId = `wa-preview-${to}`;
 

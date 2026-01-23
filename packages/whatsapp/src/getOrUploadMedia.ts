@@ -9,6 +9,7 @@ import { dialog360AuthHeaderName, dialog360BaseUrl } from "./constants";
 export type UploadMediaCache = {
   credentials: WhatsAppCredentials["data"];
   publicTypebotId: string;
+  skipCache?: boolean;
 };
 
 /**
@@ -32,7 +33,7 @@ export const getOrUploadMedia = async ({
 }): Promise<string | null> => {
   try {
     const urlWithoutQueryParams = url.split("?")[0];
-    if (cache) {
+    if (cache && !cache.skipCache) {
       const mediaId = await getMediaIdFromCache({
         url: urlWithoutQueryParams,
         provider:
@@ -59,11 +60,21 @@ export const getOrUploadMedia = async ({
       );
     }
 
+    // Map MIME type to Meta media type
+    const getMetaMediaType = (mime: string) => {
+      if (mime.includes("webp")) return "sticker";
+      if (mime.includes("image")) return "image";
+      if (mime.includes("video")) return "video";
+      if (mime.includes("audio")) return "audio";
+      return "document";
+    };
+
     // Upload to WhatsApp
     const formData = new FormData();
+    const mediaType = getMetaMediaType(mimeType);
     const fileBlob = new Blob([arrayBuffer], { type: mimeType });
-    formData.append("file", fileBlob);
-    formData.append("type", mimeType);
+    formData.append("file", fileBlob, `media.${mimeType.split("/")[1]}`);
+    formData.append("type", mediaType);
     formData.append("messaging_product", "whatsapp");
 
     let mediaId: string;
@@ -97,7 +108,7 @@ export const getOrUploadMedia = async ({
       mediaId = response.id;
     }
 
-    if (cache) {
+    if (cache && !cache.skipCache) {
       insertMediaIdToCache({
         url: urlWithoutQueryParams,
         mediaId,
