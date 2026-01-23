@@ -129,6 +129,9 @@
                                               },
                                               {
                                                 "$ref": "#/components/schemas/audioBlock"
+                                              },
+                                              {
+                                                "$ref": "#/components/schemas/stickerBlock"
                                               }
                                             ],
                                             "discriminator": {
@@ -138,7 +141,8 @@
                                                 "image": "#/components/schemas/imageBlock",
                                                 "video": "#/components/schemas/videoBlock",
                                                 "embed": "#/components/schemas/embedBlock",
-                                                "audio": "#/components/schemas/audioBlock"
+                                                "audio": "#/components/schemas/audioBlock",
+                                                "sticker": "#/components/schemas/stickerBlock"
                                               }
                                             }
                                           },
@@ -329,6 +333,190 @@
                                                             }
                                                           }
                                                         }
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "required": [
+                                                  "id",
+                                                  "type",
+                                                  "items"
+                                                ]
+                                              },
+                                              {
+                                                "$ref": "#/components/schemas/ctaUrlInput"
+                                              },
+                                              {
+                                                "type": "object",
+                                                "properties": {
+                                                  "id": {
+                                                    "type": "string"
+                                                  },
+                                                  "outgoingEdgeId": {
+                                                    "type": "string"
+                                                  },
+                                                  "type": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                      "whatsapp list"
+                                                    ]
+                                                  },
+                                                  "items": {
+                                                    "type": "array",
+                                                    "items": {
+                                                      "type": "object",
+                                                      "properties": {
+                                                        "id": {
+                                                          "type": "string"
+                                                        },
+                                                        "outgoingEdgeId": {
+                                                          "type": "string"
+                                                        },
+                                                        "content": {
+                                                          "type": "string"
+                                                        },
+                                                        "description": {
+                                                          "type": "string"
+                                                        },
+                                                        "sectionTitle": {
+                                                          "type": "string"
+                                                        }
+                                                      },
+                                                      "required": [
+                                                        "id"
+                                                      ]
+                                                    }
+                                                  },
+                                                  "options": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                      "variableId": {
+                                                        "type": "string"
+                                                      },
+                                                      "listHeader": {
+                                                        "type": "string"
+                                                      },
+                                                      "buttonLabel": {
+                                                        "type": "string"
+                                                      },
+                                                      "listFooter": {
+                                                        "type": "string"
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "required": [
+                                                  "id",
+                                                  "type",
+                                                  "items"
+                                                ]
+                                              },
+                                              {
+                                                "type": "object",
+                                                "properties": {
+                                                  "id": {
+                                                    "type": "string"
+                                                  },
+                                                  "outgoingEdgeId": {
+                                                    "type": "string"
+                                                  },
+                                                  "type": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                      "whatsapp carousel"
+                                                    ]
+                                                  },
+                                                  "items": {
+                                                    "type": "array",
+                                                    "items": {
+                                                      "type": "object",
+                                                      "properties": {
+                                                        "id": {
+                                                          "type": "string"
+                                                        },
+                                                        "outgoingEdgeId": {
+                                                          "type": "string"
+                                                        },
+                                                        "headerType": {
+                                                          "type": "string",
+                                                          "nullable": true,
+                                                          "enum": [
+                                                            "image",
+                                                            "video",
+                                                            null
+                                                          ]
+                                                        },
+                                                        "headerUrl": {
+                                                          "type": "string",
+                                                          "nullable": true
+                                                        },
+                                                        "bodyText": {
+                                                          "type": "string",
+                                                          "nullable": true,
+                                                          "maxLength": 160
+                                                        },
+                                                        "buttonType": {
+                                                          "type": "string",
+                                                          "nullable": true,
+                                                          "enum": [
+                                                            "cta_url",
+                                                            "quick_reply",
+                                                            null
+                                                          ]
+                                                        },
+                                                        "ctaUrlButton": {
+                                                          "type": "object",
+                                                          "nullable": true,
+                                                          "properties": {
+                                                            "displayText": {
+                                                              "type": "string",
+                                                              "maxLength": 20
+                                                            },
+                                                            "url": {
+                                                              "type": "string"
+                                                            }
+                                                          },
+                                                          "required": [
+                                                            "displayText",
+                                                            "url"
+                                                          ]
+                                                        },
+                                                        "quickReplyButtons": {
+                                                          "type": "array",
+                                                          "nullable": true,
+                                                          "items": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                              "id": {
+                                                                "type": "string"
+                                                              },
+                                                              "title": {
+                                                                "type": "string",
+                                                                "maxLength": 20
+                                                              }
+                                                            },
+                                                            "required": [
+                                                              "id",
+                                                              "title"
+                                                            ]
+                                                          },
+                                                          "maxItems": 2
+                                                        }
+                                                      },
+                                                      "required": [
+                                                        "id"
+                                                      ]
+                                                    }
+                                                  },
+                                                  "options": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                      "variableId": {
+                                                        "type": "string"
+                                                      },
+                                                      "bodyText": {
+                                                        "type": "string",
+                                                        "maxLength": 1024
                                                       }
                                                     }
                                                   }
@@ -4230,6 +4418,9 @@
                                           },
                                           {
                                             "$ref": "#/components/schemas/audioBlock"
+                                          },
+                                          {
+                                            "$ref": "#/components/schemas/stickerBlock"
                                           }
                                         ],
                                         "discriminator": {
@@ -4239,7 +4430,8 @@
                                             "image": "#/components/schemas/imageBlock",
                                             "video": "#/components/schemas/videoBlock",
                                             "embed": "#/components/schemas/embedBlock",
-                                            "audio": "#/components/schemas/audioBlock"
+                                            "audio": "#/components/schemas/audioBlock",
+                                            "sticker": "#/components/schemas/stickerBlock"
                                           }
                                         }
                                       },
@@ -4430,6 +4622,190 @@
                                                         }
                                                       }
                                                     }
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "required": [
+                                              "id",
+                                              "type",
+                                              "items"
+                                            ]
+                                          },
+                                          {
+                                            "$ref": "#/components/schemas/ctaUrlInput"
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "id": {
+                                                "type": "string"
+                                              },
+                                              "outgoingEdgeId": {
+                                                "type": "string"
+                                              },
+                                              "type": {
+                                                "type": "string",
+                                                "enum": [
+                                                  "whatsapp list"
+                                                ]
+                                              },
+                                              "items": {
+                                                "type": "array",
+                                                "items": {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {
+                                                      "type": "string"
+                                                    },
+                                                    "outgoingEdgeId": {
+                                                      "type": "string"
+                                                    },
+                                                    "content": {
+                                                      "type": "string"
+                                                    },
+                                                    "description": {
+                                                      "type": "string"
+                                                    },
+                                                    "sectionTitle": {
+                                                      "type": "string"
+                                                    }
+                                                  },
+                                                  "required": [
+                                                    "id"
+                                                  ]
+                                                }
+                                              },
+                                              "options": {
+                                                "type": "object",
+                                                "properties": {
+                                                  "variableId": {
+                                                    "type": "string"
+                                                  },
+                                                  "listHeader": {
+                                                    "type": "string"
+                                                  },
+                                                  "buttonLabel": {
+                                                    "type": "string"
+                                                  },
+                                                  "listFooter": {
+                                                    "type": "string"
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "required": [
+                                              "id",
+                                              "type",
+                                              "items"
+                                            ]
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "id": {
+                                                "type": "string"
+                                              },
+                                              "outgoingEdgeId": {
+                                                "type": "string"
+                                              },
+                                              "type": {
+                                                "type": "string",
+                                                "enum": [
+                                                  "whatsapp carousel"
+                                                ]
+                                              },
+                                              "items": {
+                                                "type": "array",
+                                                "items": {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {
+                                                      "type": "string"
+                                                    },
+                                                    "outgoingEdgeId": {
+                                                      "type": "string"
+                                                    },
+                                                    "headerType": {
+                                                      "type": "string",
+                                                      "nullable": true,
+                                                      "enum": [
+                                                        "image",
+                                                        "video",
+                                                        null
+                                                      ]
+                                                    },
+                                                    "headerUrl": {
+                                                      "type": "string",
+                                                      "nullable": true
+                                                    },
+                                                    "bodyText": {
+                                                      "type": "string",
+                                                      "nullable": true,
+                                                      "maxLength": 160
+                                                    },
+                                                    "buttonType": {
+                                                      "type": "string",
+                                                      "nullable": true,
+                                                      "enum": [
+                                                        "cta_url",
+                                                        "quick_reply",
+                                                        null
+                                                      ]
+                                                    },
+                                                    "ctaUrlButton": {
+                                                      "type": "object",
+                                                      "nullable": true,
+                                                      "properties": {
+                                                        "displayText": {
+                                                          "type": "string",
+                                                          "maxLength": 20
+                                                        },
+                                                        "url": {
+                                                          "type": "string"
+                                                        }
+                                                      },
+                                                      "required": [
+                                                        "displayText",
+                                                        "url"
+                                                      ]
+                                                    },
+                                                    "quickReplyButtons": {
+                                                      "type": "array",
+                                                      "nullable": true,
+                                                      "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                          "id": {
+                                                            "type": "string"
+                                                          },
+                                                          "title": {
+                                                            "type": "string",
+                                                            "maxLength": 20
+                                                          }
+                                                        },
+                                                        "required": [
+                                                          "id",
+                                                          "title"
+                                                        ]
+                                                      },
+                                                      "maxItems": 2
+                                                    }
+                                                  },
+                                                  "required": [
+                                                    "id"
+                                                  ]
+                                                }
+                                              },
+                                              "options": {
+                                                "type": "object",
+                                                "properties": {
+                                                  "variableId": {
+                                                    "type": "string"
+                                                  },
+                                                  "bodyText": {
+                                                    "type": "string",
+                                                    "maxLength": 1024
                                                   }
                                                 }
                                               }
@@ -7237,6 +7613,9 @@
                                           },
                                           {
                                             "$ref": "#/components/schemas/audioBlock"
+                                          },
+                                          {
+                                            "$ref": "#/components/schemas/stickerBlock"
                                           }
                                         ],
                                         "discriminator": {
@@ -7246,7 +7625,8 @@
                                             "image": "#/components/schemas/imageBlock",
                                             "video": "#/components/schemas/videoBlock",
                                             "embed": "#/components/schemas/embedBlock",
-                                            "audio": "#/components/schemas/audioBlock"
+                                            "audio": "#/components/schemas/audioBlock",
+                                            "sticker": "#/components/schemas/stickerBlock"
                                           }
                                         }
                                       },
@@ -7437,6 +7817,190 @@
                                                         }
                                                       }
                                                     }
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "required": [
+                                              "id",
+                                              "type",
+                                              "items"
+                                            ]
+                                          },
+                                          {
+                                            "$ref": "#/components/schemas/ctaUrlInput"
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "id": {
+                                                "type": "string"
+                                              },
+                                              "outgoingEdgeId": {
+                                                "type": "string"
+                                              },
+                                              "type": {
+                                                "type": "string",
+                                                "enum": [
+                                                  "whatsapp list"
+                                                ]
+                                              },
+                                              "items": {
+                                                "type": "array",
+                                                "items": {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {
+                                                      "type": "string"
+                                                    },
+                                                    "outgoingEdgeId": {
+                                                      "type": "string"
+                                                    },
+                                                    "content": {
+                                                      "type": "string"
+                                                    },
+                                                    "description": {
+                                                      "type": "string"
+                                                    },
+                                                    "sectionTitle": {
+                                                      "type": "string"
+                                                    }
+                                                  },
+                                                  "required": [
+                                                    "id"
+                                                  ]
+                                                }
+                                              },
+                                              "options": {
+                                                "type": "object",
+                                                "properties": {
+                                                  "variableId": {
+                                                    "type": "string"
+                                                  },
+                                                  "listHeader": {
+                                                    "type": "string"
+                                                  },
+                                                  "buttonLabel": {
+                                                    "type": "string"
+                                                  },
+                                                  "listFooter": {
+                                                    "type": "string"
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "required": [
+                                              "id",
+                                              "type",
+                                              "items"
+                                            ]
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "id": {
+                                                "type": "string"
+                                              },
+                                              "outgoingEdgeId": {
+                                                "type": "string"
+                                              },
+                                              "type": {
+                                                "type": "string",
+                                                "enum": [
+                                                  "whatsapp carousel"
+                                                ]
+                                              },
+                                              "items": {
+                                                "type": "array",
+                                                "items": {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "id": {
+                                                      "type": "string"
+                                                    },
+                                                    "outgoingEdgeId": {
+                                                      "type": "string"
+                                                    },
+                                                    "headerType": {
+                                                      "type": "string",
+                                                      "nullable": true,
+                                                      "enum": [
+                                                        "image",
+                                                        "video",
+                                                        null
+                                                      ]
+                                                    },
+                                                    "headerUrl": {
+                                                      "type": "string",
+                                                      "nullable": true
+                                                    },
+                                                    "bodyText": {
+                                                      "type": "string",
+                                                      "nullable": true,
+                                                      "maxLength": 160
+                                                    },
+                                                    "buttonType": {
+                                                      "type": "string",
+                                                      "nullable": true,
+                                                      "enum": [
+                                                        "cta_url",
+                                                        "quick_reply",
+                                                        null
+                                                      ]
+                                                    },
+                                                    "ctaUrlButton": {
+                                                      "type": "object",
+                                                      "nullable": true,
+                                                      "properties": {
+                                                        "displayText": {
+                                                          "type": "string",
+                                                          "maxLength": 20
+                                                        },
+                                                        "url": {
+                                                          "type": "string"
+                                                        }
+                                                      },
+                                                      "required": [
+                                                        "displayText",
+                                                        "url"
+                                                      ]
+                                                    },
+                                                    "quickReplyButtons": {
+                                                      "type": "array",
+                                                      "nullable": true,
+                                                      "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                          "id": {
+                                                            "type": "string"
+                                                          },
+                                                          "title": {
+                                                            "type": "string",
+                                                            "maxLength": 20
+                                                          }
+                                                        },
+                                                        "required": [
+                                                          "id",
+                                                          "title"
+                                                        ]
+                                                      },
+                                                      "maxItems": 2
+                                                    }
+                                                  },
+                                                  "required": [
+                                                    "id"
+                                                  ]
+                                                }
+                                              },
+                                              "options": {
+                                                "type": "object",
+                                                "properties": {
+                                                  "variableId": {
+                                                    "type": "string"
+                                                  },
+                                                  "bodyText": {
+                                                    "type": "string",
+                                                    "maxLength": 1024
                                                   }
                                                 }
                                               }
@@ -13844,6 +14408,978 @@
           }
         }
       }
+    },
+    "/v1/campaigns/{campaignId}": {
+      "get": {
+        "operationId": "campaigns-getCampaign",
+        "summary": "Get campaign",
+        "tags": [
+          "Campaign"
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "campaignId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "workspaceId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "campaign": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "createdAt": {
+                          "type": "string"
+                        },
+                        "updatedAt": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "fileUrl": {
+                          "type": "string"
+                        },
+                        "executionMode": {
+                          "type": "string",
+                          "enum": [
+                            "NOW",
+                            "SCHEDULED"
+                          ]
+                        },
+                        "executeAt": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "PENDING",
+                            "SCHEDULED",
+                            "RUNNING",
+                            "COMPLETED",
+                            "FAILED",
+                            "PAUSED"
+                          ]
+                        },
+                        "totalRecipients": {
+                          "type": "number",
+                          "nullable": true
+                        },
+                        "sentCount": {
+                          "type": "number"
+                        },
+                        "failedCount": {
+                          "type": "number"
+                        },
+                        "startedAt": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "completedAt": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "errorMessage": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "workspaceId": {
+                          "type": "string"
+                        },
+                        "typebotId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "createdAt",
+                        "updatedAt",
+                        "title",
+                        "fileUrl",
+                        "executionMode",
+                        "executeAt",
+                        "status",
+                        "totalRecipients",
+                        "sentCount",
+                        "failedCount",
+                        "startedAt",
+                        "completedAt",
+                        "errorMessage",
+                        "workspaceId",
+                        "typebotId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "campaign"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization not provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.UNAUTHORIZED"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.FORBIDDEN"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.NOT_FOUND"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.INTERNAL_SERVER_ERROR"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "campaigns-updateCampaign",
+        "summary": "Update a campaign",
+        "tags": [
+          "Campaign"
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "campaignId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "workspaceId": {
+                    "type": "string"
+                  },
+                  "campaign": {
+                    "type": "object",
+                    "properties": {
+                      "title": {
+                        "type": "string"
+                      },
+                      "fileUrl": {
+                        "type": "string"
+                      },
+                      "executionMode": {
+                        "type": "string",
+                        "enum": [
+                          "NOW",
+                          "SCHEDULED"
+                        ]
+                      },
+                      "executeAt": {
+                        "type": "string",
+                        "nullable": true,
+                        "format": "date-time"
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "workspaceId",
+                  "campaign"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "campaign": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "createdAt": {
+                          "type": "string"
+                        },
+                        "updatedAt": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "fileUrl": {
+                          "type": "string"
+                        },
+                        "executionMode": {
+                          "type": "string",
+                          "enum": [
+                            "NOW",
+                            "SCHEDULED"
+                          ]
+                        },
+                        "executeAt": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "PENDING",
+                            "SCHEDULED",
+                            "RUNNING",
+                            "COMPLETED",
+                            "FAILED",
+                            "PAUSED"
+                          ]
+                        },
+                        "totalRecipients": {
+                          "type": "number",
+                          "nullable": true
+                        },
+                        "sentCount": {
+                          "type": "number"
+                        },
+                        "failedCount": {
+                          "type": "number"
+                        },
+                        "startedAt": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "completedAt": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "errorMessage": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "workspaceId": {
+                          "type": "string"
+                        },
+                        "typebotId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "createdAt",
+                        "updatedAt",
+                        "title",
+                        "fileUrl",
+                        "executionMode",
+                        "executeAt",
+                        "status",
+                        "totalRecipients",
+                        "sentCount",
+                        "failedCount",
+                        "startedAt",
+                        "completedAt",
+                        "errorMessage",
+                        "workspaceId",
+                        "typebotId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "campaign"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization not provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.UNAUTHORIZED"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.FORBIDDEN"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.NOT_FOUND"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.INTERNAL_SERVER_ERROR"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "campaigns-deleteCampaign",
+        "summary": "Delete a campaign",
+        "tags": [
+          "Campaign"
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "campaignId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "workspaceId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "campaign": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "createdAt": {
+                          "type": "string"
+                        },
+                        "updatedAt": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "fileUrl": {
+                          "type": "string"
+                        },
+                        "executionMode": {
+                          "type": "string",
+                          "enum": [
+                            "NOW",
+                            "SCHEDULED"
+                          ]
+                        },
+                        "executeAt": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "PENDING",
+                            "SCHEDULED",
+                            "RUNNING",
+                            "COMPLETED",
+                            "FAILED",
+                            "PAUSED"
+                          ]
+                        },
+                        "totalRecipients": {
+                          "type": "number",
+                          "nullable": true
+                        },
+                        "sentCount": {
+                          "type": "number"
+                        },
+                        "failedCount": {
+                          "type": "number"
+                        },
+                        "startedAt": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "completedAt": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "errorMessage": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "workspaceId": {
+                          "type": "string"
+                        },
+                        "typebotId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "createdAt",
+                        "updatedAt",
+                        "title",
+                        "fileUrl",
+                        "executionMode",
+                        "executeAt",
+                        "status",
+                        "totalRecipients",
+                        "sentCount",
+                        "failedCount",
+                        "startedAt",
+                        "completedAt",
+                        "errorMessage",
+                        "workspaceId",
+                        "typebotId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "campaign"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization not provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.UNAUTHORIZED"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.FORBIDDEN"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.NOT_FOUND"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.INTERNAL_SERVER_ERROR"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/campaigns": {
+      "post": {
+        "operationId": "campaigns-createCampaign",
+        "summary": "Create a campaign",
+        "tags": [
+          "Campaign"
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "workspaceId": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "fileUrl": {
+                    "type": "string"
+                  },
+                  "typebotId": {
+                    "type": "string"
+                  },
+                  "executionMode": {
+                    "type": "string",
+                    "enum": [
+                      "NOW",
+                      "SCHEDULED"
+                    ]
+                  },
+                  "executeAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                },
+                "required": [
+                  "workspaceId",
+                  "title",
+                  "fileUrl",
+                  "typebotId",
+                  "executionMode"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "campaign": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "createdAt": {
+                          "type": "string"
+                        },
+                        "updatedAt": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "fileUrl": {
+                          "type": "string"
+                        },
+                        "executionMode": {
+                          "type": "string",
+                          "enum": [
+                            "NOW",
+                            "SCHEDULED"
+                          ]
+                        },
+                        "executeAt": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "PENDING",
+                            "SCHEDULED",
+                            "RUNNING",
+                            "COMPLETED",
+                            "FAILED",
+                            "PAUSED"
+                          ]
+                        },
+                        "totalRecipients": {
+                          "type": "number",
+                          "nullable": true
+                        },
+                        "sentCount": {
+                          "type": "number"
+                        },
+                        "failedCount": {
+                          "type": "number"
+                        },
+                        "startedAt": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "completedAt": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "errorMessage": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "workspaceId": {
+                          "type": "string"
+                        },
+                        "typebotId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "createdAt",
+                        "updatedAt",
+                        "title",
+                        "fileUrl",
+                        "executionMode",
+                        "executeAt",
+                        "status",
+                        "totalRecipients",
+                        "sentCount",
+                        "failedCount",
+                        "startedAt",
+                        "completedAt",
+                        "errorMessage",
+                        "workspaceId",
+                        "typebotId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "campaign"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization not provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.UNAUTHORIZED"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.FORBIDDEN"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.INTERNAL_SERVER_ERROR"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "campaigns-listCampaigns",
+        "summary": "List campaigns",
+        "tags": [
+          "Campaign"
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "workspaceId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "campaigns": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "createdAt": {
+                            "type": "string"
+                          },
+                          "updatedAt": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "fileUrl": {
+                            "type": "string"
+                          },
+                          "executionMode": {
+                            "type": "string",
+                            "enum": [
+                              "NOW",
+                              "SCHEDULED"
+                            ]
+                          },
+                          "executeAt": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "PENDING",
+                              "SCHEDULED",
+                              "RUNNING",
+                              "COMPLETED",
+                              "FAILED",
+                              "PAUSED"
+                            ]
+                          },
+                          "totalRecipients": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "sentCount": {
+                            "type": "number"
+                          },
+                          "failedCount": {
+                            "type": "number"
+                          },
+                          "startedAt": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "completedAt": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "errorMessage": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "workspaceId": {
+                            "type": "string"
+                          },
+                          "typebotId": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "createdAt",
+                          "updatedAt",
+                          "title",
+                          "fileUrl",
+                          "executionMode",
+                          "executeAt",
+                          "status",
+                          "totalRecipients",
+                          "sentCount",
+                          "failedCount",
+                          "startedAt",
+                          "completedAt",
+                          "errorMessage",
+                          "workspaceId",
+                          "typebotId"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "campaigns"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization not provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.UNAUTHORIZED"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.FORBIDDEN"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.NOT_FOUND"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.INTERNAL_SERVER_ERROR"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -14086,6 +15622,39 @@
           "type"
         ],
         "title": "Audio"
+      },
+      "stickerBlock": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "outgoingEdgeId": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "sticker"
+            ]
+          },
+          "content": {
+            "type": "object",
+            "properties": {
+              "url": {
+                "type": "string"
+              },
+              "mediaId": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": [
+          "id",
+          "type"
+        ],
+        "title": "Sticker"
       },
       "textInput": {
         "type": "object",
@@ -14740,6 +16309,70 @@
           "type"
         ],
         "title": "Rating"
+      },
+      "ctaUrlInput": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "outgoingEdgeId": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "cta url"
+            ]
+          },
+          "options": {
+            "type": "object",
+            "properties": {
+              "variableId": {
+                "type": "string"
+              },
+              "headerType": {
+                "type": "string",
+                "enum": [
+                  "text",
+                  "image",
+                  "video",
+                  "document"
+                ]
+              },
+              "headerText": {
+                "type": "string"
+              },
+              "headerImageUrl": {
+                "type": "string"
+              },
+              "headerVideoUrl": {
+                "type": "string"
+              },
+              "headerDocumentUrl": {
+                "type": "string"
+              },
+              "bodyText": {
+                "type": "string"
+              },
+              "footerText": {
+                "type": "string"
+              },
+              "displayText": {
+                "type": "string",
+                "maxLength": 20
+              },
+              "url": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": [
+          "id",
+          "type"
+        ],
+        "title": "CTA URL"
       },
       "buttonsInputV5": {
         "type": "object",
@@ -15927,6 +17560,9 @@
                     },
                     {
                       "$ref": "#/components/schemas/audioBlock"
+                    },
+                    {
+                      "$ref": "#/components/schemas/stickerBlock"
                     }
                   ],
                   "discriminator": {
@@ -15936,7 +17572,8 @@
                       "image": "#/components/schemas/imageBlock",
                       "video": "#/components/schemas/videoBlock",
                       "embed": "#/components/schemas/embedBlock",
-                      "audio": "#/components/schemas/audioBlock"
+                      "audio": "#/components/schemas/audioBlock",
+                      "sticker": "#/components/schemas/stickerBlock"
                     }
                   }
                 },
@@ -16127,6 +17764,190 @@
                                   }
                                 }
                               }
+                            }
+                          }
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "type",
+                        "items"
+                      ]
+                    },
+                    {
+                      "$ref": "#/components/schemas/ctaUrlInput"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "outgoingEdgeId": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "whatsapp list"
+                          ]
+                        },
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "outgoingEdgeId": {
+                                "type": "string"
+                              },
+                              "content": {
+                                "type": "string"
+                              },
+                              "description": {
+                                "type": "string"
+                              },
+                              "sectionTitle": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id"
+                            ]
+                          }
+                        },
+                        "options": {
+                          "type": "object",
+                          "properties": {
+                            "variableId": {
+                              "type": "string"
+                            },
+                            "listHeader": {
+                              "type": "string"
+                            },
+                            "buttonLabel": {
+                              "type": "string"
+                            },
+                            "listFooter": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "type",
+                        "items"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "outgoingEdgeId": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "whatsapp carousel"
+                          ]
+                        },
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "outgoingEdgeId": {
+                                "type": "string"
+                              },
+                              "headerType": {
+                                "type": "string",
+                                "nullable": true,
+                                "enum": [
+                                  "image",
+                                  "video",
+                                  null
+                                ]
+                              },
+                              "headerUrl": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "bodyText": {
+                                "type": "string",
+                                "nullable": true,
+                                "maxLength": 160
+                              },
+                              "buttonType": {
+                                "type": "string",
+                                "nullable": true,
+                                "enum": [
+                                  "cta_url",
+                                  "quick_reply",
+                                  null
+                                ]
+                              },
+                              "ctaUrlButton": {
+                                "type": "object",
+                                "nullable": true,
+                                "properties": {
+                                  "displayText": {
+                                    "type": "string",
+                                    "maxLength": 20
+                                  },
+                                  "url": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "displayText",
+                                  "url"
+                                ]
+                              },
+                              "quickReplyButtons": {
+                                "type": "array",
+                                "nullable": true,
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "type": "string"
+                                    },
+                                    "title": {
+                                      "type": "string",
+                                      "maxLength": 20
+                                    }
+                                  },
+                                  "required": [
+                                    "id",
+                                    "title"
+                                  ]
+                                },
+                                "maxItems": 2
+                              }
+                            },
+                            "required": [
+                              "id"
+                            ]
+                          }
+                        },
+                        "options": {
+                          "type": "object",
+                          "properties": {
+                            "variableId": {
+                              "type": "string"
+                            },
+                            "bodyText": {
+                              "type": "string",
+                              "maxLength": 1024
                             }
                           }
                         }
@@ -24107,6 +25928,9 @@
                           },
                           {
                             "$ref": "#/components/schemas/audioBlock"
+                          },
+                          {
+                            "$ref": "#/components/schemas/stickerBlock"
                           }
                         ],
                         "discriminator": {
@@ -24116,7 +25940,8 @@
                             "image": "#/components/schemas/imageBlock",
                             "video": "#/components/schemas/videoBlock",
                             "embed": "#/components/schemas/embedBlock",
-                            "audio": "#/components/schemas/audioBlock"
+                            "audio": "#/components/schemas/audioBlock",
+                            "sticker": "#/components/schemas/stickerBlock"
                           }
                         }
                       },
@@ -24307,6 +26132,190 @@
                                         }
                                       }
                                     }
+                                  }
+                                }
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "type",
+                              "items"
+                            ]
+                          },
+                          {
+                            "$ref": "#/components/schemas/ctaUrlInput"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "outgoingEdgeId": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "whatsapp list"
+                                ]
+                              },
+                              "items": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "type": "string"
+                                    },
+                                    "outgoingEdgeId": {
+                                      "type": "string"
+                                    },
+                                    "content": {
+                                      "type": "string"
+                                    },
+                                    "description": {
+                                      "type": "string"
+                                    },
+                                    "sectionTitle": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "id"
+                                  ]
+                                }
+                              },
+                              "options": {
+                                "type": "object",
+                                "properties": {
+                                  "variableId": {
+                                    "type": "string"
+                                  },
+                                  "listHeader": {
+                                    "type": "string"
+                                  },
+                                  "buttonLabel": {
+                                    "type": "string"
+                                  },
+                                  "listFooter": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "type",
+                              "items"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "outgoingEdgeId": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "whatsapp carousel"
+                                ]
+                              },
+                              "items": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "type": "string"
+                                    },
+                                    "outgoingEdgeId": {
+                                      "type": "string"
+                                    },
+                                    "headerType": {
+                                      "type": "string",
+                                      "nullable": true,
+                                      "enum": [
+                                        "image",
+                                        "video",
+                                        null
+                                      ]
+                                    },
+                                    "headerUrl": {
+                                      "type": "string",
+                                      "nullable": true
+                                    },
+                                    "bodyText": {
+                                      "type": "string",
+                                      "nullable": true,
+                                      "maxLength": 160
+                                    },
+                                    "buttonType": {
+                                      "type": "string",
+                                      "nullable": true,
+                                      "enum": [
+                                        "cta_url",
+                                        "quick_reply",
+                                        null
+                                      ]
+                                    },
+                                    "ctaUrlButton": {
+                                      "type": "object",
+                                      "nullable": true,
+                                      "properties": {
+                                        "displayText": {
+                                          "type": "string",
+                                          "maxLength": 20
+                                        },
+                                        "url": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      "required": [
+                                        "displayText",
+                                        "url"
+                                      ]
+                                    },
+                                    "quickReplyButtons": {
+                                      "type": "array",
+                                      "nullable": true,
+                                      "items": {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": {
+                                            "type": "string"
+                                          },
+                                          "title": {
+                                            "type": "string",
+                                            "maxLength": 20
+                                          }
+                                        },
+                                        "required": [
+                                          "id",
+                                          "title"
+                                        ]
+                                      },
+                                      "maxItems": 2
+                                    }
+                                  },
+                                  "required": [
+                                    "id"
+                                  ]
+                                }
+                              },
+                              "options": {
+                                "type": "object",
+                                "properties": {
+                                  "variableId": {
+                                    "type": "string"
+                                  },
+                                  "bodyText": {
+                                    "type": "string",
+                                    "maxLength": 1024
                                   }
                                 }
                               }
@@ -26440,6 +28449,9 @@
                           },
                           {
                             "$ref": "#/components/schemas/audioBlock"
+                          },
+                          {
+                            "$ref": "#/components/schemas/stickerBlock"
                           }
                         ],
                         "discriminator": {
@@ -26449,7 +28461,8 @@
                             "image": "#/components/schemas/imageBlock",
                             "video": "#/components/schemas/videoBlock",
                             "embed": "#/components/schemas/embedBlock",
-                            "audio": "#/components/schemas/audioBlock"
+                            "audio": "#/components/schemas/audioBlock",
+                            "sticker": "#/components/schemas/stickerBlock"
                           }
                         }
                       },
@@ -26640,6 +28653,190 @@
                                         }
                                       }
                                     }
+                                  }
+                                }
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "type",
+                              "items"
+                            ]
+                          },
+                          {
+                            "$ref": "#/components/schemas/ctaUrlInput"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "outgoingEdgeId": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "whatsapp list"
+                                ]
+                              },
+                              "items": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "type": "string"
+                                    },
+                                    "outgoingEdgeId": {
+                                      "type": "string"
+                                    },
+                                    "content": {
+                                      "type": "string"
+                                    },
+                                    "description": {
+                                      "type": "string"
+                                    },
+                                    "sectionTitle": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "id"
+                                  ]
+                                }
+                              },
+                              "options": {
+                                "type": "object",
+                                "properties": {
+                                  "variableId": {
+                                    "type": "string"
+                                  },
+                                  "listHeader": {
+                                    "type": "string"
+                                  },
+                                  "buttonLabel": {
+                                    "type": "string"
+                                  },
+                                  "listFooter": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "type",
+                              "items"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "outgoingEdgeId": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "whatsapp carousel"
+                                ]
+                              },
+                              "items": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "type": "string"
+                                    },
+                                    "outgoingEdgeId": {
+                                      "type": "string"
+                                    },
+                                    "headerType": {
+                                      "type": "string",
+                                      "nullable": true,
+                                      "enum": [
+                                        "image",
+                                        "video",
+                                        null
+                                      ]
+                                    },
+                                    "headerUrl": {
+                                      "type": "string",
+                                      "nullable": true
+                                    },
+                                    "bodyText": {
+                                      "type": "string",
+                                      "nullable": true,
+                                      "maxLength": 160
+                                    },
+                                    "buttonType": {
+                                      "type": "string",
+                                      "nullable": true,
+                                      "enum": [
+                                        "cta_url",
+                                        "quick_reply",
+                                        null
+                                      ]
+                                    },
+                                    "ctaUrlButton": {
+                                      "type": "object",
+                                      "nullable": true,
+                                      "properties": {
+                                        "displayText": {
+                                          "type": "string",
+                                          "maxLength": 20
+                                        },
+                                        "url": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      "required": [
+                                        "displayText",
+                                        "url"
+                                      ]
+                                    },
+                                    "quickReplyButtons": {
+                                      "type": "array",
+                                      "nullable": true,
+                                      "items": {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": {
+                                            "type": "string"
+                                          },
+                                          "title": {
+                                            "type": "string",
+                                            "maxLength": 20
+                                          }
+                                        },
+                                        "required": [
+                                          "id",
+                                          "title"
+                                        ]
+                                      },
+                                      "maxItems": 2
+                                    }
+                                  },
+                                  "required": [
+                                    "id"
+                                  ]
+                                }
+                              },
+                              "options": {
+                                "type": "object",
+                                "properties": {
+                                  "variableId": {
+                                    "type": "string"
+                                  },
+                                  "bodyText": {
+                                    "type": "string",
+                                    "maxLength": 1024
                                   }
                                 }
                               }

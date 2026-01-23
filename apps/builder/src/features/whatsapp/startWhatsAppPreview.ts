@@ -1,5 +1,3 @@
-import { authenticatedProcedure } from "@/helpers/server/trpc";
-import { ClientToastError } from "@/lib/ClientToastError";
 import { TRPCError } from "@trpc/server";
 import { BubbleBlockType } from "@typebot.io/blocks-bubbles/constants";
 import { saveStateToDatabase } from "@typebot.io/bot-engine/saveStateToDatabase";
@@ -19,12 +17,14 @@ import { getOrUploadMedia } from "@typebot.io/whatsapp/getOrUploadMedia";
 import { sendChatReplyToWhatsApp } from "@typebot.io/whatsapp/sendChatReplyToWhatsApp";
 import { sendWhatsAppMessage } from "@typebot.io/whatsapp/sendWhatsAppMessage";
 import { z } from "@typebot.io/zod";
+import { authenticatedProcedure } from "@/helpers/server/trpc";
+import { ClientToastError } from "@/lib/ClientToastError";
 
 // Helper function to auto-upload stickers during preview
 async function uploadStickersForPreview(typebot: any) {
   try {
     console.log("🔍 [Preview] Checking for stickers to upload...");
-    
+
     if (!env.META_SYSTEM_USER_TOKEN) {
       console.log("⏭️  [Preview] No META_SYSTEM_USER_TOKEN, skipping upload");
       return;
@@ -43,7 +43,9 @@ async function uploadStickersForPreview(typebot: any) {
           block.content?.url &&
           !block.content?.mediaId
         ) {
-          console.log(`🔄 [Preview] Auto-uploading sticker for block ${block.id}...`);
+          console.log(
+            `🔄 [Preview] Auto-uploading sticker for block ${block.id}...`,
+          );
           try {
             const mediaId = await getOrUploadMedia({
               url: block.content.url,
@@ -51,7 +53,8 @@ async function uploadStickersForPreview(typebot: any) {
                 credentials: {
                   provider: "meta" as const,
                   systemUserAccessToken: env.META_SYSTEM_USER_TOKEN,
-                  phoneNumberId: env.WHATSAPP_PREVIEW_FROM_PHONE_NUMBER_ID || "",
+                  phoneNumberId:
+                    env.WHATSAPP_PREVIEW_FROM_PHONE_NUMBER_ID || "",
                 },
                 publicTypebotId: typebot.publicId || typebot.id,
               },

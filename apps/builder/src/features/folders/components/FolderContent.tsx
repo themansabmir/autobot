@@ -104,15 +104,15 @@ export const FolderContent = ({ folder }: Props) => {
 
   const handleTypebotDrag =
     (typebot: TypebotInDashboard) =>
-      ({ absolute, relative }: NodePosition) => {
-        if (draggedTypebot) return;
-        setMousePositionInElement(relative);
-        setDraggablePosition({
-          x: absolute.x - relative.x,
-          y: absolute.y - relative.y,
-        });
-        setDraggedTypebot(typebot);
-      };
+    ({ absolute, relative }: NodePosition) => {
+      if (draggedTypebot) return;
+      setMousePositionInElement(relative);
+      setDraggablePosition({
+        x: absolute.x - relative.x,
+        y: absolute.y - relative.y,
+      });
+      setDraggedTypebot(typebot);
+    };
 
   const handleMouseMove = (e: MouseEvent) => {
     if (!draggedTypebot) return;
@@ -150,7 +150,9 @@ export const FolderContent = ({ folder }: Props) => {
     <div className="flex w-full flex-1 justify-center">
       <div className="flex flex-col w-full max-w-[1600px] px-6 gap-6 pt-4">
         {folder?.name !== undefined ? (
-          <h1 className="text-2xl font-medium text-gray-900 dark:text-white">{folder.name}</h1>
+          <h1 className="text-2xl font-medium text-gray-900 dark:text-white">
+            {folder.name}
+          </h1>
         ) : null}
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">

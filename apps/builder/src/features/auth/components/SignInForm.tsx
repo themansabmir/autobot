@@ -94,10 +94,17 @@ export const SignInForm = ({ defaultEmail, className }: Props) => {
   return (
     <div className={cn("flex flex-col gap-6 w-[330px]", className)}>
       <SocialLoginButtons providers={providers} />
-      <DividerWithText className="text-[10px] tracking-widest font-bold text-gray-11 opacity-50 uppercase">OR OTP LOGIN</DividerWithText>
+      <DividerWithText className="text-[10px] tracking-widest font-bold text-gray-11 opacity-50 uppercase">
+        OR OTP LOGIN
+      </DividerWithText>
       <form className="flex flex-col gap-4" onSubmit={handleEmailSubmit}>
         <div className="flex flex-col gap-2">
-          <label htmlFor="email" className="text-[10px] uppercase tracking-widest font-bold text-gray-500 dark:text-gray-400">Work Email Address</label>
+          <label
+            htmlFor="email"
+            className="text-[10px] uppercase tracking-widest font-bold text-gray-500 dark:text-gray-400"
+          >
+            Work Email Address
+          </label>
           <Input
             name="email"
             type="email"
@@ -112,7 +119,9 @@ export const SignInForm = ({ defaultEmail, className }: Props) => {
 
         <div className="flex items-start gap-2 text-xs text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/50 p-3 rounded-md border border-gray-100 dark:border-gray-800">
           <span className="text-[#FFE600] mt-0.5 text-sm">ℹ</span>
-          <span>A 6-digit code will be sent to your email for secure verification.</span>
+          <span>
+            A 6-digit code will be sent to your email for secure verification.
+          </span>
         </div>
 
         <Button

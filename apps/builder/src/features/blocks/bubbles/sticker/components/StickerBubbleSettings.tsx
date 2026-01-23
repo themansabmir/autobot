@@ -1,7 +1,7 @@
-import { ImageUploadContent } from "@/components/ImageUploadContent";
-import type { FilePathUploadProps } from "@/features/upload/api/generateUploadUrl";
 import type { StickerBubbleBlock } from "@typebot.io/blocks-bubbles/sticker/schema";
 import { Badge } from "@typebot.io/ui/components/Badge";
+import { ImageUploadContent } from "@/components/ImageUploadContent";
+import type { FilePathUploadProps } from "@/features/upload/api/generateUploadUrl";
 
 type Props = {
   uploadFileProps: FilePathUploadProps;
@@ -42,7 +42,8 @@ export const StickerBubbleSettings = ({
             </div>
           ) : (
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              💡 Sticker will be automatically uploaded to WhatsApp when you publish this typebot
+              💡 Sticker will be automatically uploaded to WhatsApp when you
+              publish this typebot
             </p>
           )}
         </div>
