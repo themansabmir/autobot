@@ -316,6 +316,8 @@ const whatsAppError = z.object({
 export type WhatsAppIncomingError = z.infer<typeof whatsAppError>;
 
 const incomingStatuses = z.object({
+  id: z.string(),
+  status: z.enum(["sent", "delivered", "read", "failed"]),
   recipient_id: z.string(),
   // Most likely something with the outbound message
   errors: z.array(whatsAppError).optional(),

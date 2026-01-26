@@ -465,6 +465,9 @@ enum RecipientStatus {
   PENDING
   QUEUED
   SENT
+  OPENED
+  STARTED
+  COMPLETED
   FAILED
 }
 
@@ -500,6 +503,7 @@ model CampaignRecipient {
   updatedAt    DateTime        @default(now()) @updatedAt
   campaignId   String
   phoneNumber  String
+  messageId    String?
   variables    Json?
   status       RecipientStatus @default(PENDING)
   retryCount   Int             @default(0)

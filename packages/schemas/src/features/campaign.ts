@@ -17,6 +17,9 @@ export const recipientStatusSchema = z.enum([
   "PENDING",
   "QUEUED",
   "SENT",
+  "OPENED",
+  "STARTED",
+  "COMPLETED",
   "FAILED",
 ]);
 
@@ -45,6 +48,7 @@ export const campaignRecipientSchema = z.object({
   updatedAt: z.date(),
   campaignId: z.string(),
   phoneNumber: z.string(),
+  messageId: z.string().nullable(),
   variables: z.custom<JsonValue>().nullable(),
   status: recipientStatusSchema,
   retryCount: z.number(),

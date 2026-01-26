@@ -23,6 +23,11 @@ type Props = {
   state: SessionState;
 } & Pick<ContinueChatResponse, "messages" | "input" | "clientSideActions">;
 
+type ClientSideActionExecutionResult =
+  | { type: "replyToSend"; replyToSend: string | undefined; lastMessageId?: string }
+  | { type: "shouldWaitForWebhook"; lastMessageId?: string }
+  | undefined;
+
 export const sendChatReplyToWhatsApp = async ({
   to,
   isFirstChatChunk,
@@ -31,7 +36,7 @@ export const sendChatReplyToWhatsApp = async ({
   clientSideActions,
   credentials,
   state,
-}: Props): Promise<ClientSideActionExecutionResult | undefined> => {
+}: Props): Promise<ClientSideActionExecutionResult> => {
   const messagesBeforeInput = isLastMessageIncludedInInput(
     input,
     messages.at(-1),
@@ -40,6 +45,7 @@ export const sendChatReplyToWhatsApp = async ({
     : messages;
 
   const sentMessages: WhatsAppSendingMessage[] = [];
+  let lastMessageId: string | undefined;
 
   const clientSideActionsBeforeMessages =
     clientSideActions?.filter((action) =>
@@ -52,7 +58,7 @@ export const sendChatReplyToWhatsApp = async ({
     credentials,
   });
 
-  if (result) return result;
+  if (result) return { ...result, lastMessageId };
 
   let i = -1;
   for (const message of messagesBeforeInput) {
@@ -94,11 +100,12 @@ export const sendChatReplyToWhatsApp = async ({
             });
     if ((typingDuration ?? 0) > 0)
       await new Promise((resolve) => setTimeout(resolve, typingDuration));
-    await sendWhatsAppMessage({
+    const responseId = await sendWhatsAppMessage({
       to,
       message: whatsAppMessage,
       credentials,
     });
+    if (responseId) lastMessageId = responseId;
     sentMessages.push(whatsAppMessage);
     const clientSideActionsAfterMessage =
       clientSideActions?.filter(
@@ -109,7 +116,7 @@ export const sendChatReplyToWhatsApp = async ({
       to,
       credentials,
     });
-    if (result) return result;
+    if (result) return { ...result, lastMessageId };
   }
 
   if (input) {
@@ -137,13 +144,16 @@ export const sendChatReplyToWhatsApp = async ({
             });
       if (typingDuration)
         await new Promise((resolve) => setTimeout(resolve, typingDuration));
-      await sendWhatsAppMessage({
+      const responseId = await sendWhatsAppMessage({
         to,
         message,
         credentials,
       });
+      if (responseId) lastMessageId = responseId;
     }
   }
+
+  return { type: "shouldWaitForWebhook", lastMessageId };
 };
 
 const getTypingDuration = ({
@@ -200,10 +210,6 @@ const executeClientSideActions = async ({
   }
 };
 
-type ClientSideActionExecutionResult =
-  | { type: "replyToSend"; replyToSend: string | undefined }
-  | { type: "shouldWaitForWebhook" }
-  | undefined;
 const executeClientSideAction =
   (context: { to: string; credentials: WhatsAppCredentials["data"] }) =>
   async (
