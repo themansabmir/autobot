@@ -301,7 +301,7 @@ export const WhatsAppCreateDialogBody = ({
                       className={cx(
                         "size-6 rounded-full items-center flex justify-center text-center",
                         index <= activeStep
-                          ? "text-white bg-orange-9"
+                          ? "text-gray-12 dark:text-gray-1 bg-orange-9"
                           : "bg-gray-6",
                       )}
                     >

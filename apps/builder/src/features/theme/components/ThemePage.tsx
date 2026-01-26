@@ -22,8 +22,7 @@ export const ThemePage = () => {
                 borderRadius: "0.75rem",
                 width: "100%",
                 height: "100%",
-                backgroundColor:
-                  typebot.theme.general?.background?.content,
+                backgroundColor: typebot.theme.general?.background?.content,
               }}
             />
           )}

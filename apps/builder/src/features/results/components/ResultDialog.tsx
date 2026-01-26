@@ -110,7 +110,7 @@ const Transcript = ({
                 "max-w-[70%] border px-3 py-2 rounded-lg",
                 isBot
                   ? "bg-gray-3 text-gray-12 rounded-bl-sm rounded-br-lg"
-                  : "bg-orange-9 text-white rounded-bl-lg rounded-br-sm",
+                  : "bg-orange-9 text-gray-12 dark:text-gray-1 rounded-bl-lg rounded-br-sm",
               )}
             >
               <p className="text-sm whitespace-pre-wrap overflow-hidden">

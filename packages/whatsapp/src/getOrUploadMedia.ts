@@ -55,7 +55,7 @@ export const getOrUploadMedia = async ({
     // Validate that we got actual media content, not HTML or other non-media types
     if (mimeType.includes("text/html") || mimeType.includes("text/plain")) {
       throw new Error(
-        `Invalid media URL: received ${mimeType} instead of image/video/audio. The URL may be a redirect or webpage instead of a direct media link. Please use a direct URL to the image/video/audio file.`
+        `Invalid media URL: received ${mimeType} instead of image/video/audio. The URL may be a redirect or webpage instead of a direct media link. Please use a direct URL to the image/video/audio file.`,
       );
     }
 

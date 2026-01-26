@@ -85,7 +85,9 @@ export const SharePage = () => {
       <div className="flex h-full w-full justify-center items-start">
         <div className="flex flex-col max-w-[970px] w-full pt-10 gap-10 pb-20">
           <div className="flex flex-col gap-4 items-start">
-            <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">{t("sharePage.links.heading")}</h1>
+            <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
+              {t("sharePage.links.heading")}
+            </h1>
             <div className="flex flex-col gap-4 p-6 rounded-xl w-full border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#1A1A1A] shadow-sm">
               {typebot && (
                 <EditableUrl
@@ -120,8 +122,8 @@ export const SharePage = () => {
                 </div>
               )}
               {currentUserMode === "write" &&
-                isNotDefined(typebot?.customDomain) &&
-                env.NEXT_PUBLIC_VERCEL_VIEWER_PROJECT_NAME ? (
+              isNotDefined(typebot?.customDomain) &&
+              env.NEXT_PUBLIC_VERCEL_VIEWER_PROJECT_NAME ? (
                 hasProPerks(workspace) ? (
                   <CustomDomainsDropdown
                     onCustomDomainSelect={handleCustomDomainChange}
@@ -142,7 +144,9 @@ export const SharePage = () => {
           </div>
 
           <div className="flex flex-col gap-4">
-            <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">{t("sharePage.embed.heading")}</h1>
+            <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
+              {t("sharePage.embed.heading")}
+            </h1>
             <div className="flex flex-wrap gap-4">
               {integrationsList.map((IntegrationButton, idx) => (
                 <IntegrationButton

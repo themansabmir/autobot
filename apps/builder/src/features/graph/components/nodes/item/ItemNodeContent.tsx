@@ -50,6 +50,8 @@ export const ItemNodeContent = ({
           indices={indices}
         />
       );
+    case InputBlockType.WHATSAPP_CAROUSEL:
+      return null;
     case InputBlockType.PICTURE_CHOICE:
       return (
         <PictureChoiceItemNode
