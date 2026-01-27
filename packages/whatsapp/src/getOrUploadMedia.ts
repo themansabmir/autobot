@@ -98,16 +98,23 @@ export const getOrUploadMedia = async ({
     }
 
     if (cache) {
-      insertMediaIdToCache({
-        url: urlWithoutQueryParams,
-        mediaId,
-        provider:
-          cache.credentials.provider === "360dialog"
-            ? ChatProvider.DIALOG360
-            : ChatProvider.WHATSAPP,
-        publicTypebotId: cache.publicTypebotId,
-        expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30), // 30 days
-      });
+      try {
+        await insertMediaIdToCache({
+          url: urlWithoutQueryParams,
+          mediaId,
+          provider:
+            cache.credentials.provider === "360dialog"
+              ? ChatProvider.DIALOG360
+              : ChatProvider.WHATSAPP,
+          publicTypebotId: cache.publicTypebotId,
+          expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30), // 30 days
+        });
+      } catch (error) {
+        // Cache insertion may fail in preview mode - this is non-critical
+        console.warn("[WhatsApp Media] Failed to cache media_id (non-critical)", {
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
     }
 
     return mediaId;
