@@ -34,6 +34,7 @@ export const listTypebots = authenticatedProcedure
             name: true,
             icon: true,
             id: true,
+            updatedAt: true,
           })
           .merge(
             z.object({
@@ -81,6 +82,7 @@ export const listTypebots = authenticatedProcedure
         publishedTypebot: { select: { id: true } },
         id: true,
         icon: true,
+        updatedAt: true,
         collaborators: { select: { userId: true, type: true } },
       },
     });
@@ -93,6 +95,7 @@ export const listTypebots = authenticatedProcedure
         id: typebot.id,
         name: typebot.name,
         icon: typebot.icon,
+        updatedAt: typebot.updatedAt,
         publishedTypebotId: typebot.publishedTypebot?.id,
         accessRight: getTypebotAccessRight(user, {
           ...typebot,

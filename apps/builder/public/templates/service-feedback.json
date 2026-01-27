@@ -1,0 +1,376 @@
+{
+  "version": "6.1",
+  "id": "service-feedback-template",
+  "name": "Service Feedback",
+  "events": [
+    {
+      "id": "event-start",
+      "outgoingEdgeId": "edge-start-to-intro",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "type": "start"
+    }
+  ],
+  "groups": [
+    {
+      "id": "group-intro",
+      "title": "Introduction",
+      "graphCoordinates": { "x": 40, "y": 100 },
+      "blocks": [
+        {
+          "id": "block-intro-text-1",
+          "type": "text",
+          "content": {
+            "richText": [
+              {
+                "type": "p",
+                "children": [
+                  { "text": "Hi there! 👋" }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "block-intro-text-2",
+          "type": "text",
+          "content": {
+            "richText": [
+              {
+                "type": "p",
+                "children": [
+                  { "text": "We'd love to hear your thoughts on our service to help us improve." }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "block-intro-text-3",
+          "type": "text",
+          "content": {
+            "richText": [
+              {
+                "type": "p",
+                "children": [
+                  { "text": "It will only take 2 minutes." }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "block-start-button",
+          "type": "text",
+          "content": {
+            "richText": [
+               { "type": "p", "children": [{ "text": "Ready?" }] }
+            ]
+          }
+        },
+         {
+          "id": "block-start-input",
+          "type": "choice input",
+          "items": [
+            {
+              "id": "item-start-yes",
+              "outgoingEdgeId": "edge-intro-to-csat",
+              "content": "Let's go"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "group-csat",
+      "title": "Overall Satisfaction (CSAT)",
+      "graphCoordinates": { "x": 400, "y": 100 },
+      "blocks": [
+        {
+          "id": "block-csat-question",
+          "type": "text",
+          "content": {
+            "richText": [
+              {
+                "type": "p",
+                "children": [
+                  { "text": "First, how satisfied are you with our service overall?" }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "block-csat-input",
+          "type": "rating input",
+          "outgoingEdgeId": "edge-csat-to-nps",
+          "options": {
+            "variableId": "var-csat",
+            "labels": {
+              "left": "Not satisfied",
+              "right": "Very satisfied"
+            },
+            "length": 5,
+            "isOneClickSubmitEnabled": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "group-nps",
+      "title": "NPS & Reason",
+      "graphCoordinates": { "x": 800, "y": 100 },
+      "blocks": [
+        {
+          "id": "block-nps-question",
+          "type": "text",
+          "content": {
+            "richText": [
+              {
+                "type": "p",
+                "children": [
+                  { "text": "How likely are you to recommend us to a friend or colleague?" }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "block-nps-input",
+          "type": "rating input",
+          "options": {
+            "variableId": "var-nps",
+            "labels": {
+              "left": "Not likely",
+              "right": "Very likely"
+            },
+            "length": 10,
+            "isOneClickSubmitEnabled": true
+          }
+        },
+        {
+          "id": "block-nps-reason-question",
+          "type": "text",
+          "content": {
+             "richText": [
+              {
+                "type": "p",
+                "children": [
+                  { "text": "What is the primary reason for your score?" }
+                ]
+              }
+            ]
+          }
+        },
+        {
+           "id": "block-nps-reason-input",
+           "type": "text input",
+           "outgoingEdgeId": "edge-nps-to-ces",
+           "options": {
+             "variableId": "var-nps-reason",
+             "isLong": true
+           }
+        }
+      ]
+    },
+    {
+      "id": "group-ces",
+      "title": "Customer Effort Score (CES)",
+      "graphCoordinates": { "x": 1200, "y": 100 },
+      "blocks": [
+        {
+          "id": "block-ces-question",
+          "type": "text",
+          "content": {
+            "richText": [
+              {
+                "type": "p",
+                "children": [
+                  { "text": "How easy was it to resolve your issue with us?" }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "block-ces-input",
+          "type": "choice input",
+          "items": [
+            {
+              "id": "item-ces-very-easy",
+              "outgoingEdgeId": "edge-ces-to-feedback",
+              "content": "Very Easy"
+            },
+            {
+              "id": "item-ces-easy",
+              "outgoingEdgeId": "edge-ces-to-feedback",
+               "content": "Easy"
+            },
+            {
+              "id": "item-ces-neutral",
+              "outgoingEdgeId": "edge-ces-to-feedback",
+               "content": "Neutral"
+            },
+            {
+              "id": "item-ces-difficult",
+              "outgoingEdgeId": "edge-ces-to-feedback",
+               "content": "Difficult"
+            },
+            {
+              "id": "item-ces-very-difficult",
+              "outgoingEdgeId": "edge-ces-to-feedback",
+               "content": "Very Difficult"
+            }
+          ],
+          "options": {
+            "variableId": "var-ces"
+          }
+        }
+      ]
+    },
+    {
+      "id": "group-feedback",
+      "title": "Specific Feedback",
+      "graphCoordinates": { "x": 1600, "y": 100 },
+      "blocks": [
+        {
+          "id": "block-valuable-question",
+          "type": "text",
+          "content": {
+            "richText": [
+              {
+                "type": "p",
+                "children": [
+                  { "text": "What aspect of our service did you find most valuable?" }
+                ]
+              }
+            ]
+          }
+        },
+        {
+           "id": "block-valuable-input",
+           "type": "text input",
+           "options": {
+             "variableId": "var-valuable-aspect",
+             "isLong": true
+           }
+        },
+         {
+          "id": "block-improve-question",
+          "type": "text",
+          "content": {
+            "richText": [
+              {
+                "type": "p",
+                "children": [
+                  { "text": "And what could we improve?" }
+                ]
+              }
+            ]
+          }
+        },
+        {
+           "id": "block-improve-input",
+           "type": "text input",
+            "outgoingEdgeId": "edge-feedback-to-outro",
+           "options": {
+             "variableId": "var-improvements",
+             "isLong": true
+           }
+        }
+      ]
+    },
+    {
+      "id": "group-outro",
+      "title": "Thank You",
+      "graphCoordinates": { "x": 2000, "y": 100 },
+      "blocks": [
+        {
+          "id": "block-outro-text",
+          "type": "text",
+          "content": {
+            "richText": [
+              {
+                "type": "p",
+                "children": [
+                  { "text": "Thank you so much! Your feedback helps us grow. 🚀" }
+                ]
+              }
+            ]
+          }
+        },
+        {
+             "id": "block-outro-gif",
+            "type": "image",
+            "content": {
+                "url": "https://media3.giphy.com/media/qC2REWsp3fQ1v2mm74/giphy.gif?cid=fe3852a38k350b15tly68dp7plh5iskmlonklrofvce975cq&rid=giphy.gif&ct=g"
+            }
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-start-to-intro",
+      "from": { "eventId": "event-start" },
+      "to": { "groupId": "group-intro" }
+    },
+    {
+      "id": "edge-intro-to-csat",
+      "from": { "blockId": "block-start-input", "itemId": "item-start-yes" },
+      "to": { "groupId": "group-csat" }
+    },
+    {
+      "id": "edge-csat-to-nps",
+      "from": { "blockId": "block-csat-input" },
+      "to": { "groupId": "group-nps" }
+    },
+    {
+      "id": "edge-nps-to-ces",
+      "from": { "blockId": "block-nps-reason-input" },
+      "to": { "groupId": "group-ces" }
+    },
+     {
+      "id": "edge-ces-to-feedback",
+      "from": { "blockId": "block-ces-input", "itemId": "item-ces-very-easy" },
+      "to": { "groupId": "group-feedback" }
+    },
+     {
+      "id": "edge-ces-to-feedback-2",
+      "from": { "blockId": "block-ces-input", "itemId": "item-ces-easy" },
+      "to": { "groupId": "group-feedback" }
+    },
+     {
+      "id": "edge-ces-to-feedback-3",
+      "from": { "blockId": "block-ces-input", "itemId": "item-ces-neutral" },
+      "to": { "groupId": "group-feedback" }
+    },
+     {
+      "id": "edge-ces-to-feedback-4",
+      "from": { "blockId": "block-ces-input", "itemId": "item-ces-difficult" },
+      "to": { "groupId": "group-feedback" }
+    },
+     {
+      "id": "edge-ces-to-feedback-5",
+      "from": { "blockId": "block-ces-input", "itemId": "item-ces-very-difficult" },
+      "to": { "groupId": "group-feedback" }
+    },
+    {
+      "id": "edge-feedback-to-outro",
+      "from": { "blockId": "block-improve-input" },
+      "to": { "groupId": "group-outro" }
+    }
+  ],
+  "variables": [
+    { "id": "var-csat", "name": "Satisfaction Score" },
+    { "id": "var-nps", "name": "NPS Score" },
+    { "id": "var-nps-reason", "name": "NPS Reason" },
+    { "id": "var-ces", "name": "Effort Score" },
+    { "id": "var-valuable-aspect", "name": "Valuable Aspect" },
+    { "id": "var-improvements", "name": "Improvements" }
+  ],
+  "theme": {},
+  "settings": {},
+  "createdAt": "2024-03-20T10:00:00.000Z",
+  "updatedAt": "2024-03-20T10:00:00.000Z",
+  "icon": "📣"
+}

@@ -4,13 +4,15 @@ import { MegaphoneIcon } from "@typebot.io/ui/icons/MegaphoneIcon";
 import { RobotIcon } from "@typebot.io/ui/icons/RobotIcon";
 import { Settings01Icon } from "@typebot.io/ui/icons/Settings01Icon";
 import { SquareLock01Icon } from "@typebot.io/ui/icons/SquareLock01Icon";
-import { cn } from "@typebot.io/ui/lib/cn";
+import { UsersIcon } from "@typebot.io/ui/icons/UsersIcon";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { useUser } from "@/features/user/hooks/useUser";
 import { WorkspaceDropdown } from "@/features/workspace/components/WorkspaceDropdown";
+import { WorkspaceSettingsDialog } from "@/features/workspace/components/WorkspaceSettingsDialog";
 import { useWorkspace } from "@/features/workspace/WorkspaceProvider";
+import { cn } from "@typebot.io/ui/lib/cn";
 
 type NavItem = {
   label: string;
@@ -22,8 +24,7 @@ const navItems: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
   { label: "Typebots", href: "/typebots", icon: HardDriveIcon },
   { label: "Campaigns", href: "/campaigns", icon: MegaphoneIcon },
-  { label: "Users", href: "/users", icon: RobotIcon },
-  { label: "Settings", href: "/settings", icon: SquareLock01Icon },
+  { label: "Users", href: "/users", icon: UsersIcon },
 ];
 
 export const Sidebar = () => {
@@ -31,6 +32,7 @@ export const Sidebar = () => {
   const { user, logOut } = useUser();
   const { workspace, switchWorkspace, createWorkspace } = useWorkspace();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const handleCreateNewWorkspace = () =>
     createWorkspace(user?.name ?? undefined);
@@ -88,15 +90,13 @@ export const Sidebar = () => {
 
       {/* Footer / Settings / Profile */}
       <div className="p-4 border-t border-gray-800 space-y-2">
-        <Link
-          href="/settings"
-          className={cn(
-            "flex items-center gap-3 px-4 py-3 rounded-md text-sm font-medium transition-all group text-gray-400 hover:text-white hover:bg-[#2E2E38]/50",
-          )}
+        <button
+          onClick={() => setIsSettingsOpen(true)}
+          className="flex items-center gap-3 px-4 py-3 rounded-md text-sm font-medium w-full text-left transition-all text-gray-400 hover:text-white hover:bg-[#2E2E38]/50"
         >
-          <Settings01Icon className="size-5 text-gray-500 group-hover:text-gray-300" />
+          <Settings01Icon className="size-5 text-gray-500" />
           Settings
-        </Link>
+        </button>
 
         <div className="pt-2">
           <WorkspaceDropdown
@@ -108,6 +108,14 @@ export const Sidebar = () => {
           />
         </div>
       </div>
+      {user && workspace && (
+        <WorkspaceSettingsDialog
+          isOpen={isSettingsOpen}
+          onClose={() => setIsSettingsOpen(false)}
+          user={user}
+          workspace={workspace}
+        />
+      )}
     </aside>
   );
 };

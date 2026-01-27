@@ -148,6 +148,35 @@ export const resumeWhatsAppFlow = async ({
     );
   }
 
+  if (receivedMessages.length > 0 && contact) {
+    const recipient = await prisma.campaignRecipient.findFirst({
+      where: {
+        phoneNumber: contact.phoneNumber,
+        campaign: {
+          typebotId: session?.state?.typebotsQueue[0]?.typebot?.id,
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    if (
+      recipient &&
+      [
+        RecipientStatus.SENT,
+        RecipientStatus.OPENED,
+        RecipientStatus.QUEUED,
+      ].includes(recipient.status)
+    ) {
+      await prisma.campaignRecipient.update({
+        where: { id: recipient.id },
+        data: { status: RecipientStatus.STARTED },
+      });
+      console.log(
+        `✅ Campaign Recipient ${recipient.id} status updated to STARTED`,
+      );
+    }
+  }
+
   const currentTypebot = session?.state?.typebotsQueue[0].typebot;
   const { block } =
     (currentTypebot && session?.state?.currentBlockId

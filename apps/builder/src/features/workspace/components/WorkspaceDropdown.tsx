@@ -33,8 +33,11 @@ export const WorkspaceDropdown = ({
 
   return (
     <Menu.Root>
-      <Menu.TriggerButton variant="outline-secondary">
-        <div className="flex items-center gap-2 text-black dark:text-white">
+      <Menu.TriggerButton
+        variant="outline-secondary"
+        className="hover:bg-[#2E2E38] border-gray-700 bg-transparent"
+      >
+        <div className="flex items-center gap-2 text-white">
           {!isLoggingOut && currentWorkspace && (
             <>
               <p className="max-w-[300px] truncate">{currentWorkspace.name}</p>
