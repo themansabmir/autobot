@@ -5,10 +5,19 @@ import { PlusSignIcon } from "@typebot.io/ui/icons/PlusSignIcon";
 import { SunIcon } from "@typebot.io/ui/icons/SunIcon";
 import { useRouter } from "next/router";
 import { useTheme } from "next-themes";
+import { formatDistanceToNow } from "date-fns";
+
+
+import { useEffect, useState } from "react";
 
 export const DashboardHeader = () => {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleCreateNewBot = () => {
     router.push("/typebots/new");
@@ -23,20 +32,8 @@ export const DashboardHeader = () => {
         </h1>
         <div className="h-6 w-px bg-gray-300 dark:bg-gray-700 mx-2" />
         <span className="text-sm text-gray-500 flex items-center gap-1 whitespace-nowrap">
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-            ></path>
-          </svg>
-          Last updated: 2 mins ago
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <LastUpdated />
         </span>
       </div>
 
@@ -64,6 +61,7 @@ export const DashboardHeader = () => {
             </svg>
           </div>
         </div>
+      </div>
 
         {/* Right Actions: Search + Profile */}
         <div className="flex items-center gap-6">
@@ -89,7 +87,7 @@ export const DashboardHeader = () => {
             className="p-2 rounded-full text-gray-400 hover:text-gray-900 dark:hover:text-white dark:hover:bg-gray-800 transition-colors"
             aria-label="Toggle theme"
           >
-            {theme === "dark" ? (
+          {mounted && theme === "dark" ? (
               <SunIcon className="size-5" />
             ) : (
               <MoonIcon className="size-5" />
@@ -100,3 +98,20 @@ export const DashboardHeader = () => {
     </header>
   );
 };
+
+const LastUpdated = () => {
+    const [updatedAt] = useState(new Date());
+    const [timeAgo, setTimeAgo] = useState("just now");
+  
+    useEffect(() => {
+      const interval = setInterval(() => {
+        setTimeAgo(
+          formatDistanceToNow(updatedAt, { addSuffix: true }).replace("about ", "")
+        );
+      }, 60000);
+      
+      return () => clearInterval(interval);
+    }, [updatedAt]);
+  
+    return <span>Last updated: {timeAgo}</span>;
+  };

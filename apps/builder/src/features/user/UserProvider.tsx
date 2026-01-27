@@ -3,7 +3,6 @@ import { isDefined } from "@typebot.io/lib/utils";
 import type { ClientUser, UpdateUser, User } from "@typebot.io/user/schemas";
 import { useRouter } from "next/router";
 import { signOut, useSession } from "next-auth/react";
-import { useTheme } from "next-themes";
 import type { ReactNode } from "react";
 import { createContext, useEffect, useState } from "react";
 import { datesAreOnSameDay } from "@/helpers/datesAreOnSameDate";
@@ -29,15 +28,11 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [currentWorkspaceId, setCurrentWorkspaceId] = useState<string>();
-  const { theme, setTheme } = useTheme();
   const [localUser, setLocalUser] = useState<ClientUser>();
 
   const updateUserMutation = useUpdateUserMutation();
 
-  useEffect(() => {
-    if (theme === (localUser?.preferredAppAppearance ?? "system")) return;
-    setTheme(localUser?.preferredAppAppearance ?? "system");
-  }, [localUser?.preferredAppAppearance]);
+
 
   useEffect(() => {
     if (isDefined(session?.user.id)) return;
