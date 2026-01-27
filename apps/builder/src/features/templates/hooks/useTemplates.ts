@@ -13,6 +13,20 @@ export const useTemplates = (): TemplateProps[] => {
       description: t("templates.modal.marketing.leadGeneration.description"),
     },
     {
+      name: "Service Feedback",
+      emoji: "📣",
+      fileName: "service-feedback.json",
+      category: "product",
+      description: "Collect valuable feedback from your customers about your services.",
+    },
+    {
+      name: t("templates.modal.product.customerSupport.name"),
+      emoji: "🤝",
+      fileName: "lead-gen.json",
+      category: "marketing",
+      description: t("templates.modal.marketing.leadGeneration.description"),
+    },
+    {
       name: t("templates.modal.product.customerSupport.name"),
       emoji: "😍",
       fileName: "customer-support.json",
