@@ -11,6 +11,9 @@ import { WhatsAppError } from "../WhatsAppError";
 const WHATSAPP_SESSION_ID_PREFIX = "wa-";
 const WHATSAPP_PREVIEW_SESSION_ID_PREFIX = "wa-preview-";
 
+import prisma from "@typebot.io/prisma";
+import { RecipientStatus } from "@prisma/client";
+
 export const handleProductionWebhookRequest = async (
   request: NextRequest,
   params: { workspaceId: string; credentialsId: string },
@@ -31,6 +34,35 @@ export const handleProductionWebhookRequest = async (
         errors,
       },
     });
+  }
+
+  // Handle Status Updates (Read Receipts)
+  for (const { changes } of entry) {
+    for (const change of changes) {
+      if (change.value.statuses) {
+        for (const status of change.value.statuses) {
+          if (status.status === "read") {
+            const recipient = await prisma.campaignRecipient.findFirst({
+              where: { messageId: status.id },
+            });
+            if (
+              recipient &&
+              [RecipientStatus.SENT, RecipientStatus.QUEUED].includes(
+                recipient.status,
+              )
+            ) {
+              await prisma.campaignRecipient.update({
+                where: { id: recipient.id },
+                data: { status: RecipientStatus.OPENED },
+              });
+              console.log(
+                `✅ Campaign Recipient ${recipient.id} status updated to OPENED`,
+              );
+            }
+          }
+        }
+      }
+    }
   }
 
   const incomingMessagesDetails = groupIncomingWebhookEntriesPerUser(entry);

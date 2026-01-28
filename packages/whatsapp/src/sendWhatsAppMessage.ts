@@ -45,8 +45,11 @@ export const sendWhatsAppMessage = async ({
         },
         json,
       });
-      const responseData = await response.json();
+      const responseData = (await response.json()) as {
+        messages: { id: string }[];
+      };
       console.log("✅ [WhatsApp API] 360dialog response:", responseData);
+      return responseData.messages[0]?.id;
     } else {
       const apiUrl = `${env.WHATSAPP_CLOUD_API_URL}/v21.0/${credentials.phoneNumberId}/messages`;
       console.log("🔗 [WhatsApp API] Meta API URL:", apiUrl);
@@ -59,8 +62,11 @@ export const sendWhatsAppMessage = async ({
         },
         json,
       });
-      const responseData = await response.json();
+      const responseData = (await response.json()) as {
+        messages: { id: string }[];
+      };
       console.log("✅ [WhatsApp API] Meta response:", responseData);
+      return responseData.messages[0]?.id;
     }
   } catch (err) {
     console.error("❌ [WhatsApp API] Error sending message:", {

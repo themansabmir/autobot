@@ -5,13 +5,6 @@ import { decrypt } from "@typebot.io/credentials/decrypt";
 import { getCredentials } from "@typebot.io/credentials/getCredentials";
 import type { WhatsAppCredentials } from "@typebot.io/credentials/schemas";
 import prisma from "@typebot.io/prisma";
-
-// Rate limiting tracking
-let messagesSentLastMinute = 0;
-let messagesSentLastHour = 0;
-let lastMinuteReset = Date.now();
-let lastHourReset = Date.now();
-
 import {
   deleteSessionStore,
   getSessionStore,
@@ -20,6 +13,12 @@ import { sendChatReplyToWhatsApp } from "@typebot.io/whatsapp/sendChatReplyToWha
 import type { ConsumeMessage } from "amqplib";
 import { config } from "./config";
 import { closeRabbitMQ, connectRabbitMQ, type RecipientJob } from "./rabbitmq";
+
+// Rate limiting tracking
+let messagesSentLastMinute = 0;
+let messagesSentLastHour = 0;
+let lastMinuteReset = Date.now();
+let lastHourReset = Date.now();
 
 const MAX_RETRIES = config.worker.maxRetries;
 
@@ -82,7 +81,7 @@ const sendWhatsAppMessage = async (
   const sessionId = `campaign-${campaignId}-${recipientId}`;
   const sessionStore = getSessionStore(sessionId);
 
-  console.log(`� Starting typebot session for campaign recipient`, {
+  console.log("📱 Starting typebot session for campaign recipient", {
     sessionId,
     typebotId: campaign.typebotId,
     publicId: campaign.typebot.publicId,
@@ -123,7 +122,8 @@ const sendWhatsAppMessage = async (
     console.log(`🧪 TEST MODE: Skipping WhatsApp API call for ${phoneNumber}`);
     console.log(`🧪 Would have sent ${startResponse.messages.length} messages`);
   } else {
-    await sendChatReplyToWhatsApp({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result: any = await sendChatReplyToWhatsApp({
       to: phoneNumber,
       messages: startResponse.messages,
       input: startResponse.input,
@@ -132,6 +132,14 @@ const sendWhatsAppMessage = async (
       credentials,
       state: startResponse.newSessionState,
     });
+    if (result?.lastMessageId) {
+      await prisma.campaignRecipient.update({
+        where: { id: recipientId },
+        data: {
+          messageId: result.lastMessageId,
+        },
+      });
+    }
   }
 
   deleteSessionStore(sessionId);

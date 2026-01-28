@@ -7,8 +7,24 @@ import { useRouter } from "next/router";
 import { useTheme } from "next-themes";
 import { formatDistanceToNow } from "date-fns";
 
-
 import { useEffect, useState } from "react";
+
+const LastUpdated = () => {
+  const [updatedAt] = useState(new Date());
+  const [timeAgo, setTimeAgo] = useState("just now");
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimeAgo(
+        formatDistanceToNow(updatedAt, { addSuffix: true }).replace("about ", ""),
+      );
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, [updatedAt]);
+
+  return <span>Last updated: {timeAgo}</span>;
+};
 
 export const DashboardHeader = () => {
   const router = useRouter();
@@ -46,19 +62,7 @@ export const DashboardHeader = () => {
             className="bg-gray-50 dark:bg-[#262626] text-sm text-gray-900 dark:text-gray-200 rounded-sm pl-10 pr-4 py-2 w-full border border-gray-200 dark:border-gray-700 focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 focus:outline-none transition-all placeholder:text-gray-400"
           />
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              ></path>
-            </svg>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
           </div>
         </div>
       </div>
@@ -93,24 +97,8 @@ export const DashboardHeader = () => {
               <MoonIcon className="size-5" />
             )}
           </button>
-        </div>
+      </div>
     </header>
   );
 };
 
-const LastUpdated = () => {
-    const [updatedAt] = useState(new Date());
-    const [timeAgo, setTimeAgo] = useState("just now");
-  
-    useEffect(() => {
-      const interval = setInterval(() => {
-        setTimeAgo(
-          formatDistanceToNow(updatedAt, { addSuffix: true }).replace("about ", "")
-        );
-      }, 60000);
-      
-      return () => clearInterval(interval);
-    }, [updatedAt]);
-  
-    return <span>Last updated: {timeAgo}</span>;
-  };
