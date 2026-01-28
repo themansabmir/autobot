@@ -118,6 +118,7 @@ RUN ./node_modules/.bin/prisma generate --schema=packages/prisma/postgresql/sche
 
 
 COPY scripts/${SCOPE}-entrypoint.sh ./
+RUN sed -i 's/\r$//' ./${SCOPE}-entrypoint.sh
 RUN chmod +x ./${SCOPE}-entrypoint.sh
 ENTRYPOINT ["/bin/sh", "-c", "./${SCOPE}-entrypoint.sh"]
 

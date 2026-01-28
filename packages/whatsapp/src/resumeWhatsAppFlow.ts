@@ -27,6 +27,8 @@ import type {
 } from "./schemas";
 import { sendChatReplyToWhatsApp } from "./sendChatReplyToWhatsApp";
 import { startWhatsAppSession } from "./startWhatsAppSession";
+import prisma from "@typebot.io/prisma";
+import { RecipientStatus } from "@prisma/client";
 import { WhatsAppError } from "./WhatsAppError";
 
 const MESSAGE_TOO_OLD_ELAPSED_MS = 3 * 60 * 1000; // 3 minutes
@@ -161,11 +163,11 @@ export const resumeWhatsAppFlow = async ({
 
     if (
       recipient &&
-      [
+      ([
         RecipientStatus.SENT,
         RecipientStatus.OPENED,
         RecipientStatus.QUEUED,
-      ].includes(recipient.status)
+      ] as RecipientStatus[]).includes(recipient.status)
     ) {
       await prisma.campaignRecipient.update({
         where: { id: recipient.id },

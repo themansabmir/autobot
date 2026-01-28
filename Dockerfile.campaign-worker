@@ -75,6 +75,8 @@ COPY --from=builder /app/packages/schemas ./packages/schemas
 COPY --from=builder /app/packages/zod ./packages/zod
 COPY --from=builder /app/packages/telemetry ./packages/telemetry
 COPY --from=builder /app/packages/blocks ./packages/blocks
+COPY --from=builder /app/packages/ui ./packages/ui
+COPY --from=builder /app/packages/ai ./packages/ai
 COPY --from=builder /app/packages/chat-api ./packages/chat-api
 COPY --from=builder /app/packages/chat-session ./packages/chat-session
 COPY --from=builder /app/packages/conditions ./packages/conditions
@@ -88,6 +90,11 @@ COPY --from=builder /app/packages/settings ./packages/settings
 COPY --from=builder /app/packages/theme ./packages/theme
 COPY --from=builder /app/packages/typebot ./packages/typebot
 COPY --from=builder /app/packages/variables ./packages/variables
+COPY --from=builder /app/packages/events ./packages/events
+COPY --from=builder /app/packages/billing ./packages/billing
+COPY --from=builder /app/packages/emails ./packages/emails
+COPY --from=builder /app/packages/workspaces ./packages/workspaces
+COPY --from=builder /app/packages/user ./packages/user
 COPY --from=builder /app/package.json ./package.json
 
 # Generate Prisma client
