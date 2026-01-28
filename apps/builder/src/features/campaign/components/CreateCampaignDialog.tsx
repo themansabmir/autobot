@@ -118,7 +118,7 @@ export const CreateCampaignDialog = ({
 
   return (
     <Dialog.Root isOpen={isOpen} onClose={handleClose}>
-      <Dialog.Popup className="max-w-5xl p-0 overflow-hidden" size="custom">
+      <Dialog.Popup className="max-w-5xl p-0 overflow-hidden">
         <div className="flex flex-col md:flex-row h-[600px]">
           {/* Sidebar Stepper */}
           <div className="w-full md:w-1/3 bg-gray-50 dark:bg-gray-900 border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-800 p-6 flex flex-col gap-6">
