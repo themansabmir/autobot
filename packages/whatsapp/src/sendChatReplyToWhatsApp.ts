@@ -73,6 +73,7 @@ export const sendChatReplyToWhatsApp = async ({
               publicTypebotId:
                 state.publicTypebotId ?? state.typebotsQueue[0].typebot.id,
               credentials,
+              skipCache: !state.publicTypebotId,
             }
           : undefined,
     });
@@ -125,6 +126,7 @@ export const sendChatReplyToWhatsApp = async ({
               publicTypebotId:
                 state.publicTypebotId ?? state.typebotsQueue[0].typebot.id,
               credentials,
+              skipCache: !state.publicTypebotId,
             }
           : undefined,
     });

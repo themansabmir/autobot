@@ -415,68 +415,72 @@ export const convertInputToWhatsAppMessages = async ({
       });
 
       const cards = items.map((item, index) => {
-        console.log(`🔍 [WhatsApp Carousel] Processing card ${index}:`, {
-          headerType: item.headerType,
-          headerUrl: item.headerUrl,
-          hasHeader: !!(item.headerType && item.headerUrl),
-          buttonType: item.buttonType,
-        });
+          console.log(`🔍 [WhatsApp Carousel] Processing card ${index}:`, {
+            headerType: item.headerType,
+            headerUrl: item.headerUrl,
+            hasHeader: !!(item.headerType && item.headerUrl),
+            buttonType: item.buttonType,
+          });
 
-        const card: any = {
-          card_index: index,
-        };
-
-        // Set card type based on button type (required by Meta API)
-        if (item.buttonType === "cta_url") {
-          card.type = "cta_url";
-        } else if (item.buttonType === "quick_reply") {
-          card.type = "quick_reply";
-        }
-
-        // Header (required)
-        if (item.headerType && item.headerUrl) {
-          card.header = {
-            type: item.headerType,
-            [item.headerType]: {
-              link: item.headerUrl,
-            },
+          const card: any = {
+            card_index: index,
           };
-        }
 
-        // Body text (optional)
-        if (item.bodyText) {
-          card.body = {
-            text: item.bodyText.slice(0, 160),
-          };
-        }
+          // Set card type based on button type (required by Meta API)
+          // According to latest docs/examples, card.type can be "cta_url" even for quick_reply buttons
+          if (item.buttonType === "cta_url") {
+            card.type = "cta_url";
+          } else if (item.buttonType === "quick_reply") {
+             // Strict compliance with user docs: type is "cta_url"
+            card.type = "cta_url";
+          }
 
-        // Action (buttons)
-        if (item.buttonType === "cta_url" && item.ctaUrlButton) {
-          card.action = {
-            name: "cta_url",
-            parameters: {
-              display_text:
-                item.ctaUrlButton.displayText?.slice(0, 20) || "Visit",
-              url: item.ctaUrlButton.url,
-            },
-          };
-        } else if (
-          item.buttonType === "quick_reply" &&
-          item.quickReplyButtons
-        ) {
-          card.action = {
-            buttons: item.quickReplyButtons.slice(0, 2).map((btn: any) => ({
-              type: "quick_reply",
-              quick_reply: {
-                id: btn.id,
-                title: btn.title.slice(0, 20),
+          // Header (required)
+          if (item.headerType && item.headerUrl) {
+            // Note: Interactive Carousels documentation specificially shows "link" usage.
+            // "id" support is unconfirmed for this specific beta feature.
+            card.header = {
+              type: item.headerType,
+              [item.headerType]: {
+                link: item.headerUrl,
               },
-            })),
-          };
-        }
+            };
+          }
 
-        return card;
-      });
+          // Body text (optional)
+          if (item.bodyText) {
+            card.body = {
+              text: item.bodyText.slice(0, 160),
+            };
+          }
+
+          // Action (buttons)
+          if (item.buttonType === "cta_url" && item.ctaUrlButton) {
+            card.action = {
+              name: "cta_url",
+              parameters: {
+                display_text:
+                  item.ctaUrlButton.displayText?.slice(0, 20) || "Visit",
+                url: item.ctaUrlButton.url,
+              },
+            };
+          } else if (
+            item.buttonType === "quick_reply" &&
+            item.quickReplyButtons
+          ) {
+            card.action = {
+              buttons: item.quickReplyButtons.slice(0, 2).map((btn: any) => ({
+                type: "quick_reply",
+                quick_reply: {
+                  id: btn.id,
+                  title: btn.title.slice(0, 20),
+                },
+              })),
+            };
+          }
+
+          return card;
+        });
 
       // Filter out cards without required headers (Meta API requirement)
       const validCards = cards.filter((card, index) => {

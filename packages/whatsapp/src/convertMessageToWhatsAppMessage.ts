@@ -38,31 +38,43 @@ export const convertMessageToWhatsAppMessage = async ({
       };
     }
     case BubbleBlockType.IMAGE: {
-      if (!message.content.url || isImageUrlNotCompatible(message.content.url))
-        return null;
-
-      if (mediaCache) {
-        const mediaId = await getOrUploadMedia({
-          url: message.content.url,
-          cache: mediaCache,
-        });
-
-        if (mediaId) {
-          return {
-            type: "image",
-            image: {
-              id: mediaId,
-            },
-          };
-        }
+      // PRIORITY 1: Use pre-uploaded mediaId
+      const mediaId = (message.content as any)?.mediaId;
+      if (mediaId) {
+        return {
+          type: "image",
+          image: { id: mediaId },
+        };
       }
 
-      return {
-        type: "image",
-        image: {
-          link: message.content.url,
-        },
-      };
+      // PRIORITY 2: Fallback to runtime upload
+      if (message.content?.url && !isImageUrlNotCompatible(message.content.url)) {
+        if (mediaCache) {
+          const mediaId = await getOrUploadMedia({
+            url: message.content.url,
+            cache: mediaCache,
+          });
+
+          if (mediaId) {
+            return {
+              type: "image",
+              image: {
+                id: mediaId,
+              },
+            };
+          }
+        }
+
+        // PRIORITY 3: Use link as last resort
+        return {
+          type: "image",
+          image: {
+            link: message.content.url,
+          },
+        };
+      }
+
+      return null;
     }
     case BubbleBlockType.AUDIO:
       if (!message.content.url) return null;
