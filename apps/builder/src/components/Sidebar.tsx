@@ -13,8 +13,6 @@ import { cn } from "@typebot.io/ui/lib/cn";
 import { useUser } from "@/features/user/hooks/useUser";
 import { WorkspaceDropdown } from "@/features/workspace/components/WorkspaceDropdown";
 import { WorkspaceSettingsDialog } from "@/features/workspace/components/WorkspaceSettingsDialog";
-import { useWorkspace } from "@/features/workspace/WorkspaceProvider";
-import { cn } from "@typebot.io/ui/lib/cn";
 
 type NavItem = {
   label: string;
