@@ -1,18 +1,17 @@
 import { HardDriveIcon } from "@typebot.io/ui/icons/HardDriveIcon";
 import { LayoutDashboardIcon } from "@typebot.io/ui/icons/LayoutDashboardIcon";
 import { MegaphoneIcon } from "@typebot.io/ui/icons/MegaphoneIcon";
-import { RobotIcon } from "@typebot.io/ui/icons/RobotIcon";
 import { Settings01Icon } from "@typebot.io/ui/icons/Settings01Icon";
 import { SquareLock01Icon } from "@typebot.io/ui/icons/SquareLock01Icon";
 import { UsersIcon } from "@typebot.io/ui/icons/UsersIcon";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import { useWorkspace } from "@/features/workspace/WorkspaceProvider";
-import { cn } from "@typebot.io/ui/lib/cn";
 import { useUser } from "@/features/user/hooks/useUser";
 import { WorkspaceDropdown } from "@/features/workspace/components/WorkspaceDropdown";
 import { WorkspaceSettingsDialog } from "@/features/workspace/components/WorkspaceSettingsDialog";
+import { useWorkspace } from "@/features/workspace/WorkspaceProvider";
+import cn from "classnames";
 
 type NavItem = {
   label: string;
