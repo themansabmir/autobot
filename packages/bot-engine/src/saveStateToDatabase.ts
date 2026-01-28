@@ -124,17 +124,17 @@ export const saveStateToDatabase = async ({
 
     if (
       recipient &&
-      [
+      ([
         RecipientStatus.SENT,
         RecipientStatus.OPENED,
         RecipientStatus.STARTED,
         RecipientStatus.QUEUED,
-      ].includes(recipient.status)
+      ] as RecipientStatus[]).includes(recipient.status)
     ) {
       queries.push(
         prisma.campaignRecipient.update({
           where: { id: recipient.id },
-          data: { status: RecipientStatus.COMPLETED, completedAt: new Date() },
+          data: { status: RecipientStatus.COMPLETED },
         }),
       );
       console.log(
