@@ -38,31 +38,43 @@ export const convertMessageToWhatsAppMessage = async ({
       };
     }
     case BubbleBlockType.IMAGE: {
-      if (!message.content.url || isImageUrlNotCompatible(message.content.url))
-        return null;
-
-      if (mediaCache) {
-        const mediaId = await getOrUploadMedia({
-          url: message.content.url,
-          cache: mediaCache,
-        });
-
-        if (mediaId) {
-          return {
-            type: "image",
-            image: {
-              id: mediaId,
-            },
-          };
-        }
+      // PRIORITY 1: Use pre-uploaded mediaId
+      const mediaId = (message.content as any)?.mediaId;
+      if (mediaId) {
+        return {
+          type: "image",
+          image: { id: mediaId },
+        };
       }
 
-      return {
-        type: "image",
-        image: {
-          link: message.content.url,
-        },
-      };
+      // PRIORITY 2: Fallback to runtime upload
+      if (message.content?.url && !isImageUrlNotCompatible(message.content.url)) {
+        if (mediaCache) {
+          const mediaId = await getOrUploadMedia({
+            url: message.content.url,
+            cache: mediaCache,
+          });
+
+          if (mediaId) {
+            return {
+              type: "image",
+              image: {
+                id: mediaId,
+              },
+            };
+          }
+        }
+
+        // PRIORITY 3: Use link as last resort
+        return {
+          type: "image",
+          image: {
+            link: message.content.url,
+          },
+        };
+      }
+
+      return null;
     }
     case BubbleBlockType.AUDIO:
       if (!message.content.url) return null;
@@ -160,7 +172,6 @@ export const convertMessageToWhatsAppMessage = async ({
             };
           }
         }
-
         return {
           type: "document",
           document: {
@@ -177,40 +188,30 @@ export const convertMessageToWhatsAppMessage = async ({
         },
       };
     case BubbleBlockType.STICKER: {
-      // PRIORITY 1: Use pre-uploaded mediaId (preferred - no runtime upload)
-      if (message.content?.mediaId) {
-        return {
-          type: "sticker",
-          sticker: { id: message.content.mediaId },
-        };
-      }
+      if (!message.content.url) return null;
 
-      // PRIORITY 2: Fallback to runtime upload (for backward compatibility)
-      // This path should rarely be used - mediaId should be set during builder time
-      if (message.content?.url) {
-        if (mediaCache) {
-          const mediaId = await getOrUploadMedia({
-            url: message.content.url,
-            cache: mediaCache,
-          });
+      if (mediaCache) {
+        const mediaId = await getOrUploadMedia({
+          url: message.content.url,
+          cache: mediaCache,
+        });
 
-          if (mediaId) {
-            return {
-              type: "sticker",
-              sticker: { id: mediaId },
-            };
-          }
+        if (mediaId) {
+          return {
+            type: "sticker",
+            sticker: {
+              id: mediaId,
+            },
+          };
         }
-
-        // PRIORITY 3: Use link as last resort (not recommended by Meta)
-        return {
-          type: "sticker",
-          sticker: { link: message.content.url },
-        };
       }
 
-      // No url and no mediaId - cannot send sticker
-      return null;
+      return {
+        type: "sticker",
+        sticker: {
+          link: message.content.url,
+        },
+      };
     }
     case "custom-embed":
       if (!message.content.url) return null;
