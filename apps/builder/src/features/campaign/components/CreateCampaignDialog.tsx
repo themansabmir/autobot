@@ -45,7 +45,7 @@ export const CreateCampaignDialog = ({
   const [title, setTitle] = useState("");
   const [typebotId, setTypebotId] = useState("");
   const [fileUrl, setFileUrl] = useState("");
-  const [executionMode, setExecutionMode] = useState<"NOW" | "SCHEDULED">("NOW");
+  const [executionMode, setExecutionMode] = useState<"NOW" | "SCHEDULED" | null>(null);
   const [executeAt, setExecuteAt] = useState("");
   const [currentStep, setCurrentStep] = useState(1);
 
@@ -78,14 +78,25 @@ export const CreateCampaignDialog = ({
     setTitle("");
     setTypebotId("");
     setFileUrl("");
-    setExecutionMode("NOW");
+    setExecutionMode(null);
     setExecuteAt("");
     setCurrentStep(1);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!workspace?.id || !title || !typebotId || !fileUrl) return;
+    
+    if (currentStep === 1) {
+      if (title && typebotId) setCurrentStep(2);
+      return;
+    }
+
+    if (currentStep === 2) {
+      if (fileUrl) setCurrentStep(3);
+      return;
+    }
+
+    if (!workspace?.id || !title || !typebotId || !fileUrl || !executionMode) return;
 
     createCampaign({
       workspaceId: workspace.id,
@@ -410,6 +421,7 @@ export const CreateCampaignDialog = ({
                           className="bg-[#FFE600] hover:bg-[#E6CF00] text-black font-semibold"
                           disabled={
                             isPending ||
+                            !executionMode ||
                             (executionMode === "SCHEDULED" && !executeAt)
                           }
                         >
