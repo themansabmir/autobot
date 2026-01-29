@@ -47,9 +47,10 @@ export const handleProductionWebhookRequest = async (
             });
             if (
               recipient &&
-              [RecipientStatus.SENT, RecipientStatus.QUEUED].includes(
-                recipient.status,
-              )
+              ([
+                RecipientStatus.SENT,
+                RecipientStatus.QUEUED,
+              ] as RecipientStatus[]).includes(recipient.status)
             ) {
               await prisma.campaignRecipient.update({
                 where: { id: recipient.id },
