@@ -11,8 +11,8 @@ import { WhatsAppError } from "../WhatsAppError";
 const WHATSAPP_SESSION_ID_PREFIX = "wa-";
 const WHATSAPP_PREVIEW_SESSION_ID_PREFIX = "wa-preview-";
 
-import prisma from "@typebot.io/prisma";
 import { RecipientStatus } from "@prisma/client";
+import prisma from "@typebot.io/prisma";
 
 export const handleProductionWebhookRequest = async (
   request: NextRequest,
@@ -47,10 +47,12 @@ export const handleProductionWebhookRequest = async (
             });
             if (
               recipient &&
-              ([
-                RecipientStatus.SENT,
-                RecipientStatus.QUEUED,
-              ] as RecipientStatus[]).includes(recipient.status)
+              (
+                [
+                  RecipientStatus.SENT,
+                  RecipientStatus.QUEUED,
+                ] as RecipientStatus[]
+              ).includes(recipient.status)
             ) {
               await prisma.campaignRecipient.update({
                 where: { id: recipient.id },

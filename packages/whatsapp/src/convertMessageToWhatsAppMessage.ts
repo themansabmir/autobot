@@ -48,7 +48,10 @@ export const convertMessageToWhatsAppMessage = async ({
       }
 
       // PRIORITY 2: Fallback to runtime upload
-      if (message.content?.url && !isImageUrlNotCompatible(message.content.url)) {
+      if (
+        message.content?.url &&
+        !isImageUrlNotCompatible(message.content.url)
+      ) {
         if (mediaCache) {
           const mediaId = await getOrUploadMedia({
             url: message.content.url,
