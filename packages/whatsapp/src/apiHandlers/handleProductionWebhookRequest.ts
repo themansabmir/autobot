@@ -111,6 +111,7 @@ export const handleProductionWebhookRequest = async (
               phoneNumber: parsedEntries[0].contactPhoneNumber,
             },
             referral: parsedEntries[0].referral,
+            callFrom: "webhook",
           });
         } catch (err) {
           if (err instanceof WhatsAppError) {
