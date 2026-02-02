@@ -8,7 +8,7 @@ import { env } from "@typebot.io/env";
 import type { Redis } from "ioredis";
 
 const DEFAULT_TTL_SECONDS = 3600; // 1 hour
-const MAX_MEMORY_CACHE_SIZE = 100;
+const MAX_MEMORY_CACHE_SIZE = 20;
 
 // In-memory LRU cache implementation
 class LRUCache<T> {

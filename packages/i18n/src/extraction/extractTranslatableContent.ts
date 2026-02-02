@@ -17,8 +17,71 @@ export interface TranslatableItem {
 }
 
 /**
+ * Normalize language name to ISO code
+ */
+export const normalizeLanguageCode = (lang: string): string => {
+  const mapping: Record<string, string> = {
+    english: "en",
+    hindi: "hi",
+    french: "fr",
+    spanish: "es",
+    german: "de",
+    portuguese: "pt",
+    italian: "it",
+    dutch: "nl",
+    russian: "ru",
+    chinese: "zh-CN",
+    japanese: "ja",
+    korean: "ko",
+    arabic: "ar",
+    bengali: "bn",
+    turkish: "tr",
+    vietnamese: "vi",
+    indonesian: "id",
+    thai: "th",
+  };
+
+  const normalized = lang.toLowerCase().trim();
+  return mapping[normalized] || normalized;
+};
+
+/**
+ * Extract all text nodes from rich text and provide their paths
+ */
+const extractFromRichText = (
+  richText: unknown[],
+  basePath: string
+): TranslatableItem[] => {
+  const items: TranslatableItem[] = [];
+
+  const walk = (node: unknown, path: string) => {
+    if (!node || typeof node !== "object") return;
+    const obj = node as Record<string, unknown>;
+
+    if (typeof obj.text === "string" && obj.text.trim()) {
+      items.push({
+        path: `${path}.text`,
+        text: obj.text,
+        type: "bubble",
+      });
+    }
+
+    if (Array.isArray(obj.children)) {
+      obj.children.forEach((child, index) => {
+        walk(child, `${path}.children.${index}`);
+      });
+    }
+  };
+
+  richText.forEach((node, index) => {
+    walk(node, `${basePath}.${index}`);
+  });
+
+  return items;
+};
+
+/**
  * Extract plain text from rich text content
- * Handles nested structures like { children: [{ text: "..." }] }
  */
 const extractPlainTextFromRichText = (richText: unknown[]): string => {
   const extractText = (node: unknown): string => {
@@ -73,6 +136,16 @@ const extractFromTextBubble = (
       text,
       type: "bubble",
     });
+  }
+
+  // Also extract from richText if present
+  if (Array.isArray(content.richText)) {
+    items.push(
+      ...extractFromRichText(
+        content.richText,
+        `groups.${groupIndex}.blocks.${blockIndex}.content.richText`
+      )
+    );
   }
 
   return items;

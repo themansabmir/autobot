@@ -38,9 +38,22 @@ export const getMinioClient = (): MinioClient => {
  */
 export const ensureBucketExists = async (): Promise<void> => {
   const client = getMinioClient();
+  console.log(`DEBUG: Checking if bucket ${I18N_BUCKET} exists...`);
   const bucketExists = await client.bucketExists(I18N_BUCKET);
   if (!bucketExists) {
-    await client.makeBucket(I18N_BUCKET, env.S3_REGION ?? "us-east-1");
+    console.log(`DEBUG: Creating bucket ${I18N_BUCKET}...`);
+    try {
+      await client.makeBucket(I18N_BUCKET, env.S3_REGION ?? "us-east-1");
+      console.log(`DEBUG: Bucket ${I18N_BUCKET} created.`);
+    } catch (error: any) {
+      if (error?.code === "BucketAlreadyOwnedByYou") {
+        console.log(`DEBUG: Bucket ${I18N_BUCKET} already exists (race condition).`);
+      } else {
+        throw error;
+      }
+    }
+  } else {
+    console.log(`DEBUG: Bucket ${I18N_BUCKET} already exists.`);
   }
 };
 
@@ -65,10 +78,12 @@ export const uploadTranslatedJourney = async (
   const jsonString = JSON.stringify(journeyJson);
   const buffer = Buffer.from(jsonString, "utf-8");
 
+  console.log(`DEBUG: Uploading translated journey to ${I18N_BUCKET}/${path}...`);
   await client.putObject(I18N_BUCKET, path, buffer, buffer.length, {
     "Content-Type": "application/json",
     "Cache-Control": "public, max-age=3600",
   });
+  console.log(`DEBUG: Successfully uploaded ${path}`);
 
   return path;
 };
@@ -119,6 +134,7 @@ export const deleteTranslatedJourney = async (
   language: string
 ): Promise<void> => {
   try {
+    await ensureBucketExists();
     const client = getMinioClient();
     const path = getJourneyPath(botId, language);
     await client.removeObject(I18N_BUCKET, path);
@@ -139,6 +155,7 @@ export const deleteTranslatedJourney = async (
  * Delete all translated journeys for a bot
  */
 export const deleteAllTranslations = async (botId: string): Promise<void> => {
+  await ensureBucketExists();
   const client = getMinioClient();
   const prefix = `${botId}/`;
 
@@ -160,6 +177,7 @@ export const deleteAllTranslations = async (botId: string): Promise<void> => {
  * List all available translations for a bot
  */
 export const listTranslations = async (botId: string): Promise<string[]> => {
+  await ensureBucketExists();
   const client = getMinioClient();
   const prefix = `${botId}/`;
   const languages: string[] = [];

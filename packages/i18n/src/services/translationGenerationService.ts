@@ -81,15 +81,18 @@ export const generateTranslationForLanguage = async (
   try {
     // Extract translatable content
     const contentMap = extractAsMap(typebot);
+    console.log(`DEBUG: Extracted ${Object.keys(contentMap).length} items to translate`);
 
     if (Object.keys(contentMap).length === 0) {
       // No translatable content, just clone the typebot
+      console.log("DEBUG: No content to translate, uploading original");
       await uploadTranslatedJourney(typebot.id, targetLanguage, typebot);
       await setInCache(typebot.id, targetLanguage, typebot);
       return { language: targetLanguage, success: true };
     }
 
     // Translate the content
+    console.log(`DEBUG: Translating to ${targetLanguage}...`);
     const translatedMap = await translateMap(
       contentMap,
       targetLanguage,
@@ -98,6 +101,8 @@ export const generateTranslationForLanguage = async (
 
     // Apply translations to create translated typebot
     const translatedTypebot = applyTranslations(typebot, translatedMap);
+    const botSize = JSON.stringify(translatedTypebot).length;
+    console.log(`DEBUG: Applied translations. Bot size: ${Math.round(botSize / 1024)} KB`);
 
     // Upload to MinIO
     await uploadTranslatedJourney(typebot.id, targetLanguage, translatedTypebot);
@@ -171,8 +176,15 @@ export const syncTranslations = async (
 ): Promise<LanguageTranslationResult[]> => {
   const results: LanguageTranslationResult[] = [];
 
+  console.log("DEBUG: syncTranslations starting", {
+    botId: typebot.id,
+    enabledLanguages,
+    defaultLanguage,
+  });
+
   // Get existing translations
   const existingTranslations = await listTranslations(typebot.id);
+  console.log("DEBUG: existing translations", existingTranslations);
 
   // Find languages to add and remove
   const languagesToAdd = enabledLanguages.filter(
@@ -192,15 +204,19 @@ export const syncTranslations = async (
     }
   }
 
-  // Generate new translations
   if (languagesToAdd.length > 0) {
+    console.log("DEBUG: Generating new translations", languagesToAdd);
     const newResults = await generateTranslations(
       typebot,
       languagesToAdd,
       defaultLanguage
     );
     results.push(...newResults);
+  } else {
+    console.log("DEBUG: No new languages to add");
   }
+
+  console.log("DEBUG: syncTranslations finished", results);
 
   return results;
 };

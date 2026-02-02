@@ -81,6 +81,7 @@ export const whatsAppSettingsSchema = z.object({
 export const localizationSchema = z.object({
   isEnabled: z.boolean().optional(),
   languages: z.array(z.string()).optional(),
+  defaultLanguage: z.string().optional(),
 });
 
 export const settingsSchema = z

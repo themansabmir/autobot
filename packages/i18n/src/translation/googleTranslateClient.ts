@@ -3,6 +3,7 @@
  */
 
 import translate from "google-translate-api-x";
+import { normalizeLanguageCode } from "../extraction/extractTranslatableContent";
 
 export interface TranslationResult {
   text: string;
@@ -34,12 +35,18 @@ export const translateText = async (
   }
 
   try {
+    const target = normalizeLanguageCode(targetLang);
+    const source = sourceLang ? normalizeLanguageCode(sourceLang) : "auto";
+
+    console.log(`DEBUG: Translating "${text.substring(0, 20)}..." to ${target} from ${source}`);
+
     const result = (await translate(text, {
-      to: targetLang,
-      from: sourceLang,
+      to: target,
+      from: source,
       autoCorrect: true,
     })) as TranslationResult;
 
+    console.log(`DEBUG: Translation result: "${result.text.substring(0, 20)}..."`);
     return result.text;
   } catch (error) {
     console.error(`Translation error for text: ${text.substring(0, 50)}...`, error);
@@ -74,11 +81,16 @@ export const translateBatch = async (
   }
 
   try {
+    const target = normalizeLanguageCode(targetLang);
+    const source = sourceLang ? normalizeLanguageCode(sourceLang) : "auto";
+
+    console.log(`DEBUG: Batch translating ${nonEmptyTexts.length} items to ${target} from ${source}`);
+
     // google-translate-api-x supports batch translation natively
     const textsToTranslate = nonEmptyTexts.map((t) => t.text);
     const results = (await translate(textsToTranslate, {
-      to: targetLang,
-      from: sourceLang,
+      to: target,
+      from: source,
       autoCorrect: true,
     })) as TranslationResult | TranslationResult[];
 
