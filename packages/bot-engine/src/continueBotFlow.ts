@@ -50,6 +50,7 @@ import type { ContinueBotFlowResponse, SkipReply, SuccessReply } from "./types";
 import { updateVariablesInSession } from "./updateVariablesInSession";
 import { validateAndParseInputMessage } from "./validateAndParseInputMessage";
 import { walkFlowForward } from "./walkFlowForward";
+import { loadTranslatedJourney } from "./i18n/loadTranslatedJourney";
 
 type Params = {
   version: 1 | 2;
@@ -204,6 +205,41 @@ export const continueBotFlow = async (
         ? { ...reply, type: "text", text: formattedReply }
         : reply,
     );
+    if (block.type === InputBlockType.LANGUAGE && formattedReply) {
+      newSessionState.language = formattedReply;
+
+      // Load translated journey for the selected language
+      const defaultLanguage =
+        newSessionState.typebotsQueue[0].typebot.settings?.localization
+          ?.languages?.[0];
+
+      // Only swap journey if selected language is different from default
+      if (formattedReply !== defaultLanguage) {
+        try {
+          const translatedTypebot = await loadTranslatedJourney(
+            newSessionState.typebotsQueue[0].typebot.id,
+            formattedReply,
+            newSessionState.typebotsQueue[0].typebot
+          );
+
+          // Swap the typebot in the queue with the translated version
+          newSessionState = {
+            ...newSessionState,
+            typebotsQueue: newSessionState.typebotsQueue.map((item, index) =>
+              index === 0
+                ? {
+                    ...item,
+                    typebot: translatedTypebot,
+                  }
+                : item
+            ),
+          };
+        } catch (error) {
+          console.error("[i18n] Failed to load translated journey:", error);
+          // Continue with default journey on error
+        }
+      }
+    }
     continueReply = parsedReplyResult;
   }
 
@@ -629,6 +665,7 @@ const parseRetryMessage = async (
       isPreview: isNotDefined(state.typebotsQueue[0].resultId),
       workspaceId: state.workspaceId,
       sessionStore,
+      typebot: state.typebotsQueue[0].typebot,
     }),
   };
 };

@@ -67,6 +67,16 @@ export const startChatPreview = async ({
       message,
     },
   });
+
+  console.log("🔍 [startChatPreview] Session started:", {
+    sessionId,
+    hasInput: !!input,
+    inputType: input?.type,
+    typebotSettings: typebot.settings,
+    localization: typebot.settings?.localization,
+    inputItems: (input as any)?.items,
+  });
+
   deleteSessionStore(sessionId);
 
   const session = isOnlyRegistering

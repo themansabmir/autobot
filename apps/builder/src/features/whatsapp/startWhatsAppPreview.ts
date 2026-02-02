@@ -139,6 +139,7 @@ export const startWhatsAppPreview = authenticatedProcedure
         groups: true,
         version: true,
         publicId: true,
+        settings: true, // Needed for LANGUAGE block localization
         workspace: {
           select: {
             isSuspended: true,

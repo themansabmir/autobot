@@ -148,9 +148,54 @@ export const convertInputToWhatsAppMessages = async ({
       }
       return messages;
     }
+    case InputBlockType.LANGUAGE: {
+      // LANGUAGE block uses placeholder as prompt and shows languages as buttons
+      const languageInput = input as any;
+      const placeholderText = languageInput.options?.labels?.placeholder || "Choose your language";
+      const items = groupArrayByArraySize(
+        languageInput.items?.filter((item: any) => isDefined(item.content)) ?? [],
+        env.WHATSAPP_INTERACTIVE_GROUP_SIZE,
+      ) as ButtonItem[][];
+      
+      if (items.length === 0) {
+        return [{
+          type: "text",
+          text: { body: placeholderText },
+        }];
+      }
+      
+      return items.map((items, idx) => ({
+        type: "interactive",
+        interactive: {
+          type: "button",
+          body: {
+            text: idx === 0 ? placeholderText : "―",
+          },
+          action: {
+            buttons: (() => {
+              const nonEmptyItems = items.filter((item) => item.content);
+              const buttonTexts = nonEmptyItems.map(
+                (item) => item.content as string,
+              );
+              const uniqueTitles = getUniqueButtonTitles(buttonTexts);
+
+              return nonEmptyItems.map((item, index) => ({
+                type: "reply",
+                reply: {
+                  id: item.id,
+                  title: uniqueTitles[index],
+                },
+              }));
+            })(),
+          },
+        },
+      }));
+    }
     case InputBlockType.CHOICE: {
+      // Type assertion needed because LANGUAGE block structure is enriched at runtime
+      const choiceInput = input as any;
       if (
-        input.options?.isMultipleChoice ??
+        choiceInput.options?.isMultipleChoice ??
         defaultChoiceInputOptions.isMultipleChoice
       )
         return [
@@ -159,17 +204,17 @@ export const convertInputToWhatsAppMessages = async ({
             text: {
               body: lastMessageText
                 ? `${lastMessageText}\n\n` +
-                  input.items
-                    .map((item, idx) => `${idx + 1}. ${item.content}`)
+                  choiceInput.items
+                    .map((item: any, idx: number) => `${idx + 1}. ${item.content}`)
                     .join("\n")
-                : input.items
-                    .map((item, idx) => `${idx + 1}. ${item.content}`)
+                : choiceInput.items
+                    .map((item: any, idx: number) => `${idx + 1}. ${item.content}`)
                     .join("\n"),
             },
           },
         ];
       const items = groupArrayByArraySize(
-        input.items.filter((item) => isDefined(item.content)),
+        choiceInput.items.filter((item: any) => isDefined(item.content)),
         env.WHATSAPP_INTERACTIVE_GROUP_SIZE,
       ) as ButtonItem[][];
       return items.map((items, idx) => ({
