@@ -166,6 +166,7 @@ export const resumeWhatsAppFlow = async ({
       (
         [
           RecipientStatus.SENT,
+          RecipientStatus.DELIVERED,
           RecipientStatus.OPENED,
           RecipientStatus.QUEUED,
         ] as RecipientStatus[]
@@ -173,10 +174,13 @@ export const resumeWhatsAppFlow = async ({
     ) {
       await prisma.campaignRecipient.update({
         where: { id: recipient.id },
-        data: { status: RecipientStatus.STARTED },
+        data: {
+          status: RecipientStatus.STARTED,
+          startedAt: new Date(),
+        },
       });
       console.log(
-        `✅ Campaign Recipient ${recipient.id} status updated to STARTED`,
+        `✅ [Campaign Analytics] Recipient ${recipient.id} (${recipient.phoneNumber}) status updated to STARTED`,
       );
     }
   }

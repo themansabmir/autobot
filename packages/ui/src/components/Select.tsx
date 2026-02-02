@@ -33,13 +33,13 @@ export type TriggerProps = PrimitiveSelect.Trigger.Props &
 const Trigger = React.forwardRef<
   React.ElementRef<typeof PrimitiveSelect.Trigger>,
   TriggerProps
->(({ size, className, ...props }, ref) => (
+>(({ size, className, children, ...props }, ref) => (
   <PrimitiveSelect.Trigger
     {...props}
     ref={ref}
     className={cn(triggerVariants({ size }), className)}
   >
-    <PrimitiveSelect.Value />
+    {children ? children : <PrimitiveSelect.Value />}
     <PrimitiveSelect.Icon className="flex">
       <ArrowDown01Icon className="size-4" />
     </PrimitiveSelect.Icon>
