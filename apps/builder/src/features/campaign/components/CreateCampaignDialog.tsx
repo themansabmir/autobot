@@ -223,8 +223,8 @@ export const CreateCampaignDialog = ({
                             <Label htmlFor="typebot">Select Typebot</Label>
                             <Select.Root value={typebotId} onValueChange={setTypebotId}>
                               <Select.Trigger id="typebot" className="w-full">
-                                {typebotId
-                                  ? publishedTypebots?.find((t) => t.id === typebotId)?.name
+                                {typebotId && publishedTypebots?.find((t) => t.id === typebotId)
+                                  ? publishedTypebots.find((t) => t.id === typebotId)?.name
                                   : "Search for a published typebot..."}
                               </Select.Trigger>
                               <Select.Popup>

@@ -465,6 +465,7 @@ enum RecipientStatus {
   PENDING
   QUEUED
   SENT
+  DELIVERED
   OPENED
   STARTED
   COMPLETED
@@ -498,19 +499,31 @@ model Campaign {
 }
 
 model CampaignRecipient {
-  id           String          @id @default(cuid())
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @default(now()) @updatedAt
-  campaignId   String
-  phoneNumber  String
-  messageId    String?
-  variables    Json?
-  status       RecipientStatus @default(PENDING)
-  retryCount   Int             @default(0)
-  sentAt       DateTime?
+  id          String          @id @default(cuid())
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @default(now()) @updatedAt
+  campaignId  String
+  phoneNumber String
+  messageId   String?
+  variables   Json?
+  status      RecipientStatus @default(PENDING)
+  retryCount  Int             @default(0)
+
+  // Timestamp fields for status tracking
+  sentAt      DateTime?
+  deliveredAt DateTime?
+  openedAt    DateTime?
+  startedAt   DateTime?
+  completedAt DateTime?
+  failedAt    DateTime?
+
+  // Error tracking
   errorMessage String?
-  campaign     Campaign        @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  errorCode    String?
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
 
   @@index([campaignId, status])
   @@index([campaignId])
+  @@index([messageId])
 }

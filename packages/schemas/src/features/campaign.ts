@@ -53,6 +53,12 @@ export const campaignRecipientSchema = z.object({
   status: recipientStatusSchema,
   retryCount: z.number(),
   sentAt: z.date().nullable(),
+  deliveredAt: z.date().nullable(),
+  openedAt: z.date().nullable(),
+  startedAt: z.date().nullable(),
+  completedAt: z.date().nullable(),
+  failedAt: z.date().nullable(),
+  errorCode: z.string().nullable(),
   errorMessage: z.string().nullable(),
 }) satisfies z.ZodType<Prisma.CampaignRecipient>;
 

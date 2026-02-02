@@ -129,6 +129,7 @@ export const saveStateToDatabase = async ({
       (
         [
           RecipientStatus.SENT,
+          RecipientStatus.DELIVERED,
           RecipientStatus.OPENED,
           RecipientStatus.STARTED,
           RecipientStatus.QUEUED,
@@ -138,11 +139,14 @@ export const saveStateToDatabase = async ({
       queries.push(
         prisma.campaignRecipient.update({
           where: { id: recipient.id },
-          data: { status: RecipientStatus.COMPLETED },
+          data: {
+            status: RecipientStatus.COMPLETED,
+            completedAt: new Date(),
+          },
         }),
       );
       console.log(
-        `✅ Campaign Recipient ${recipient.id} status updated to COMPLETED`,
+        `✅ [Campaign Analytics] Recipient ${recipient.id} (${recipient.phoneNumber}) status updated to COMPLETED`,
       );
     }
   }

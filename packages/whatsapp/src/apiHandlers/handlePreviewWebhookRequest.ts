@@ -74,6 +74,7 @@ export const handlePreviewWebhookRequest = async (
               name: parsedEntries[0].contactName,
               phoneNumber: parsedEntries[0].contactPhoneNumber,
             },
+            callFrom: "webhook",
           });
         } catch (err) {
           await handleUnknownError(err);

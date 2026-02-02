@@ -1,8 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
 import type { Campaign } from "@typebot.io/schemas/features/campaign";
+import { Button } from "@typebot.io/ui/components/Button";
 import { Menu } from "@typebot.io/ui/components/Menu";
 import { Skeleton } from "@typebot.io/ui/components/Skeleton";
 import { useOpenControls } from "@typebot.io/ui/hooks/useOpenControls";
+import { AnalyticsIcon } from "@typebot.io/ui/icons/AnalyticsIcon";
 import { MoreVerticalIcon } from "@typebot.io/ui/icons/MoreVerticalIcon";
 import { cn } from "@typebot.io/ui/lib/cn";
 import { format } from "date-fns";
@@ -164,24 +166,37 @@ const CampaignRow = ({
           {format(new Date(campaign.createdAt), "MMM d, yyyy")}
         </td>
         <td className="px-4 py-3 text-right">
-          <Menu.Root>
-            <Menu.TriggerButton
+          <div className="flex items-center justify-end gap-2">
+            <Button
               variant="ghost"
               size="icon"
               className="size-8"
-              aria-label="Campaign actions"
+              aria-label="View analytics"
+              onClick={() =>
+                window.location.href = `/typebots/${campaign.typebotId}/campaigns/${campaign.id}/analytics`
+              }
             >
-              <MoreVerticalIcon className="size-4" />
-            </Menu.TriggerButton>
-            <Menu.Popup align="end">
-              <Menu.Item
-                className="text-red-10"
-                onClick={deleteDialogControls.onOpen}
+              <AnalyticsIcon className="size-4" />
+            </Button>
+            <Menu.Root>
+              <Menu.TriggerButton
+                variant="ghost"
+                size="icon"
+                className="size-8"
+                aria-label="Campaign actions"
               >
-                Delete
-              </Menu.Item>
-            </Menu.Popup>
-          </Menu.Root>
+                <MoreVerticalIcon className="size-4" />
+              </Menu.TriggerButton>
+              <Menu.Popup align="end">
+                <Menu.Item
+                  className="text-red-10"
+                  onClick={deleteDialogControls.onOpen}
+                >
+                  Delete
+                </Menu.Item>
+              </Menu.Popup>
+            </Menu.Root>
+          </div>
         </td>
       </tr>
       <ConfirmDialog

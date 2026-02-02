@@ -36,32 +36,118 @@ export const handleProductionWebhookRequest = async (
     });
   }
 
-  // Handle Status Updates (Read Receipts)
+  // Handle Status Updates from Meta Webhooks
+  // Feature flag for enhanced analytics
+  const useEnhancedAnalytics =
+    process.env.ENABLE_ENHANCED_CAMPAIGN_ANALYTICS === "true";
+
   for (const { changes } of entry) {
     for (const change of changes) {
       if (change.value.statuses) {
         for (const status of change.value.statuses) {
-          if (status.status === "read") {
-            const recipient = await prisma.campaignRecipient.findFirst({
-              where: { messageId: status.id },
+          const recipient = await prisma.campaignRecipient.findFirst({
+            where: { messageId: status.id },
+          });
+
+          if (!recipient) continue;
+
+          // Determine which statuses to process based on feature flag
+          const shouldProcess = useEnhancedAnalytics
+            ? true // Process all statuses
+            : status.status === "read"; // Legacy: only process 'read'
+
+          if (!shouldProcess) continue;
+
+          let updateData: {
+            status?: RecipientStatus;
+            sentAt?: Date;
+            deliveredAt?: Date;
+            openedAt?: Date;
+            failedAt?: Date;
+            errorCode?: string;
+            errorMessage?: string;
+          } = {};
+
+          // Map Meta webhook statuses to our RecipientStatus
+          switch (status.status) {
+            case "sent":
+              if (
+                useEnhancedAnalytics &&
+                (
+                  [
+                    RecipientStatus.QUEUED,
+                    RecipientStatus.PENDING,
+                  ] as RecipientStatus[]
+                ).includes(recipient.status)
+              ) {
+                updateData = {
+                  status: RecipientStatus.SENT,
+                  sentAt: new Date(),
+                };
+              }
+              break;
+
+            case "delivered":
+              if (
+                useEnhancedAnalytics &&
+                (
+                  [
+                    RecipientStatus.SENT,
+                    RecipientStatus.QUEUED,
+                    RecipientStatus.PENDING,
+                  ] as RecipientStatus[]
+                ).includes(recipient.status)
+              ) {
+                updateData = {
+                  status: RecipientStatus.DELIVERED,
+                  deliveredAt: new Date(),
+                };
+              }
+              break;
+
+            case "read":
+              if (
+                (
+                  [
+                    RecipientStatus.SENT,
+                    RecipientStatus.DELIVERED,
+                    RecipientStatus.QUEUED,
+                    RecipientStatus.PENDING,
+                  ] as RecipientStatus[]
+                ).includes(recipient.status)
+              ) {
+                updateData = {
+                  status: RecipientStatus.OPENED,
+                  openedAt: new Date(),
+                };
+              }
+              break;
+
+            case "failed":
+              if (
+                useEnhancedAnalytics &&
+                recipient.status !== RecipientStatus.FAILED
+              ) {
+                updateData = {
+                  status: RecipientStatus.FAILED,
+                  failedAt: new Date(),
+                  errorCode: status.errors?.[0]?.code?.toString(),
+                  errorMessage: status.errors?.[0]?.title,
+                };
+              }
+              break;
+          }
+
+          // Apply the update if we have data to update
+          if (Object.keys(updateData).length > 0) {
+            await prisma.campaignRecipient.update({
+              where: { id: recipient.id },
+              data: updateData,
             });
-            if (
-              recipient &&
-              (
-                [
-                  RecipientStatus.SENT,
-                  RecipientStatus.QUEUED,
-                ] as RecipientStatus[]
-              ).includes(recipient.status)
-            ) {
-              await prisma.campaignRecipient.update({
-                where: { id: recipient.id },
-                data: { status: RecipientStatus.OPENED },
-              });
-              console.log(
-                `✅ Campaign Recipient ${recipient.id} status updated to OPENED`,
-              );
-            }
+
+            console.log(
+              `✅ [Campaign Analytics] Recipient ${recipient.id} (${recipient.phoneNumber}) status updated: ${recipient.status} → ${updateData.status || recipient.status} (webhook: ${status.status})`,
+            );
           }
         }
       }
@@ -111,6 +197,7 @@ export const handleProductionWebhookRequest = async (
               phoneNumber: parsedEntries[0].contactPhoneNumber,
             },
             referral: parsedEntries[0].referral,
+            callFrom: "webhook",
           });
         } catch (err) {
           if (err instanceof WhatsAppError) {
