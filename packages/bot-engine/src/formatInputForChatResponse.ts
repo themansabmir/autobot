@@ -21,11 +21,13 @@ export const formatInputForChatResponse = async (
     sessionStore,
     isPreview,
     workspaceId,
+    typebot,
   }: {
     variables: Variable[];
     sessionStore: SessionStore;
     isPreview: boolean;
     workspaceId: string;
+    typebot: any;
   },
 ): Promise<ContinueChatResponse["input"]> => {
   switch (block.type) {
@@ -76,6 +78,29 @@ export const formatInputForChatResponse = async (
         variables,
         sessionStore,
       });
+    }
+    case InputBlockType.LANGUAGE: {
+      console.log("🔍 [LANGUAGE Block] Formatting input:", {
+        hasTypebot: !!typebot,
+        hasSettings: !!typebot?.settings,
+        hasLocalization: !!typebot?.settings?.localization,
+        languages: typebot?.settings?.localization?.languages,
+        blockOptions: block.options,
+      });
+      
+      const languages = typebot?.settings?.localization?.languages ?? [];
+      const items = languages.map((language: string) => ({
+        id: language,
+        content: language,
+      }));
+      
+      console.log("🔍 [LANGUAGE Block] Generated items:", items);
+      
+      return {
+        ...block,
+        options: block.options,
+        items,
+      } as any;
     }
     default: {
       return deepParseVariables(

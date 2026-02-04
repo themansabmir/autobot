@@ -28,6 +28,7 @@ const typebotInSessionStatePick = {
   events: true,
   edges: true,
   variables: true,
+  settings: true,
 } as const;
 const typebotInSessionExtension = {
   systemMessages: systemMessagesSchema
@@ -158,6 +159,7 @@ const sessionStateSchemaV3 = sessionStateSchemaV2
       })
       .optional(),
     publicTypebotId: z.string().optional(),
+    language: z.string().optional(),
   });
 
 export type SessionState = z.infer<typeof sessionStateSchemaV3>;
@@ -187,8 +189,8 @@ const migrateFromV1ToV2 = (
         let answerVariableId: string | undefined;
         state.typebot.groups.forEach((group) => {
           group.blocks.forEach((block) => {
-            if (isInputBlock(block) && block.id === answer.blockId) {
-              answerVariableId = block.options?.variableId;
+            if (isInputBlock(block) && block.id === answer.blockId && 'options' in block) {
+              answerVariableId = (block.options as any)?.variableId;
             }
           });
         });
@@ -219,8 +221,8 @@ const migrateFromV1ToV2 = (
             let answerVariableId: string | undefined;
             typebot.groups.forEach((group) => {
               group.blocks.forEach((block) => {
-                if (isInputBlock(block) && block.id === answer.blockId) {
-                  answerVariableId = block.options?.variableId;
+                if (isInputBlock(block) && block.id === answer.blockId && 'options' in block) {
+                  answerVariableId = (block.options as any)?.variableId;
                 }
               });
             });

@@ -148,6 +148,10 @@ export const validateAndParseInputMessage = (
         content: message.type === "audio" ? message.url : message.text,
       };
     }
+    case InputBlockType.LANGUAGE: {
+      if (!message || message.type !== "text") return { status: "fail" };
+      return { status: "success", content: message.text };
+    }
     case InputBlockType.CARDS: {
       if (!message || message.type !== "text") return { status: "fail" };
       return parseCardsReply(message.text, {
