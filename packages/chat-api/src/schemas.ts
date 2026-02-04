@@ -419,6 +419,7 @@ export const startChatResponseSchema = z
       settings: settingsSchema.pick({
         general: true,
         typingEmulation: true,
+        localization: true,
       }),
       publishedAt: z.coerce.date().optional(),
     }),
