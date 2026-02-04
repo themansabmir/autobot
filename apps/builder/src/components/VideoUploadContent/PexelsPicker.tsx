@@ -204,7 +204,7 @@ const PexelsVideo = ({ video, onClick }: PexelsVideoProps) => {
   const [imageIndex, setImageIndex] = useState(1);
 
   useEffect(() => {
-    let interval: NodeJS.Timer;
+    let interval: number | undefined;
 
     if (isImageHovered && video_pictures.length > 0) {
       interval = setInterval(() => {

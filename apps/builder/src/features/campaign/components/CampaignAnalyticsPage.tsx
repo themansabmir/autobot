@@ -176,6 +176,70 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
         </div>
       </div>
 
+      {/* Conversion Rates - Moved to Top */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+        <div className="rounded-xl border border-gray-6 bg-gradient-to-br from-gray-1 to-gray-2 p-6 transition-all hover:shadow-lg hover:border-gray-7">
+          <p className="text-sm font-medium text-gray-11">Delivery Rate</p>
+          <p className="text-4xl font-bold text-gray-12 mt-2">
+            {analytics.sent > 0
+              ? ((analytics.delivered / analytics.sent) * 100).toFixed(1)
+              : "0.0"}
+            %
+          </p>
+          <div className="mt-2 flex items-center gap-2">
+            <div className="h-1.5 flex-1 bg-gray-4 rounded-full overflow-hidden">
+             <div
+               className="h-full bg-purple-9 rounded-full"
+               style={{ width: `${analytics.sent > 0 ? (analytics.delivered / analytics.sent) * 100 : 0}%` }}
+             />
+            </div>
+          </div>
+          <p className="text-xs text-gray-10 mt-2">
+            Delivered / Sent
+          </p>
+        </div>
+        <div className="rounded-xl border border-gray-6 bg-gradient-to-br from-gray-1 to-gray-2 p-6 transition-all hover:shadow-lg hover:border-gray-7">
+          <p className="text-sm font-medium text-gray-11">Open Rate</p>
+          <p className="text-4xl font-bold text-gray-12 mt-2">
+            {analytics.delivered > 0
+              ? ((analytics.opened / analytics.delivered) * 100).toFixed(1)
+              : "0.0"}
+            %
+          </p>
+           <div className="mt-2 flex items-center gap-2">
+            <div className="h-1.5 flex-1 bg-gray-4 rounded-full overflow-hidden">
+             <div
+               className="h-full bg-orange-9 rounded-full"
+               style={{ width: `${analytics.delivered > 0 ? (analytics.opened / analytics.delivered) * 100 : 0}%` }}
+             />
+            </div>
+          </div>
+          <p className="text-xs text-gray-10 mt-2">
+            Opened / Delivered
+          </p>
+        </div>
+        <div className="rounded-xl border border-gray-6 bg-gradient-to-br from-gray-1 to-gray-2 p-6 transition-all hover:shadow-lg hover:border-gray-7">
+          <p className="text-sm font-medium text-gray-11">Completion Rate</p>
+          <p className="text-4xl font-bold text-gray-12 mt-2">
+            {analytics.started > 0
+              ? ((analytics.completed / analytics.started) * 100).toFixed(1)
+              : "0.0"}
+            %
+          </p>
+           <div className="mt-2 flex items-center gap-2">
+            <div className="h-1.5 flex-1 bg-gray-4 rounded-full overflow-hidden">
+             <div
+               className="h-full bg-teal-9 rounded-full"
+               style={{ width: `${analytics.started > 0 ? (analytics.completed / analytics.started) * 100 : 0}%` }}
+             />
+            </div>
+          </div>
+          <p className="text-xs text-gray-10 mt-2">
+            Completed / Started
+          </p>
+        </div>
+      </div>
+
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
@@ -313,7 +377,7 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
                   {analytics.pending}
                 </td>
                 <td className="px-6 py-4 text-sm text-right text-gray-11">
-                  {((analytics.pending / analytics.total) * 100).toFixed(1)}%
+                  {analytics.total > 0 ? ((analytics.pending / analytics.total) * 100).toFixed(1) : "0.0"}%
                 </td>
               </tr>
               <tr className="hover:bg-gray-2">
@@ -322,7 +386,7 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
                   {analytics.queued}
                 </td>
                 <td className="px-6 py-4 text-sm text-right text-gray-11">
-                  {((analytics.queued / analytics.total) * 100).toFixed(1)}%
+                  {analytics.total > 0 ? ((analytics.queued / analytics.total) * 100).toFixed(1) : "0.0"}%
                 </td>
               </tr>
               <tr className="hover:bg-gray-2">
@@ -331,7 +395,7 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
                   {analytics.sent}
                 </td>
                 <td className="px-6 py-4 text-sm text-right text-gray-11">
-                  {((analytics.sent / analytics.total) * 100).toFixed(1)}%
+                  {analytics.total > 0 ? ((analytics.sent / analytics.total) * 100).toFixed(1) : "0.0"}%
                 </td>
               </tr>
               <tr className="hover:bg-gray-2">
@@ -340,7 +404,7 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
                   {analytics.delivered}
                 </td>
                 <td className="px-6 py-4 text-sm text-right text-gray-11">
-                  {((analytics.delivered / analytics.total) * 100).toFixed(1)}%
+                  {analytics.total > 0 ? ((analytics.delivered / analytics.total) * 100).toFixed(1) : "0.0"}%
                 </td>
               </tr>
               <tr className="hover:bg-gray-2">
@@ -349,7 +413,7 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
                   {analytics.opened}
                 </td>
                 <td className="px-6 py-4 text-sm text-right text-gray-11">
-                  {((analytics.opened / analytics.total) * 100).toFixed(1)}%
+                  {analytics.total > 0 ? ((analytics.opened / analytics.total) * 100).toFixed(1) : "0.0"}%
                 </td>
               </tr>
               <tr className="hover:bg-gray-2">
@@ -358,7 +422,7 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
                   {analytics.started}
                 </td>
                 <td className="px-6 py-4 text-sm text-right text-gray-11">
-                  {((analytics.started / analytics.total) * 100).toFixed(1)}%
+                  {analytics.total > 0 ? ((analytics.started / analytics.total) * 100).toFixed(1) : "0.0"}%
                 </td>
               </tr>
               <tr className="hover:bg-gray-2">
@@ -367,7 +431,7 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
                   {analytics.completed}
                 </td>
                 <td className="px-6 py-4 text-sm text-right text-gray-11">
-                  {((analytics.completed / analytics.total) * 100).toFixed(1)}%
+                  {analytics.total > 0 ? ((analytics.completed / analytics.total) * 100).toFixed(1) : "0.0"}%
                 </td>
               </tr>
               <tr className="hover:bg-gray-2 bg-red-2">
@@ -378,51 +442,11 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
                   {analytics.failed}
                 </td>
                 <td className="px-6 py-4 text-sm text-right text-red-10">
-                  {((analytics.failed / analytics.total) * 100).toFixed(1)}%
+                  {analytics.total > 0 ? ((analytics.failed / analytics.total) * 100).toFixed(1) : "0.0"}%
                 </td>
               </tr>
             </tbody>
           </table>
-        </div>
-      </div>
-
-      {/* Conversion Rates */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="rounded-xl border border-gray-6 bg-gradient-to-br from-gray-1 to-gray-2 p-6">
-          <p className="text-sm font-medium text-gray-11">Delivery Rate</p>
-          <p className="text-3xl font-bold text-gray-12 mt-2">
-            {analytics.sent > 0
-              ? ((analytics.delivered / analytics.sent) * 100).toFixed(1)
-              : "0.0"}
-            %
-          </p>
-          <p className="text-xs text-gray-10 mt-1">
-            Delivered / Sent
-          </p>
-        </div>
-        <div className="rounded-xl border border-gray-6 bg-gradient-to-br from-gray-1 to-gray-2 p-6">
-          <p className="text-sm font-medium text-gray-11">Open Rate</p>
-          <p className="text-3xl font-bold text-gray-12 mt-2">
-            {analytics.delivered > 0
-              ? ((analytics.opened / analytics.delivered) * 100).toFixed(1)
-              : "0.0"}
-            %
-          </p>
-          <p className="text-xs text-gray-10 mt-1">
-            Opened / Delivered
-          </p>
-        </div>
-        <div className="rounded-xl border border-gray-6 bg-gradient-to-br from-gray-1 to-gray-2 p-6">
-          <p className="text-sm font-medium text-gray-11">Completion Rate</p>
-          <p className="text-3xl font-bold text-gray-12 mt-2">
-            {analytics.started > 0
-              ? ((analytics.completed / analytics.started) * 100).toFixed(1)
-              : "0.0"}
-            %
-          </p>
-          <p className="text-xs text-gray-10 mt-1">
-            Completed / Started
-          </p>
         </div>
       </div>
     </div>
