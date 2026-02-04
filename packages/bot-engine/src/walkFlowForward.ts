@@ -250,6 +250,7 @@ const executeGroup = async (
           isPreview: isNotDefined(newSessionState.typebotsQueue[0].resultId),
           workspaceId: newSessionState.workspaceId,
           sessionStore,
+          typebot: newSessionState.typebotsQueue[0].typebot,
         }),
         newSessionState: {
           ...newSessionState,

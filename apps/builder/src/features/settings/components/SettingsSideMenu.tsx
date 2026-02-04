@@ -10,6 +10,8 @@ import { GeneralSettingsForm } from "./GeneralSettingsForm";
 import { MetadataForm } from "./MetadataForm";
 import { SecurityForm } from "./SecurityForm";
 import { TypingEmulationForm } from "./TypingEmulationForm";
+import { Globe02Icon } from "@typebot.io/ui/icons/Globe02Icon";
+import { LocalizationForm } from "./LocalizationForm";
 
 export const SettingsSideMenu = () => {
   const { typebot, updateTypebot } = useTypebot();
@@ -36,6 +38,12 @@ export const SettingsSideMenu = () => {
   const handleMetadataChange = (metadata: Settings["metadata"]) =>
     typebot &&
     updateTypebot({ updates: { settings: { ...typebot.settings, metadata } } });
+
+  const handleLocalizationChange = (localization: Settings["localization"]) =>
+    typebot &&
+    updateTypebot({
+      updates: { settings: { ...typebot.settings, localization } },
+    });
 
   return (
     <div className="flex flex-col gap-2 flex-1 max-w-[400px] border ml-4 overflow-y-auto pb-20 relative rounded-xl h-[calc(100%-2rem)] bg-gray-1 dark:bg-gray-2">
@@ -88,7 +96,7 @@ export const SettingsSideMenu = () => {
             )}
           </Accordion.Panel>
         </Accordion.Item>
-        <Accordion.Item className="border-0 border-t last:rounded-b-none">
+        <Accordion.Item className="border-0 border-t">
           <Accordion.Trigger className="py-5">
             <div className="flex items-center gap-3 pl-2">
               <SourceCodeIcon />
@@ -103,6 +111,28 @@ export const SettingsSideMenu = () => {
                 typebotName={typebot.name}
                 metadata={typebot.settings.metadata}
                 onMetadataChange={handleMetadataChange}
+              />
+            )}
+          </Accordion.Panel>
+        </Accordion.Item>
+        <Accordion.Item className="border-0 border-t last:rounded-b-xl">
+          <Accordion.Trigger className="py-5">
+            <div className="flex items-center gap-3 pl-2">
+              <Globe02Icon />
+              <h3 className="text-lg">Localization</h3>
+              {typebot?.settings.localization?.languages &&
+                typebot.settings.localization.languages.length > 0 && (
+                  <span className="text-sm text-gray-500 ml-auto mr-4">
+                    {typebot.settings.localization.languages.length} languages
+                  </span>
+                )}
+            </div>
+          </Accordion.Trigger>
+          <Accordion.Panel>
+            {typebot && (
+              <LocalizationForm
+                localization={typebot.settings.localization}
+                onLocalizationChange={handleLocalizationChange}
               />
             )}
           </Accordion.Panel>

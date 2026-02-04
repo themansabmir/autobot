@@ -78,6 +78,12 @@ export const whatsAppSettingsSchema = z.object({
     .describe("Expiration delay in hours after latest interaction"),
 });
 
+export const localizationSchema = z.object({
+  isEnabled: z.boolean().optional(),
+  languages: z.array(z.string()).optional(),
+  defaultLanguage: z.string().optional(),
+});
+
 export const settingsSchema = z
   .object({
     general: generalSettings.optional(),
@@ -94,6 +100,7 @@ export const settingsSchema = z
         allowedOrigins: z.array(z.string()).optional(),
       })
       .optional(),
+    localization: localizationSchema.optional(),
   })
   .openapi({
     title: "Settings",

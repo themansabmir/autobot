@@ -5,6 +5,7 @@ import { IntegrationBlockType } from "@typebot.io/blocks-integrations/constants"
 import { LogicBlockType } from "@typebot.io/blocks-logic/constants";
 import { CarouselHorizontal02Icon } from "@typebot.io/ui/icons/CarouselHorizontal02Icon";
 import { Flag02Icon } from "@typebot.io/ui/icons/Flag02Icon";
+import { Globe02Icon } from "@typebot.io/ui/icons/Globe02Icon";
 import { ZapIcon } from "@typebot.io/ui/icons/ZapIcon";
 import { cn } from "@typebot.io/ui/lib/cn";
 import { AudioBubbleIcon } from "@/features/blocks/bubbles/audio/components/AudioBubbleIcon";
@@ -147,6 +148,10 @@ export const BlockIcon = ({ type, className }: BlockIconProps): JSX.Element => {
         <WhatsAppCarouselIcon
           className={cn("text-orange-9 stroke-2", className)}
         />
+      );
+    case InputBlockType.LANGUAGE:
+      return (
+        <Globe02Icon className={cn("text-orange-9 stroke-2", className)} />
       );
     case LogicBlockType.SET_VARIABLE:
       return (

@@ -65,6 +65,7 @@ export const getInputBlockLabel = (
   [InputBlockType.CTA_URL]: "URL Button",
   [InputBlockType.WHATSAPP_LIST]: "WhatsApp List",
   [InputBlockType.WHATSAPP_CAROUSEL]: "WhatsApp Carousel",
+  [InputBlockType.LANGUAGE]: "Language",
 });
 
 export const getLogicBlockLabel = (

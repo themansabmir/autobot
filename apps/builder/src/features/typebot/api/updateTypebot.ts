@@ -19,6 +19,7 @@ import {
   sanitizeSettings,
   sanitizeVariables,
 } from "../helpers/sanitizers";
+import { triggerTranslationGeneration } from "./triggerTranslationGeneration";
 
 const typebotUpdateSchemaPick = {
   version: true,
@@ -218,6 +219,12 @@ export const updateTypebot = authenticatedProcedure
 
       const { typebot: migratedTypebot } = await migrateTypebot(
         typebotSchema.parse(newTypebot),
+      );
+
+      // Trigger translation generation (async, non-blocking)
+      triggerTranslationGeneration(
+        migratedTypebot,
+        migratedTypebot.settings?.localization
       );
 
       return { typebot: migratedTypebot };

@@ -27,6 +27,7 @@
     "@typebot.io/env": "workspace:*",
     "@typebot.io/events": "workspace:*",
     "@typebot.io/groups": "workspace:*",
+    "@typebot.io/i18n": "workspace:*",
     "@typebot.io/legacy": "workspace:*",
     "@typebot.io/lib": "workspace:*",
     "@typebot.io/logs": "workspace:*",

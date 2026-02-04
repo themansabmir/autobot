@@ -528,6 +528,7 @@ const convertStartTypebotToTypebotInSession = (
       edges: typebot.edges,
       variables: startVariables,
       events: typebot.events,
+      settings: typebot.settings, // Needed for LANGUAGE block localization
       systemMessages: typebot.settings.general?.systemMessages,
     };
   }
@@ -538,6 +539,7 @@ const convertStartTypebotToTypebotInSession = (
     edges: typebot.edges,
     variables: startVariables,
     events: typebot.events,
+    settings: typebot.settings, // Needed for LANGUAGE block localization
     systemMessages: typebot.settings.general?.systemMessages,
   } as TypebotInSessionV5; // I am not sure why, this needs to be casted, the discrimination does not work here
 };
