@@ -149,20 +149,48 @@ export const convertInputToWhatsAppMessages = async ({
       return messages;
     }
     case InputBlockType.LANGUAGE: {
-      // LANGUAGE block uses placeholder as prompt and shows languages as buttons
       const languageInput = input as any;
       const placeholderText = languageInput.options?.labels?.placeholder || "Choose your language";
-      const items = groupArrayByArraySize(
-        languageInput.items?.filter((item: any) => isDefined(item.content)) ?? [],
-        env.WHATSAPP_INTERACTIVE_GROUP_SIZE,
-      ) as ButtonItem[][];
+      const allItems = (languageInput.items?.filter((item: any) => isDefined(item.content)) ?? []) as ButtonItem[];
       
-      if (items.length === 0) {
+      if (allItems.length === 0) {
         return [{
           type: "text",
           text: { body: placeholderText },
         }];
       }
+
+      // Use List message for 4-10 options if enabled
+      if (allItems.length > 3 && allItems.length <= 10 && env.WHATSAPP_ENABLE_LIST_MESSAGES) {
+        const itemContents = allItems.map((item) => item.content as string);
+        const uniqueTitles = getUniqueButtonTitles(itemContents);
+
+        return [
+          {
+            type: "interactive",
+            interactive: {
+              type: "list",
+              body: { text: placeholderText },
+              action: {
+                button: (languageInput.options?.labels?.button || "Languages").slice(0, 20),
+                sections: [
+                  {
+                    rows: allItems.map((item, idx) => ({
+                      id: item.id,
+                      title: uniqueTitles[idx],
+                    })),
+                  },
+                ],
+              },
+            },
+          },
+        ];
+      }
+      
+      const items = groupArrayByArraySize(
+        allItems,
+        env.WHATSAPP_INTERACTIVE_GROUP_SIZE,
+      ) as ButtonItem[][];
       
       return items.map((items, idx) => ({
         type: "interactive",
@@ -192,7 +220,6 @@ export const convertInputToWhatsAppMessages = async ({
       }));
     }
     case InputBlockType.CHOICE: {
-      // Type assertion needed because LANGUAGE block structure is enriched at runtime
       const choiceInput = input as any;
       if (
         choiceInput.options?.isMultipleChoice ??
@@ -213,8 +240,38 @@ export const convertInputToWhatsAppMessages = async ({
             },
           },
         ];
+
+      const allItems = (choiceInput.items.filter((item: any) => isDefined(item.content))) as ButtonItem[];
+
+      // Use List message for 4-10 options if enabled
+      if (allItems.length > 3 && allItems.length <= 10 && env.WHATSAPP_ENABLE_LIST_MESSAGES) {
+        const itemContents = allItems.map((item) => item.content as string);
+        const uniqueTitles = getUniqueButtonTitles(itemContents);
+
+        return [
+          {
+            type: "interactive",
+            interactive: {
+              type: "list",
+              body: { text: lastMessageText || "―" },
+              action: {
+                button: (choiceInput.options?.labels?.button || "Options").slice(0, 20),
+                sections: [
+                  {
+                    rows: allItems.map((item, idx) => ({
+                      id: item.id,
+                      title: uniqueTitles[idx],
+                    })),
+                  },
+                ],
+              },
+            },
+          },
+        ];
+      }
+
       const items = groupArrayByArraySize(
-        choiceInput.items.filter((item: any) => isDefined(item.content)),
+        allItems,
         env.WHATSAPP_INTERACTIVE_GROUP_SIZE,
       ) as ButtonItem[][];
       return items.map((items, idx) => ({
