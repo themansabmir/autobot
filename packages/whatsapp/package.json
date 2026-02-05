@@ -18,6 +18,7 @@
     "@typebot.io/lib": "workspace:*",
     "@typebot.io/rich-text": "workspace:*",
     "@typebot.io/settings": "workspace:*",
+    "@typebot.io/i18n": "workspace:*",
     "@typebot.io/typebot": "workspace:*",
     "@typebot.io/variables": "workspace:*",
     "@typebot.io/zod": "workspace:*",
