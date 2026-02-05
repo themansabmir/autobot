@@ -137,8 +137,13 @@ const sendWhatsAppMessage = async (
         where: { id: recipientId },
         data: {
           messageId: result.lastMessageId,
+          status: "SENT",
+          sentAt: new Date(),
         },
       });
+      console.log(
+        `✅ [Campaign Analytics] Recipient ${recipientId} (${phoneNumber}) status updated to SENT`,
+      );
     }
   }
 
