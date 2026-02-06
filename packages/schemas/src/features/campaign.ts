@@ -17,6 +17,7 @@ export const recipientStatusSchema = z.enum([
   "PENDING",
   "QUEUED",
   "SENT",
+  "DELIVERED",
   "OPENED",
   "STARTED",
   "COMPLETED",

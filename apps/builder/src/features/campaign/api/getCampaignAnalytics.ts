@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { RecipientStatus } from "@prisma/client";
+import type { RecipientStatus } from "@typebot.io/schemas/features/campaign";
 import prisma from "@typebot.io/prisma";
 import { z } from "@typebot.io/zod";
 import { getUserModeInWorkspace } from "@/features/workspace/helpers/getUserRoleInWorkspace";
@@ -64,32 +64,33 @@ export const getCampaignAnalytics = authenticatedProcedure
         message: "Campaign not found",
       });
 
-    // Fetch all recipients for this campaign
+    // Fetch all recipients for this campaign with timestamp fields
     const recipients = await prisma.campaignRecipient.findMany({
       where: { campaignId },
-      select: { status: true },
+      select: {
+        status: true,
+        sentAt: true,
+        deliveredAt: true,
+        openedAt: true,
+        startedAt: true,
+        completedAt: true,
+        failedAt: true,
+      },
     });
 
     const total = recipients.length;
 
-    // Count recipients by status
-    const statusCounts = recipients.reduce(
-      (acc, recipient) => {
-        acc[recipient.status] = (acc[recipient.status] || 0) + 1;
-        return acc;
-      },
-      {} as Record<RecipientStatus, number>,
-    );
+    // Count based on timestamp fields (cumulative, not overwriting)
+    const sent = recipients.filter((r) => r.sentAt !== null).length;
+    const delivered = recipients.filter((r) => r.deliveredAt !== null).length;
+    const opened = recipients.filter((r) => r.openedAt !== null).length;
+    const started = recipients.filter((r) => r.startedAt !== null).length;
+    const completed = recipients.filter((r) => r.completedAt !== null).length;
+    const failed = recipients.filter((r) => r.failedAt !== null).length;
 
-    // Calculate metrics
-    const pending = statusCounts[RecipientStatus.PENDING] || 0;
-    const queued = statusCounts[RecipientStatus.QUEUED] || 0;
-    const sent = statusCounts[RecipientStatus.SENT] || 0;
-    const delivered = statusCounts[RecipientStatus.DELIVERED] || 0;
-    const opened = statusCounts[RecipientStatus.OPENED] || 0;
-    const started = statusCounts[RecipientStatus.STARTED] || 0;
-    const completed = statusCounts[RecipientStatus.COMPLETED] || 0;
-    const failed = statusCounts[RecipientStatus.FAILED] || 0;
+    // Count current status for pending/queued
+    const pending = recipients.filter((r) => r.status === "PENDING").length;
+    const queued = recipients.filter((r) => r.status === "QUEUED").length;
 
     // Initiated = all non-pending recipients
     const initiated = total - pending;
