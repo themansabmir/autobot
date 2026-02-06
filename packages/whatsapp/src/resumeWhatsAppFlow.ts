@@ -1,3 +1,4 @@
+import { RecipientStatus } from "@prisma/client";
 import type { Block } from "@typebot.io/blocks-core/schemas/schema";
 import { InputBlockType } from "@typebot.io/blocks-inputs/constants";
 import { continueBotFlow } from "@typebot.io/bot-engine/continueBotFlow";
@@ -15,6 +16,7 @@ import { extensionFromMimeType } from "@typebot.io/lib/extensionFromMimeType";
 import redis from "@typebot.io/lib/redis";
 import { uploadFileToBucket } from "@typebot.io/lib/s3/uploadFileToBucket";
 import { isDefined } from "@typebot.io/lib/utils";
+import prisma from "@typebot.io/prisma";
 import {
   deleteSessionStore,
   getSessionStore,
@@ -27,11 +29,9 @@ import type {
 } from "./schemas";
 import { sendChatReplyToWhatsApp } from "./sendChatReplyToWhatsApp";
 import { startWhatsAppSession } from "./startWhatsAppSession";
-import prisma from "@typebot.io/prisma";
-import { RecipientStatus } from "@prisma/client";
 import { WhatsAppError } from "./WhatsAppError";
 
-const MESSAGE_TOO_OLD_ELAPSED_MS = 3 * 60 * 1000; // 3 minutes
+const MESSAGE_TOO_OLD_ELAPSED_MS = 24 * 60 * 60 * 1000; // 24 hours (was 3 minutes - too short for campaigns)
 const INCOMING_MEDIA_MESSAGE_DEBOUNCE = 3_000;
 
 type Props = {
@@ -163,18 +163,24 @@ export const resumeWhatsAppFlow = async ({
 
     if (
       recipient &&
-      ([
-        RecipientStatus.SENT,
-        RecipientStatus.OPENED,
-        RecipientStatus.QUEUED,
-      ] as RecipientStatus[]).includes(recipient.status)
+      (
+        [
+          RecipientStatus.SENT,
+          RecipientStatus.DELIVERED,
+          RecipientStatus.OPENED,
+          RecipientStatus.QUEUED,
+        ] as RecipientStatus[]
+      ).includes(recipient.status)
     ) {
       await prisma.campaignRecipient.update({
         where: { id: recipient.id },
-        data: { status: RecipientStatus.STARTED },
+        data: {
+          status: RecipientStatus.STARTED,
+          startedAt: new Date(),
+        },
       });
       console.log(
-        `✅ Campaign Recipient ${recipient.id} status updated to STARTED`,
+        `✅ [Campaign Analytics] Recipient ${recipient.id} (${recipient.phoneNumber}) status updated to STARTED`,
       );
     }
   }

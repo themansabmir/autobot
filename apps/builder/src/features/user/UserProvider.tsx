@@ -32,8 +32,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   const updateUserMutation = useUpdateUserMutation();
 
-
-
   useEffect(() => {
     if (isDefined(session?.user.id)) return;
     setCurrentWorkspaceId(

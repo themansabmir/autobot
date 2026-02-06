@@ -17,6 +17,7 @@ export const recipientStatusSchema = z.enum([
   "PENDING",
   "QUEUED",
   "SENT",
+  "DELIVERED",
   "OPENED",
   "STARTED",
   "COMPLETED",
@@ -53,6 +54,14 @@ export const campaignRecipientSchema = z.object({
   status: recipientStatusSchema,
   retryCount: z.number(),
   sentAt: z.date().nullable(),
+  deliveredAt: z.date().nullable(),
+  openedAt: z.date().nullable(),
+  startedAt: z.date().nullable(),
+  completedAt: z.date().nullable(),
+  failedAt: z.date().nullable(),
+  npsScore: z.number().int().min(0).max(10).nullable(),
+  npsRespondedAt: z.date().nullable(),
+  errorCode: z.string().nullable(),
   errorMessage: z.string().nullable(),
 }) satisfies z.ZodType<Prisma.CampaignRecipient>;
 

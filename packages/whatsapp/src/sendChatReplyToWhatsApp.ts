@@ -24,7 +24,11 @@ type Props = {
 } & Pick<ContinueChatResponse, "messages" | "input" | "clientSideActions">;
 
 type ClientSideActionExecutionResult =
-  | { type: "replyToSend"; replyToSend: string | undefined; lastMessageId?: string }
+  | {
+      type: "replyToSend";
+      replyToSend: string | undefined;
+      lastMessageId?: string;
+    }
   | { type: "shouldWaitForWebhook"; lastMessageId?: string }
   | undefined;
 

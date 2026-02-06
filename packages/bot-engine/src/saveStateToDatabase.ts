@@ -1,9 +1,9 @@
+import { RecipientStatus } from "@prisma/client";
 import type { ContinueChatResponse } from "@typebot.io/chat-api/schemas";
 import { updateSession } from "@typebot.io/chat-session/queries/updateSession";
 import { upsertSession } from "@typebot.io/chat-session/queries/upsertSession";
 import type { ChatSession } from "@typebot.io/chat-session/schemas";
 import prisma from "@typebot.io/prisma";
-import { RecipientStatus } from "@prisma/client";
 import type { Prisma } from "@typebot.io/prisma/types";
 import type { SetVariableHistoryItem } from "@typebot.io/variables/schemas";
 import { upsertResult } from "./queries/upsertResult";
@@ -49,24 +49,26 @@ export const saveStateToDatabase = async ({
 
   if (sessionId.type === "existing") {
     // MODIFIED: Keep completed sessions for data analytics instead of deleting them
-    // if (isCompleted && resultId) {
-    //   console.log("🗑️ [DEBUG] Deleting completed session:", sessionId.id);
-    //   queries.push(deleteSession(sessionId.id));
-    // } else {
+    // When session is completed, always set isReplying to false to allow new conversations
+    const shouldSetReplyingFalse = isCompleted || !isWaitingForExternalEvent;
+
     console.log("🔄 [DEBUG] Updating existing session:", sessionId.id, {
       isCompleted,
       hasState: !!state,
       currentBlockId: state.currentBlockId,
-      isReplying: isWaitingForExternalEvent ?? false,
+      isReplying: shouldSetReplyingFalse
+        ? false
+        : (isWaitingForExternalEvent ?? false),
     });
     queries.push(
       updateSession({
         id: sessionId.id,
         state,
-        isReplying: isWaitingForExternalEvent ?? false,
+        isReplying: shouldSetReplyingFalse
+          ? false
+          : (isWaitingForExternalEvent ?? false),
       }),
     );
-    // }
   }
 
   const session =
@@ -124,21 +126,27 @@ export const saveStateToDatabase = async ({
 
     if (
       recipient &&
-      ([
-        RecipientStatus.SENT,
-        RecipientStatus.OPENED,
-        RecipientStatus.STARTED,
-        RecipientStatus.QUEUED,
-      ] as RecipientStatus[]).includes(recipient.status)
+      (
+        [
+          RecipientStatus.SENT,
+          RecipientStatus.DELIVERED,
+          RecipientStatus.OPENED,
+          RecipientStatus.STARTED,
+          RecipientStatus.QUEUED,
+        ] as RecipientStatus[]
+      ).includes(recipient.status)
     ) {
       queries.push(
         prisma.campaignRecipient.update({
           where: { id: recipient.id },
-          data: { status: RecipientStatus.COMPLETED },
+          data: {
+            status: RecipientStatus.COMPLETED,
+            completedAt: new Date(),
+          },
         }),
       );
       console.log(
-        `✅ Campaign Recipient ${recipient.id} status updated to COMPLETED`,
+        `✅ [Campaign Analytics] Recipient ${recipient.id} (${recipient.phoneNumber}) status updated to COMPLETED`,
       );
     }
   }

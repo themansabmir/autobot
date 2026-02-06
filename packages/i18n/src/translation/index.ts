@@ -1,7 +1,7 @@
 export {
-  translateText,
+  type TranslationResult,
   translateBatch,
   translateBatchChunked,
   translateMap,
-  type TranslationResult,
+  translateText,
 } from "./googleTranslateClient";

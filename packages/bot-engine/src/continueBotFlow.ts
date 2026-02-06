@@ -43,6 +43,7 @@ import { executeInvalidReplyEvent } from "./events/executeInvalidReplyEvent";
 import { executeReplyEvent } from "./events/executeReplyEvent";
 import { formatInputForChatResponse } from "./formatInputForChatResponse";
 import { getReplyOutgoingEdge } from "./getReplyOutgoingEdge";
+import { loadTranslatedJourney } from "./i18n/loadTranslatedJourney";
 import { saveAnswer } from "./queries/saveAnswer";
 import { resetSessionState } from "./resetSessionState";
 import { startBotFlow } from "./startBotFlow";
@@ -237,7 +238,7 @@ export const continueBotFlow = async (
                     ...item,
                     typebot: translatedTypebot,
                   }
-                : item
+                : item,
             ),
           };
         } catch (error) {

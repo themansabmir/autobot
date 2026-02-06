@@ -150,18 +150,27 @@ export const convertInputToWhatsAppMessages = async ({
     }
     case InputBlockType.LANGUAGE: {
       const languageInput = input as any;
-      const placeholderText = languageInput.options?.labels?.placeholder || "Choose your language";
-      const allItems = (languageInput.items?.filter((item: any) => isDefined(item.content)) ?? []) as ButtonItem[];
-      
+      const placeholderText =
+        languageInput.options?.labels?.placeholder || "Choose your language";
+      const allItems = (languageInput.items?.filter((item: any) =>
+        isDefined(item.content),
+      ) ?? []) as ButtonItem[];
+
       if (allItems.length === 0) {
-        return [{
-          type: "text",
-          text: { body: placeholderText },
-        }];
+        return [
+          {
+            type: "text",
+            text: { body: placeholderText },
+          },
+        ];
       }
 
       // Use List message for 4-10 options if enabled
-      if (allItems.length > 3 && allItems.length <= 10 && env.WHATSAPP_ENABLE_LIST_MESSAGES) {
+      if (
+        allItems.length > 3 &&
+        allItems.length <= 10 &&
+        env.WHATSAPP_ENABLE_LIST_MESSAGES
+      ) {
         const itemContents = allItems.map((item) => item.content as string);
         const uniqueTitles = getUniqueButtonTitles(itemContents);
 
@@ -172,7 +181,9 @@ export const convertInputToWhatsAppMessages = async ({
               type: "list",
               body: { text: placeholderText },
               action: {
-                button: (languageInput.options?.labels?.button || "Languages").slice(0, 20),
+                button: (
+                  languageInput.options?.labels?.button || "Languages"
+                ).slice(0, 20),
                 sections: [
                   {
                     rows: allItems.map((item, idx) => ({
@@ -186,12 +197,12 @@ export const convertInputToWhatsAppMessages = async ({
           },
         ];
       }
-      
+
       const items = groupArrayByArraySize(
         allItems,
         env.WHATSAPP_INTERACTIVE_GROUP_SIZE,
       ) as ButtonItem[][];
-      
+
       return items.map((items, idx) => ({
         type: "interactive",
         interactive: {
@@ -232,19 +243,29 @@ export const convertInputToWhatsAppMessages = async ({
               body: lastMessageText
                 ? `${lastMessageText}\n\n` +
                   choiceInput.items
-                    .map((item: any, idx: number) => `${idx + 1}. ${item.content}`)
+                    .map(
+                      (item: any, idx: number) => `${idx + 1}. ${item.content}`,
+                    )
                     .join("\n")
                 : choiceInput.items
-                    .map((item: any, idx: number) => `${idx + 1}. ${item.content}`)
+                    .map(
+                      (item: any, idx: number) => `${idx + 1}. ${item.content}`,
+                    )
                     .join("\n"),
             },
           },
         ];
 
-      const allItems = (choiceInput.items.filter((item: any) => isDefined(item.content))) as ButtonItem[];
+      const allItems = choiceInput.items.filter((item: any) =>
+        isDefined(item.content),
+      ) as ButtonItem[];
 
       // Use List message for 4-10 options if enabled
-      if (allItems.length > 3 && allItems.length <= 10 && env.WHATSAPP_ENABLE_LIST_MESSAGES) {
+      if (
+        allItems.length > 3 &&
+        allItems.length <= 10 &&
+        env.WHATSAPP_ENABLE_LIST_MESSAGES
+      ) {
         const itemContents = allItems.map((item) => item.content as string);
         const uniqueTitles = getUniqueButtonTitles(itemContents);
 
@@ -255,7 +276,9 @@ export const convertInputToWhatsAppMessages = async ({
               type: "list",
               body: { text: lastMessageText || "―" },
               action: {
-                button: (choiceInput.options?.labels?.button || "Options").slice(0, 20),
+                button: (
+                  choiceInput.options?.labels?.button || "Options"
+                ).slice(0, 20),
                 sections: [
                   {
                     rows: allItems.map((item, idx) => ({
@@ -517,72 +540,72 @@ export const convertInputToWhatsAppMessages = async ({
       });
 
       const cards = items.map((item, index) => {
-          console.log(`🔍 [WhatsApp Carousel] Processing card ${index}:`, {
-            headerType: item.headerType,
-            headerUrl: item.headerUrl,
-            hasHeader: !!(item.headerType && item.headerUrl),
-            buttonType: item.buttonType,
-          });
-
-          const card: any = {
-            card_index: index,
-          };
-
-          // Set card type based on button type (required by Meta API)
-          // According to latest docs/examples, card.type can be "cta_url" even for quick_reply buttons
-          if (item.buttonType === "cta_url") {
-            card.type = "cta_url";
-          } else if (item.buttonType === "quick_reply") {
-             // Strict compliance with user docs: type is "cta_url"
-            card.type = "cta_url";
-          }
-
-          // Header (required)
-          if (item.headerType && item.headerUrl) {
-            // Note: Interactive Carousels documentation specificially shows "link" usage.
-            // "id" support is unconfirmed for this specific beta feature.
-            card.header = {
-              type: item.headerType,
-              [item.headerType]: {
-                link: item.headerUrl,
-              },
-            };
-          }
-
-          // Body text (optional)
-          if (item.bodyText) {
-            card.body = {
-              text: item.bodyText.slice(0, 160),
-            };
-          }
-
-          // Action (buttons)
-          if (item.buttonType === "cta_url" && item.ctaUrlButton) {
-            card.action = {
-              name: "cta_url",
-              parameters: {
-                display_text:
-                  item.ctaUrlButton.displayText?.slice(0, 20) || "Visit",
-                url: item.ctaUrlButton.url,
-              },
-            };
-          } else if (
-            item.buttonType === "quick_reply" &&
-            item.quickReplyButtons
-          ) {
-            card.action = {
-              buttons: item.quickReplyButtons.slice(0, 2).map((btn: any) => ({
-                type: "quick_reply",
-                quick_reply: {
-                  id: btn.id,
-                  title: btn.title.slice(0, 20),
-                },
-              })),
-            };
-          }
-
-          return card;
+        console.log(`🔍 [WhatsApp Carousel] Processing card ${index}:`, {
+          headerType: item.headerType,
+          headerUrl: item.headerUrl,
+          hasHeader: !!(item.headerType && item.headerUrl),
+          buttonType: item.buttonType,
         });
+
+        const card: any = {
+          card_index: index,
+        };
+
+        // Set card type based on button type (required by Meta API)
+        // According to latest docs/examples, card.type can be "cta_url" even for quick_reply buttons
+        if (item.buttonType === "cta_url") {
+          card.type = "cta_url";
+        } else if (item.buttonType === "quick_reply") {
+          // Strict compliance with user docs: type is "cta_url"
+          card.type = "cta_url";
+        }
+
+        // Header (required)
+        if (item.headerType && item.headerUrl) {
+          // Note: Interactive Carousels documentation specificially shows "link" usage.
+          // "id" support is unconfirmed for this specific beta feature.
+          card.header = {
+            type: item.headerType,
+            [item.headerType]: {
+              link: item.headerUrl,
+            },
+          };
+        }
+
+        // Body text (optional)
+        if (item.bodyText) {
+          card.body = {
+            text: item.bodyText.slice(0, 160),
+          };
+        }
+
+        // Action (buttons)
+        if (item.buttonType === "cta_url" && item.ctaUrlButton) {
+          card.action = {
+            name: "cta_url",
+            parameters: {
+              display_text:
+                item.ctaUrlButton.displayText?.slice(0, 20) || "Visit",
+              url: item.ctaUrlButton.url,
+            },
+          };
+        } else if (
+          item.buttonType === "quick_reply" &&
+          item.quickReplyButtons
+        ) {
+          card.action = {
+            buttons: item.quickReplyButtons.slice(0, 2).map((btn: any) => ({
+              type: "quick_reply",
+              quick_reply: {
+                id: btn.id,
+                title: btn.title.slice(0, 20),
+              },
+            })),
+          };
+        }
+
+        return card;
+      });
 
       // Filter out cards without required headers (Meta API requirement)
       const validCards = cards.filter((card, index) => {
@@ -625,6 +648,13 @@ export const convertInputToWhatsAppMessages = async ({
         JSON.stringify(carouselMessage, null, 2),
       );
       return [carouselMessage];
+    }
+    case InputBlockType.NPS: {
+      // NPS is handled as a number input, no special WhatsApp UI
+      return [];
+    }
+    default: {
+      return [];
     }
   }
 };

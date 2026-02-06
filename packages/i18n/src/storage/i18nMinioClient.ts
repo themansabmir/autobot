@@ -18,7 +18,7 @@ export const getMinioClient = (): MinioClient => {
 
   if (!env.S3_ENDPOINT || !env.S3_ACCESS_KEY || !env.S3_SECRET_KEY) {
     throw new Error(
-      "S3/MinIO not properly configured. Missing one of: S3_ENDPOINT, S3_ACCESS_KEY, S3_SECRET_KEY"
+      "S3/MinIO not properly configured. Missing one of: S3_ENDPOINT, S3_ACCESS_KEY, S3_SECRET_KEY",
     );
   }
 
@@ -48,7 +48,9 @@ export const ensureBucketExists = async (): Promise<void> => {
       console.log(`DEBUG: Bucket ${I18N_BUCKET} created.`);
     } catch (error: any) {
       if (error?.code === "BucketAlreadyOwnedByYou") {
-        console.log(`DEBUG: Bucket ${I18N_BUCKET} already exists (race condition).`);
+        console.log(
+          `DEBUG: Bucket ${I18N_BUCKET} already exists (race condition).`,
+        );
       } else {
         throw error;
       }
@@ -72,7 +74,7 @@ export const getJourneyPath = (botId: string, language: string): string => {
 export const uploadTranslatedJourney = async (
   botId: string,
   language: string,
-  journeyJson: object
+  journeyJson: object,
 ): Promise<string> => {
   await ensureBucketExists();
   const client = getMinioClient();
@@ -80,7 +82,9 @@ export const uploadTranslatedJourney = async (
   const jsonString = JSON.stringify(journeyJson);
   const buffer = Buffer.from(jsonString, "utf-8");
 
-  console.log(`DEBUG: Uploading translated journey to ${I18N_BUCKET}/${path}...`);
+  console.log(
+    `DEBUG: Uploading translated journey to ${I18N_BUCKET}/${path}...`,
+  );
   await client.putObject(I18N_BUCKET, path, buffer, buffer.length, {
     "Content-Type": "application/json",
     "Cache-Control": "public, max-age=3600",
@@ -95,7 +99,7 @@ export const uploadTranslatedJourney = async (
  */
 export const getTranslatedJourney = async <T = object>(
   botId: string,
-  language: string
+  language: string,
 ): Promise<T | null> => {
   try {
     const client = getMinioClient();
@@ -133,7 +137,7 @@ export const getTranslatedJourney = async <T = object>(
  */
 export const deleteTranslatedJourney = async (
   botId: string,
-  language: string
+  language: string,
 ): Promise<void> => {
   try {
     await ensureBucketExists();

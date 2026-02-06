@@ -18,6 +18,7 @@ import { CtaUrlNodeContent } from "@/features/blocks/inputs/ctaUrl/components/Ct
 import { DateNodeContent } from "@/features/blocks/inputs/date/components/DateNodeContent";
 import { EmailInputNodeContent } from "@/features/blocks/inputs/emailInput/components/EmailInputNodeContent";
 import { FileInputContent } from "@/features/blocks/inputs/fileUpload/components/FileInputContent";
+import { LanguageBlockNode } from "@/features/blocks/inputs/language/components/LanguageBlockNode";
 import { NumberNodeContent } from "@/features/blocks/inputs/number/components/NumberNodeContent";
 import { PaymentInputContent } from "@/features/blocks/inputs/payment/components/PaymentInputContent";
 import { PhoneNodeContent } from "@/features/blocks/inputs/phone/components/PhoneNodeContent";
@@ -28,7 +29,6 @@ import { TimeNodeContent } from "@/features/blocks/inputs/time/components/TimeNo
 import { UrlNodeContent } from "@/features/blocks/inputs/url/components/UrlNodeContent";
 import { WhatsAppCarouselContent } from "@/features/blocks/inputs/whatsappCarousel/components/WhatsAppCarouselContent";
 import { WhatsAppListBlockNode } from "@/features/blocks/inputs/whatsappList/components/WhatsAppListBlockNode";
-import { LanguageBlockNode } from "@/features/blocks/inputs/language/components/LanguageBlockNode";
 import { ChatwootNodeBody } from "@/features/blocks/integrations/chatwoot/components/ChatwootNodeBody";
 import { GoogleAnalyticsNodeBody } from "@/features/blocks/integrations/googleAnalytics/components/GoogleAnalyticsNodeBody";
 import { GoogleSheetsNodeContent } from "@/features/blocks/integrations/googleSheets/components/GoogleSheetsNodeContent";
@@ -130,6 +130,9 @@ export const BlockNodeContent = ({
     }
     case InputBlockType.LANGUAGE: {
       return <LanguageBlockNode block={block as any} />;
+    }
+    case InputBlockType.NPS: {
+      return <RatingInputContent block={block as any} />;
     }
     case LogicBlockType.SET_VARIABLE: {
       return <SetVariableContent block={block} />;

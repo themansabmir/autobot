@@ -17,7 +17,8 @@ export const useTemplates = (): TemplateProps[] => {
       emoji: "📣",
       fileName: "service-feedback.json",
       category: "product",
-      description: "Collect valuable feedback from your customers about your services.",
+      description:
+        "Collect valuable feedback from your customers about your services.",
     },
     {
       name: t("templates.modal.product.customerSupport.name"),

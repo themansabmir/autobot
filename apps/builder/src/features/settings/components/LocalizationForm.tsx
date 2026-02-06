@@ -1,5 +1,6 @@
 import { useTranslate } from "@tolgee/react";
 import type { Settings } from "@typebot.io/settings/schemas";
+import { Button } from "@typebot.io/ui/components/Button";
 import { Field } from "@typebot.io/ui/components/Field";
 import { Switch } from "@typebot.io/ui/components/Switch";
 import { PlusSignIcon } from "@typebot.io/ui/icons/PlusSignIcon";
@@ -57,14 +58,14 @@ export const LocalizationForm = ({
           checked={localization?.isEnabled ?? false}
           onCheckedChange={toggleEnabled}
         />
-        <Field.Label>
-          Enable Localization
-        </Field.Label>
+        <Field.Label>Enable Localization</Field.Label>
       </Field.Root>
 
       {localization?.isEnabled && (
         <Field.Root>
-          <Field.Label>Languages ({localization.languages?.length ?? 0})</Field.Label>
+          <Field.Label>
+            Languages ({localization.languages?.length ?? 0})
+          </Field.Label>
           <Field.Container>
             <div className="flex flex-col gap-4">
               <div className="flex gap-2 items-center pb-2 border-b border-gray-4">

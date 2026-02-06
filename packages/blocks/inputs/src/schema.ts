@@ -5,6 +5,8 @@ import { ctaUrlInputSchema } from "./ctaUrl/schema";
 import { dateInputSchema } from "./date/schema";
 import { emailInputSchema } from "./email/schema";
 import { fileInputBlockSchemas } from "./file/schema";
+import { languageBlockSchema } from "./language/schema";
+import { npsInputBlockSchema } from "./nps/schema";
 import { numberInputSchema } from "./number/schema";
 import { paymentInputSchema } from "./payment/schema";
 import { phoneNumberInputBlockSchema } from "./phone/schema";
@@ -13,10 +15,8 @@ import { ratingInputBlockSchema } from "./rating/schema";
 import { textInputSchema } from "./text/schema";
 import { timeInputSchema } from "./time/schema";
 import { urlInputSchema } from "./url/schema";
-
 import { whatsAppCarouselBlockSchema } from "./whatsappCarousel/schema";
 import { whatsAppListBlockSchema } from "./whatsappList/schema";
-import { languageBlockSchema } from "./language/schema";
 
 const inputBlockSchemas = [
   textInputSchema,
@@ -28,6 +28,7 @@ const inputBlockSchemas = [
   timeInputSchema,
   paymentInputSchema,
   ratingInputBlockSchema,
+  npsInputBlockSchema,
   cardsBlockSchema,
   ctaUrlInputSchema,
   whatsAppListBlockSchema,

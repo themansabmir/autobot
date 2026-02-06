@@ -13,6 +13,7 @@ import { CtaUrlSettings } from "@/features/blocks/inputs/ctaUrl/components/CtaUr
 import { DateInputSettings } from "@/features/blocks/inputs/date/components/DateInputSettings";
 import { EmailInputSettings } from "@/features/blocks/inputs/emailInput/components/EmailInputSettings";
 import { FileInputSettings } from "@/features/blocks/inputs/fileUpload/components/FileInputSettings";
+import { LanguageBlockSettings } from "@/features/blocks/inputs/language/components/LanguageBlockSettings";
 import { NumberInputSettings } from "@/features/blocks/inputs/number/components/NumberInputSettings";
 import { PaymentSettings } from "@/features/blocks/inputs/payment/components/PaymentSettings";
 import { PhoneInputSettings } from "@/features/blocks/inputs/phone/components/PhoneInputSettings";
@@ -23,7 +24,6 @@ import { TimeInputSettings } from "@/features/blocks/inputs/time/components/Time
 import { UrlInputSettings } from "@/features/blocks/inputs/url/components/UrlInputSettings";
 import { WhatsAppCarouselSettings } from "@/features/blocks/inputs/whatsappCarousel/components/WhatsAppCarouselSettings";
 import { WhatsAppListSettings } from "@/features/blocks/inputs/whatsappList/components/WhatsAppListSettings";
-import { LanguageBlockSettings } from "@/features/blocks/inputs/language/components/LanguageBlockSettings";
 import { ChatwootSettings } from "@/features/blocks/integrations/chatwoot/components/ChatwootSettings";
 import { GoogleAnalyticsSettings } from "@/features/blocks/integrations/googleAnalytics/components/GoogleAnalyticsSettings";
 import { GoogleSheetsSettings } from "@/features/blocks/integrations/googleSheets/components/GoogleSheetsSettings";
@@ -273,6 +273,14 @@ export const NodeSettings = ({
     case InputBlockType.LANGUAGE: {
       return (
         <LanguageBlockSettings
+          options={node.options}
+          onOptionsChange={updateOptions}
+        />
+      );
+    }
+    case InputBlockType.NPS: {
+      return (
+        <RatingInputSettings
           options={node.options}
           onOptionsChange={updateOptions}
         />

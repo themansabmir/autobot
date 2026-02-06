@@ -25,7 +25,7 @@ const I18N_ENABLED = true;
  */
 export const triggerTranslationGeneration = (
   typebot: Typebot,
-  localizationSettings: LocalizationSettings | undefined
+  localizationSettings: LocalizationSettings | undefined,
 ): void => {
   console.log("DEBUG: triggerTranslationGeneration called", {
     typebotId: typebot.id,

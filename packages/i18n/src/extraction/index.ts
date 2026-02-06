@@ -1,5 +1,5 @@
 export {
-  extractTranslatableContent,
   extractAsMap,
+  extractTranslatableContent,
   type TranslatableItem,
 } from "./extractTranslatableContent";

@@ -47,7 +47,7 @@ export const normalizeLanguageCode = (lang: string): string => {
  */
 const extractFromRichText = (
   richText: unknown[],
-  basePath: string
+  basePath: string,
 ): TranslatableItem[] => {
   const items: TranslatableItem[] = [];
 
@@ -109,7 +109,7 @@ const extractPlainTextFromRichText = (richText: unknown[]): string => {
 const extractFromTextBubble = (
   block: Record<string, unknown>,
   groupIndex: number,
-  blockIndex: number
+  blockIndex: number,
 ): TranslatableItem[] => {
   const items: TranslatableItem[] = [];
   const content = block.content as Record<string, unknown> | undefined;
@@ -140,8 +140,8 @@ const extractFromTextBubble = (
     items.push(
       ...extractFromRichText(
         content.richText,
-        `groups.${groupIndex}.blocks.${blockIndex}.content.richText`
-      )
+        `groups.${groupIndex}.blocks.${blockIndex}.content.richText`,
+      ),
     );
   }
 
@@ -154,7 +154,7 @@ const extractFromTextBubble = (
 const extractFromButtonItems = (
   items: unknown[],
   groupIndex: number,
-  blockIndex: number
+  blockIndex: number,
 ): TranslatableItem[] => {
   const translatableItems: TranslatableItem[] = [];
 
@@ -180,7 +180,7 @@ const extractFromButtonItems = (
 const extractFromInputOptions = (
   options: Record<string, unknown>,
   groupIndex: number,
-  blockIndex: number
+  blockIndex: number,
 ): TranslatableItem[] => {
   const items: TranslatableItem[] = [];
   const basePath = `groups.${groupIndex}.blocks.${blockIndex}.options`;
@@ -236,7 +236,7 @@ const extractFromInputOptions = (
  * Extract all translatable content from a typebot
  */
 export const extractTranslatableContent = (
-  typebot: Typebot
+  typebot: Typebot,
 ): TranslatableItem[] => {
   const items: TranslatableItem[] = [];
 
@@ -255,7 +255,7 @@ export const extractTranslatableContent = (
       // Blocks with items (buttons, picture choice, etc.)
       if (Array.isArray(blockObj.items)) {
         items.push(
-          ...extractFromButtonItems(blockObj.items, groupIndex, blockIndex)
+          ...extractFromButtonItems(blockObj.items, groupIndex, blockIndex),
         );
       }
 
@@ -265,8 +265,8 @@ export const extractTranslatableContent = (
           ...extractFromInputOptions(
             blockObj.options as Record<string, unknown>,
             groupIndex,
-            blockIndex
-          )
+            blockIndex,
+          ),
         );
       }
     });

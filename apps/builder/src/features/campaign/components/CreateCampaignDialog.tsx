@@ -4,13 +4,13 @@ import { Dialog } from "@typebot.io/ui/components/Dialog";
 import { Input } from "@typebot.io/ui/components/Input";
 import { Label } from "@typebot.io/ui/components/Label";
 import { Select } from "@typebot.io/ui/components/Select";
+import { TickIcon } from "@typebot.io/ui/icons/TickIcon";
+import { cn } from "@typebot.io/ui/lib/cn";
+import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { useWorkspace } from "@/features/workspace/WorkspaceProvider";
 import { trpc } from "@/lib/queryClient";
 import { CampaignFileUpload } from "./CampaignFileUpload";
-import { AnimatePresence, motion } from "framer-motion";
-import { cn } from "@typebot.io/ui/lib/cn";
-import { TickIcon } from "@typebot.io/ui/icons/TickIcon";
 
 type Props = {
   isOpen: boolean;
@@ -45,7 +45,9 @@ export const CreateCampaignDialog = ({
   const [title, setTitle] = useState("");
   const [typebotId, setTypebotId] = useState("");
   const [fileUrl, setFileUrl] = useState("");
-  const [executionMode, setExecutionMode] = useState<"NOW" | "SCHEDULED" | null>(null);
+  const [executionMode, setExecutionMode] = useState<
+    "NOW" | "SCHEDULED" | null
+  >(null);
   const [executeAt, setExecuteAt] = useState("");
   const [currentStep, setCurrentStep] = useState(1);
 
@@ -85,7 +87,7 @@ export const CreateCampaignDialog = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (currentStep === 1) {
       if (title && typebotId) setCurrentStep(2);
       return;
@@ -96,7 +98,8 @@ export const CreateCampaignDialog = ({
       return;
     }
 
-    if (!workspace?.id || !title || !typebotId || !fileUrl || !executionMode) return;
+    if (!workspace?.id || !title || !typebotId || !fileUrl || !executionMode)
+      return;
 
     createCampaign({
       workspaceId: workspace.id,
@@ -130,21 +133,21 @@ export const CreateCampaignDialog = ({
                 Launch a targeted message in just a few guided steps.
               </p>
             </div>
-            
+
             <div className="flex flex-col gap-2 relative">
               {/* Vertical connector line */}
               <div className="absolute left-[15px] top-4 bottom-4 w-0.5 bg-gray-200 dark:bg-gray-800 -z-10" />
-              
-              {steps.map((step, index) => {
+
+              {steps.map((step, _index) => {
                 const isActive = currentStep === step.id;
                 const isCompleted = currentStep > step.id;
-                
+
                 return (
                   <div
                     key={step.id}
                     className={cn(
                       "flex items-start gap-4 p-2 rounded-lg transition-colors",
-                      isActive ? "bg-white dark:bg-gray-800 shadow-sm" : ""
+                      isActive ? "bg-white dark:bg-gray-800 shadow-sm" : "",
                     )}
                   >
                     <div
@@ -153,8 +156,8 @@ export const CreateCampaignDialog = ({
                         isActive
                           ? "border-[#FFE600] bg-[#FFE600] text-black"
                           : isCompleted
-                          ? "border-green-500 bg-green-500 text-white"
-                          : "border-gray-200 dark:border-gray-700 text-gray-400"
+                            ? "border-green-500 bg-green-500 text-white"
+                            : "border-gray-200 dark:border-gray-700 text-gray-400",
                       )}
                     >
                       {isCompleted ? <TickIcon className="w-4 h-4" /> : step.id}
@@ -165,7 +168,7 @@ export const CreateCampaignDialog = ({
                           "text-sm font-medium leading-none mb-1",
                           isActive
                             ? "text-gray-900 dark:text-white"
-                            : "text-gray-500"
+                            : "text-gray-500",
                         )}
                       >
                         {step.title}
@@ -183,7 +186,11 @@ export const CreateCampaignDialog = ({
           {/* Main Content */}
           <div className="flex-1 flex flex-col h-full bg-white dark:bg-[#1A1A1A]">
             <div className="flex-1 p-8 overflow-y-auto">
-              <form id="campaign-form" onSubmit={handleSubmit} className="h-full flex flex-col">
+              <form
+                id="campaign-form"
+                onSubmit={handleSubmit}
+                className="h-full flex flex-col"
+              >
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={currentStep}
@@ -215,16 +222,25 @@ export const CreateCampaignDialog = ({
                               autoFocus
                             />
                             <p className="text-xs text-gray-400">
-                              Use a descriptive name to easily identify this campaign later.
+                              Use a descriptive name to easily identify this
+                              campaign later.
                             </p>
                           </div>
 
                           <div className="flex flex-col gap-2">
                             <Label htmlFor="typebot">Select Typebot</Label>
-                            <Select.Root value={typebotId} onValueChange={setTypebotId}>
+                            <Select.Root
+                              value={typebotId}
+                              onValueChange={setTypebotId}
+                            >
                               <Select.Trigger id="typebot" className="w-full">
-                                {typebotId
-                                  ? publishedTypebots?.find((t) => t.id === typebotId)?.name
+                                {typebotId &&
+                                publishedTypebots?.find(
+                                  (t) => t.id === typebotId,
+                                )
+                                  ? publishedTypebots.find(
+                                      (t) => t.id === typebotId,
+                                    )?.name
                                   : "Search for a published typebot..."}
                               </Select.Trigger>
                               <Select.Popup>
@@ -232,9 +248,13 @@ export const CreateCampaignDialog = ({
                                   <Select.Item value="loading" disabled>
                                     Loading...
                                   </Select.Item>
-                                ) : publishedTypebots && publishedTypebots.length > 0 ? (
+                                ) : publishedTypebots &&
+                                  publishedTypebots.length > 0 ? (
                                   publishedTypebots.map((typebot) => (
-                                    <Select.Item key={typebot.id} value={typebot.id}>
+                                    <Select.Item
+                                      key={typebot.id}
+                                      value={typebot.id}
+                                    >
                                       {typebot.name}
                                     </Select.Item>
                                   ))
@@ -263,21 +283,32 @@ export const CreateCampaignDialog = ({
 
                         <div className="flex flex-col gap-6 max-w-2xl">
                           <div className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-8 flex flex-col items-center justify-center text-center bg-gray-50/50 dark:bg-gray-800/20">
-                             <CampaignFileUpload
-                                workspaceId={workspace?.id ?? ""}
-                                onFileUploaded={setFileUrl}
-                                disabled={!workspace?.id}
-                              />
+                            <CampaignFileUpload
+                              workspaceId={workspace?.id ?? ""}
+                              onFileUploaded={setFileUrl}
+                              disabled={!workspace?.id}
+                            />
                           </div>
 
                           <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/20 rounded-lg p-4">
                             <h4 className="flex items-center gap-2 text-sm font-medium text-blue-800 dark:text-blue-300 mb-2">
-                              <span className="text-lg">💡</span> Tips for a clean contact list
+                              <span className="text-lg">💡</span> Tips for a
+                              clean contact list
                             </h4>
                             <ul className="list-disc pl-10 space-y-1 text-sm text-blue-700 dark:text-blue-400">
-                              <li>Use international phone format (e.g., +1 234 567 890).</li>
-                              <li>Include optional columns such as <strong>first_name</strong> to personalize messages.</li>
-                              <li>Ensure you have explicit consent to message these contacts.</li>
+                              <li>
+                                Use international phone format (e.g., +1 234 567
+                                890).
+                              </li>
+                              <li>
+                                Include optional columns such as{" "}
+                                <strong>first_name</strong> to personalize
+                                messages.
+                              </li>
+                              <li>
+                                Ensure you have explicit consent to message
+                                these contacts.
+                              </li>
                             </ul>
                           </div>
                         </div>
@@ -286,7 +317,7 @@ export const CreateCampaignDialog = ({
 
                     {currentStep === 3 && (
                       <>
-                         <div className="space-y-1">
+                        <div className="space-y-1">
                           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                             Schedule
                           </h3>
@@ -296,91 +327,109 @@ export const CreateCampaignDialog = ({
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                           <div className="p-6 rounded-xl border border-gray-200 dark:border-gray-700 space-y-4">
-                              <h4 className="font-medium text-gray-900 dark:text-white">Summary</h4>
-                              <div className="space-y-3 text-sm">
-                                <div className="flex justify-between">
-                                  <span className="text-gray-500">Campaign Name</span>
-                                  <span className="font-medium">{title}</span>
-                                </div>
-                                <div className="flex justify-between">
-                                  <span className="text-gray-500">Typebot</span>
-                                  <span className="font-medium">
-                                    {publishedTypebots?.find((t) => t.id === typebotId)?.name}
+                          <div className="p-6 rounded-xl border border-gray-200 dark:border-gray-700 space-y-4">
+                            <h4 className="font-medium text-gray-900 dark:text-white">
+                              Summary
+                            </h4>
+                            <div className="space-y-3 text-sm">
+                              <div className="flex justify-between">
+                                <span className="text-gray-500">
+                                  Campaign Name
+                                </span>
+                                <span className="font-medium">{title}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-500">Typebot</span>
+                                <span className="font-medium">
+                                  {
+                                    publishedTypebots?.find(
+                                      (t) => t.id === typebotId,
+                                    )?.name
+                                  }
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-500">
+                                  Recipients
+                                </span>
+                                <span className="font-medium text-green-600 flex items-center gap-1">
+                                  <TickIcon className="w-3 h-3" /> File uploaded
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="space-y-4">
+                            <Label>Execution Timing</Label>
+                            <div className="grid grid-cols-1 gap-3">
+                              <label
+                                className={cn(
+                                  "flex items-center gap-3 p-4 border rounded-lg cursor-pointer transition-all",
+                                  executionMode === "NOW"
+                                    ? "border-[#FFE600] bg-[#FFE600]/10 ring-1 ring-[#FFE600]"
+                                    : "border-gray-200 dark:border-gray-700 hover:border-gray-300",
+                                )}
+                              >
+                                <input
+                                  type="radio"
+                                  name="executionMode"
+                                  value="NOW"
+                                  checked={executionMode === "NOW"}
+                                  onChange={() => setExecutionMode("NOW")}
+                                  className="accent-[#FFE600] w-4 h-4"
+                                />
+                                <div className="flex flex-col">
+                                  <span className="font-medium text-sm">
+                                    Send Immediately
+                                  </span>
+                                  <span className="text-xs text-gray-500">
+                                    Start sending messages right now
                                   </span>
                                 </div>
-                                <div className="flex justify-between">
-                                  <span className="text-gray-500">Recipients</span>
-                                  <span className="font-medium text-green-600 flex items-center gap-1">
-                                    <TickIcon className="w-3 h-3" /> File uploaded
+                              </label>
+
+                              <label
+                                className={cn(
+                                  "flex items-center gap-3 p-4 border rounded-lg cursor-pointer transition-all",
+                                  executionMode === "SCHEDULED"
+                                    ? "border-[#FFE600] bg-[#FFE600]/10 ring-1 ring-[#FFE600]"
+                                    : "border-gray-200 dark:border-gray-700 hover:border-gray-300",
+                                )}
+                              >
+                                <input
+                                  type="radio"
+                                  name="executionMode"
+                                  value="SCHEDULED"
+                                  checked={executionMode === "SCHEDULED"}
+                                  onChange={() => setExecutionMode("SCHEDULED")}
+                                  className="accent-[#FFE600] w-4 h-4"
+                                />
+                                <div className="flex flex-col">
+                                  <span className="font-medium text-sm">
+                                    Schedule for Later
+                                  </span>
+                                  <span className="text-xs text-gray-500">
+                                    Pick a specific date and time
                                   </span>
                                 </div>
-                              </div>
-                           </div>
+                              </label>
+                            </div>
 
-                           <div className="space-y-4">
-                              <Label>Execution Timing</Label>
-                              <div className="grid grid-cols-1 gap-3">
-                                <label
-                                  className={cn(
-                                    "flex items-center gap-3 p-4 border rounded-lg cursor-pointer transition-all",
-                                    executionMode === "NOW"
-                                      ? "border-[#FFE600] bg-[#FFE600]/10 ring-1 ring-[#FFE600]"
-                                      : "border-gray-200 dark:border-gray-700 hover:border-gray-300"
-                                  )}
-                                >
-                                  <input
-                                    type="radio"
-                                    name="executionMode"
-                                    value="NOW"
-                                    checked={executionMode === "NOW"}
-                                    onChange={() => setExecutionMode("NOW")}
-                                    className="accent-[#FFE600] w-4 h-4"
-                                  />
-                                  <div className="flex flex-col">
-                                    <span className="font-medium text-sm">Send Immediately</span>
-                                    <span className="text-xs text-gray-500">Start sending messages right now</span>
-                                  </div>
-                                </label>
-                                
-                                <label
-                                  className={cn(
-                                    "flex items-center gap-3 p-4 border rounded-lg cursor-pointer transition-all",
-                                    executionMode === "SCHEDULED"
-                                      ? "border-[#FFE600] bg-[#FFE600]/10 ring-1 ring-[#FFE600]"
-                                      : "border-gray-200 dark:border-gray-700 hover:border-gray-300"
-                                  )}
-                                >
-                                  <input
-                                    type="radio"
-                                    name="executionMode"
-                                    value="SCHEDULED"
-                                    checked={executionMode === "SCHEDULED"}
-                                    onChange={() => setExecutionMode("SCHEDULED")}
-                                    className="accent-[#FFE600] w-4 h-4"
-                                  />
-                                  <div className="flex flex-col">
-                                    <span className="font-medium text-sm">Schedule for Later</span>
-                                    <span className="text-xs text-gray-500">Pick a specific date and time</span>
-                                  </div>
-                                </label>
+                            {executionMode === "SCHEDULED" && (
+                              <div className="animate-fade-in pt-2">
+                                <Label htmlFor="executeAt">Date & Time</Label>
+                                <Input
+                                  id="executeAt"
+                                  type="datetime-local"
+                                  value={executeAt}
+                                  onChange={(e) => setExecuteAt(e.target.value)}
+                                  min={new Date().toISOString().slice(0, 16)}
+                                  required={executionMode === "SCHEDULED"}
+                                  className="mt-1"
+                                />
                               </div>
-
-                              {executionMode === "SCHEDULED" && (
-                                <div className="animate-fade-in pt-2">
-                                  <Label htmlFor="executeAt">Date & Time</Label>
-                                  <Input
-                                    id="executeAt"
-                                    type="datetime-local"
-                                    value={executeAt}
-                                    onChange={(e) => setExecuteAt(e.target.value)}
-                                    min={new Date().toISOString().slice(0, 16)}
-                                    required={executionMode === "SCHEDULED"}
-                                    className="mt-1"
-                                  />
-                                </div>
-                              )}
-                           </div>
+                            )}
+                          </div>
                         </div>
                       </>
                     )}
@@ -389,46 +438,54 @@ export const CreateCampaignDialog = ({
 
                 {/* Footer Buttons */}
                 <div className="flex justify-between items-center pt-6 mt-auto border-t border-gray-100 dark:border-gray-800">
-                   <div className="text-sm text-gray-500">
-                      Step {currentStep} of 3
-                   </div>
-                   <div className="flex gap-3">
-                      {currentStep > 1 ? (
-                        <Button type="button" variant="secondary" onClick={() => setCurrentStep((s) => s - 1)}>
-                          Back
-                        </Button>
-                      ) : (
-                        <Button type="button" variant="ghost" onClick={handleClose}>
-                          Cancel
-                        </Button>
-                      )}
+                  <div className="text-sm text-gray-500">
+                    Step {currentStep} of 3
+                  </div>
+                  <div className="flex gap-3">
+                    {currentStep > 1 ? (
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => setCurrentStep((s) => s - 1)}
+                      >
+                        Back
+                      </Button>
+                    ) : (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={handleClose}
+                      >
+                        Cancel
+                      </Button>
+                    )}
 
-                      {currentStep < 3 ? (
-                        <Button
-                          type="button"
-                          className="bg-[#FFE600] hover:bg-[#E6CF00] text-black font-semibold"
-                          onClick={() => setCurrentStep((s) => s + 1)}
-                          disabled={
-                            (currentStep === 1 && (!title || !typebotId)) ||
-                            (currentStep === 2 && !fileUrl)
-                          }
-                        >
-                          Continue
-                        </Button>
-                      ) : (
-                        <Button
-                          type="submit"
-                          className="bg-[#FFE600] hover:bg-[#E6CF00] text-black font-semibold"
-                          disabled={
-                            isPending ||
-                            !executionMode ||
-                            (executionMode === "SCHEDULED" && !executeAt)
-                          }
-                        >
-                          {isPending ? "Creating..." : "Create Campaign"}
-                        </Button>
-                      )}
-                   </div>
+                    {currentStep < 3 ? (
+                      <Button
+                        type="button"
+                        className="bg-[#FFE600] hover:bg-[#E6CF00] text-black font-semibold"
+                        onClick={() => setCurrentStep((s) => s + 1)}
+                        disabled={
+                          (currentStep === 1 && (!title || !typebotId)) ||
+                          (currentStep === 2 && !fileUrl)
+                        }
+                      >
+                        Continue
+                      </Button>
+                    ) : (
+                      <Button
+                        type="submit"
+                        className="bg-[#FFE600] hover:bg-[#E6CF00] text-black font-semibold"
+                        disabled={
+                          isPending ||
+                          !executionMode ||
+                          (executionMode === "SCHEDULED" && !executeAt)
+                        }
+                      >
+                        {isPending ? "Creating..." : "Create Campaign"}
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </form>
             </div>

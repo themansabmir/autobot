@@ -1,5 +1,4 @@
 import { useMutation } from "@tanstack/react-query";
-import { formatDistanceToNow } from "date-fns";
 import { T, useTranslate } from "@tolgee/react";
 import { Alert } from "@typebot.io/ui/components/Alert";
 import { Badge } from "@typebot.io/ui/components/Badge";
@@ -11,6 +10,7 @@ import { LayoutBottomIcon } from "@typebot.io/ui/icons/LayoutBottomIcon";
 import { MoreVerticalIcon } from "@typebot.io/ui/icons/MoreVerticalIcon";
 import { TriangleAlertIcon } from "@typebot.io/ui/icons/TriangleAlertIcon";
 import { cn } from "@typebot.io/ui/lib/cn";
+import { formatDistanceToNow } from "date-fns";
 import { useRouter } from "next/router";
 import React, { memo } from "react";
 import { useDebounce } from "use-debounce";

@@ -78,7 +78,7 @@ const sendWhatsAppMessage = async (
     credentialsRecord.iv,
   )) as WhatsAppCredentials["data"];
 
-  const sessionId = `campaign-${campaignId}-${recipientId}`;
+  const sessionId = `wa-${credentials.phoneNumberId}-${phoneNumber}`;
   const sessionStore = getSessionStore(sessionId);
 
   console.log("📱 Starting typebot session for campaign recipient", {
@@ -137,8 +137,13 @@ const sendWhatsAppMessage = async (
         where: { id: recipientId },
         data: {
           messageId: result.lastMessageId,
+          status: "SENT",
+          sentAt: new Date(),
         },
       });
+      console.log(
+        `✅ [Campaign Analytics] Recipient ${recipientId} (${phoneNumber}) status updated to SENT`,
+      );
     }
   }
 

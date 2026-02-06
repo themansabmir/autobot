@@ -189,7 +189,11 @@ const migrateFromV1ToV2 = (
         let answerVariableId: string | undefined;
         state.typebot.groups.forEach((group) => {
           group.blocks.forEach((block) => {
-            if (isInputBlock(block) && block.id === answer.blockId && 'options' in block) {
+            if (
+              isInputBlock(block) &&
+              block.id === answer.blockId &&
+              "options" in block
+            ) {
               answerVariableId = (block.options as any)?.variableId;
             }
           });
@@ -221,7 +225,11 @@ const migrateFromV1ToV2 = (
             let answerVariableId: string | undefined;
             typebot.groups.forEach((group) => {
               group.blocks.forEach((block) => {
-                if (isInputBlock(block) && block.id === answer.blockId && 'options' in block) {
+                if (
+                  isInputBlock(block) &&
+                  block.id === answer.blockId &&
+                  "options" in block
+                ) {
                   answerVariableId = (block.options as any)?.variableId;
                 }
               });
