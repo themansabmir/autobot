@@ -11,6 +11,7 @@ import { dateInputSchema } from "@typebot.io/blocks-inputs/date/schema";
 import { emailInputSchema } from "@typebot.io/blocks-inputs/email/schema";
 import { fileInputBlockSchemas } from "@typebot.io/blocks-inputs/file/schema";
 import { languageBlockSchema } from "@typebot.io/blocks-inputs/language/schema";
+import { npsInputBlockSchema } from "@typebot.io/blocks-inputs/nps/schema";
 import { numberInputSchema } from "@typebot.io/blocks-inputs/number/schema";
 import {
   paymentInputRuntimeOptionsSchema,
@@ -361,6 +362,7 @@ const chatResponseBaseSchema = z.object({
         timeInputSchema,
         paymentInputSchema,
         ratingInputBlockSchema,
+        npsInputBlockSchema,
         fileInputBlockSchemas.v6,
         pictureChoiceBlockSchemas.v6,
         cardsBlockSchema,

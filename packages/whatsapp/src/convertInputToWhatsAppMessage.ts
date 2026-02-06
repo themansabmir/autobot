@@ -649,6 +649,13 @@ export const convertInputToWhatsAppMessages = async ({
       );
       return [carouselMessage];
     }
+    case InputBlockType.NPS: {
+      // NPS is handled as a number input, no special WhatsApp UI
+      return [];
+    }
+    default: {
+      return [];
+    }
   }
 };
 
