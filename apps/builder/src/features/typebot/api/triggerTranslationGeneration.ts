@@ -8,7 +8,7 @@
  */
 
 import type { Typebot } from "@typebot.io/typebot/schemas/typebot";
-import { regenerateAllTranslations } from "@typebot.io/i18n";
+import { syncTranslations } from "@typebot.io/i18n";
 
 type LocalizationSettings = {
   isEnabled?: boolean;
@@ -40,12 +40,17 @@ export const triggerTranslationGeneration = (
     return;
   }
 
-  // Trigger regeneration in background
-  regenerateAllTranslations(
+  // Trigger synchronization in background
+  console.log(`🔄 [i18n] Triggering sync for bot ${typebot.id}...`);
+  syncTranslations(
     typebot,
     localizationSettings.languages ?? [],
     localizationSettings.defaultLanguage
-  ).catch((error) => {
-    console.error("Failed to regenerate translations:", error);
-  });
+  )
+    .then((results) => {
+      console.log(`✅ [i18n] Sync complete for ${typebot.id}`, results);
+    })
+    .catch((error) => {
+      console.error(`❌ [i18n] Sync failed for ${typebot.id}:`, error);
+    });
 };

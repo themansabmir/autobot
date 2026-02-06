@@ -5,6 +5,9 @@ import { Switch } from "@typebot.io/ui/components/Switch";
 import { PlusSignIcon } from "@typebot.io/ui/icons/PlusSignIcon";
 import { TrashIcon } from "@typebot.io/ui/icons/TrashIcon";
 import { Button } from "@typebot.io/ui/components/Button";
+import { BasicAutocompleteInput } from "@/components/inputs/BasicAutocompleteInput";
+import { commonLanguages } from "@typebot.io/lib/languages";
+import { useState } from "react";
 import { DebouncedTextInput } from "@/components/inputs/DebouncedTextInput";
 
 type Props = {
@@ -17,15 +20,23 @@ export const LocalizationForm = ({
   onLocalizationChange,
 }: Props) => {
   const { t } = useTranslate();
+  const [selectedLanguage, setSelectedLanguage] = useState("");
 
   const toggleEnabled = (isEnabled: boolean) =>
     onLocalizationChange({ ...localization, isEnabled });
 
-  const addLanguage = () =>
+  const addLanguage = () => {
+    if (!selectedLanguage) return;
+    const supportedName = commonLanguages.find(
+      (l) => l.toLowerCase() === selectedLanguage.toLowerCase()
+    );
+    if (!supportedName) return;
     onLocalizationChange({
       ...localization,
-      languages: [...(localization?.languages ?? []), ""],
+      languages: [...(localization?.languages ?? []), supportedName],
     });
+    setSelectedLanguage("");
+  };
 
   const updateLanguage = (index: number, value: string) => {
     const newLanguages = [...(localization?.languages ?? [])];
@@ -55,32 +66,57 @@ export const LocalizationForm = ({
         <Field.Root>
           <Field.Label>Languages ({localization.languages?.length ?? 0})</Field.Label>
           <Field.Container>
-            <div className="flex flex-col gap-2">
-              {localization.languages?.map((lang, index) => (
-                <div key={index} className="flex gap-2 items-center">
-                  <DebouncedTextInput
-                    placeholder="e.g. English, French..."
-                    defaultValue={lang}
-                    onValueChange={(v) => updateLanguage(index, v)}
+            <div className="flex flex-col gap-4">
+              <div className="flex gap-2 items-center pb-2 border-b border-gray-4">
+                <div className="flex-1">
+                  <BasicAutocompleteInput
+                    placeholder="Search language... (e.g. Spanish)"
+                    value={selectedLanguage}
+                    items={commonLanguages}
+                    onChange={(v) => setSelectedLanguage(v ?? "")}
+                    debounceTimeout={0}
                   />
-                  <Button
-                    aria-label="Remove language"
-                    onClick={() => removeLanguage(index)}
-                    variant="ghost"
-                    size="icon"
-                  >
-                    <TrashIcon />
-                  </Button>
                 </div>
-              ))}
-              <Button
-                onClick={addLanguage}
-                variant="outline"
-                size="sm"
-              >
-                <PlusSignIcon />
-                Add Language
-              </Button>
+                <Button
+                  onClick={addLanguage}
+                  variant="outline"
+                  size="sm"
+                  isDisabled={
+                    !selectedLanguage ||
+                    !commonLanguages.some(
+                      (l) => l.toLowerCase() === selectedLanguage.toLowerCase()
+                    )
+                  }
+                >
+                  <PlusSignIcon />
+                  Add
+                </Button>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                {localization.languages?.map((lang, index) => (
+                  <div key={index} className="flex gap-2 items-center">
+                    <DebouncedTextInput
+                      placeholder="e.g. English"
+                      defaultValue={lang}
+                      onValueChange={(v) => updateLanguage(index, v)}
+                    />
+                    <Button
+                      aria-label="Remove language"
+                      onClick={() => removeLanguage(index)}
+                      variant="ghost"
+                      size="icon"
+                    >
+                      <TrashIcon />
+                    </Button>
+                  </div>
+                ))}
+                {(!localization.languages || localization.languages.length === 0) && (
+                  <p className="text-sm text-gray-500 italic py-2">
+                    No languages added yet.
+                  </p>
+                )}
+              </div>
             </div>
           </Field.Container>
         </Field.Root>

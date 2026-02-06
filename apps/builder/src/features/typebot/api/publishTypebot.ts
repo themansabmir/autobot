@@ -28,6 +28,7 @@ import { z } from "@typebot.io/zod";
 import { parseTypebotPublishEvents } from "@/features/telemetry/helpers/parseTypebotPublishEvents";
 import { authenticatedProcedure } from "@/helpers/server/trpc";
 import { isWriteTypebotForbidden } from "../helpers/isWriteTypebotForbidden";
+import { triggerTranslationGeneration } from "./triggerTranslationGeneration";
 
 const warningSchema = z.object({
   type: z.enum(["trademarkInfringement"]),
@@ -329,6 +330,12 @@ export const publishTypebot = authenticatedProcedure
     }
 
     await trackEvents(publishEvents);
+
+    // Trigger translation sync for the published version
+    triggerTranslationGeneration(
+      existingTypebot as any,
+      existingTypebot.settings as any
+    );
 
     return {
       message: "success",

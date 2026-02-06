@@ -18,6 +18,7 @@ import { formatPhoneNumber } from "./blocks/inputs/phone/formatPhoneNumber";
 import { injectVariableValuesInPictureChoiceBlock } from "./blocks/inputs/pictureChoice/injectVariableValuesInPictureChoiceBlock";
 import { validateRatingReply } from "./blocks/inputs/rating/validateRatingReply";
 import { parseTime } from "./blocks/inputs/time/parseTime";
+import { normalizeLanguageCode } from "@typebot.io/i18n";
 import type { ParsedReply } from "./types";
 
 export const validateAndParseInputMessage = (
@@ -26,7 +27,13 @@ export const validateAndParseInputMessage = (
     sessionStore,
     variables,
     block,
-  }: { sessionStore: SessionStore; variables: Variable[]; block: InputBlock },
+    typebot,
+  }: {
+    sessionStore: SessionStore;
+    variables: Variable[];
+    block: InputBlock;
+    typebot: any;
+  },
 ): ParsedReply => {
   switch (block.type) {
     case InputBlockType.EMAIL: {
@@ -150,7 +157,16 @@ export const validateAndParseInputMessage = (
     }
     case InputBlockType.LANGUAGE: {
       if (!message || message.type !== "text") return { status: "fail" };
-      return { status: "success", content: message.text };
+      const languages = typebot?.settings?.localization?.languages ?? [];
+      const displayedItems = languages.map((language: string) => ({
+        id: normalizeLanguageCode(language),
+        content: language,
+        value: normalizeLanguageCode(language),
+      }));
+      return parseSingleChoiceReply(message.text, {
+        replyId: message.metadata?.replyId,
+        items: displayedItems as any,
+      });
     }
     case InputBlockType.CARDS: {
       if (!message || message.type !== "text") return { status: "fail" };
