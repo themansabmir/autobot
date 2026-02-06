@@ -278,6 +278,14 @@ export const NodeSettings = ({
         />
       );
     }
+    case InputBlockType.NPS: {
+      return (
+        <RatingInputSettings
+          options={node.options}
+          onOptionsChange={updateOptions}
+        />
+      );
+    }
     case LogicBlockType.SET_VARIABLE: {
       return (
         <SetVariableSettings

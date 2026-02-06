@@ -153,6 +153,10 @@ export const BlockIcon = ({ type, className }: BlockIconProps): JSX.Element => {
       return (
         <Globe02Icon className={cn("text-orange-9 stroke-2", className)} />
       );
+    case InputBlockType.NPS:
+      return (
+        <RatingInputIcon className={cn("text-orange-9 stroke-2", className)} />
+      );
     case LogicBlockType.SET_VARIABLE:
       return (
         <SetVariableIcon className={cn("text-purple-9 stroke-2", className)} />
