@@ -73,6 +73,18 @@ export const formatInputForChatResponse = async (
         },
       );
     }
+    case InputBlockType.NPS: {
+      return deepParseVariables(
+        {
+          ...block,
+          prefilledValue: getPrefilledInputValue(variables)(block),
+        },
+        {
+          variables,
+          sessionStore,
+        },
+      );
+    }
     case InputBlockType.CARDS: {
       return injectVariableValuesInCardsBlock(block, {
         variables,
