@@ -11,6 +11,14 @@ type AnalyticsData = {
   failed: number;
   pending: number;
   queued: number;
+  nps: {
+    score: number;
+    promoters: number;
+    passives: number;
+    detractors: number;
+    totalResponses: number;
+    responseRate: number;
+  } | null;
 };
 
 export const exportCampaignAnalytics = (
@@ -94,7 +102,27 @@ export const exportCampaignAnalytics = (
     `Started,${analytics.started},${calcPercentage(analytics.started, analytics.total)}%`,
     `Completed,${analytics.completed},${calcPercentage(analytics.completed, analytics.total)}%`,
     `Failed,${analytics.failed},${calcPercentage(analytics.failed, analytics.total)}%`,
-  ].join("\n");
+  ];
+
+  // Add NPS section if available
+  if (analytics.nps) {
+    csvContent.push(
+      "",
+      "",
+      "NPS ANALYSIS",
+      "Metric,Value",
+      `NPS Score,${analytics.nps.score}`,
+      `Total Responses,${analytics.nps.totalResponses}`,
+      `Response Rate,${analytics.nps.responseRate.toFixed(1)}%`,
+      "",
+      "Distribution,Count,Percentage",
+      `Promoters (9-10),${analytics.nps.promoters},${calcPercentage(analytics.nps.promoters, analytics.nps.totalResponses)}%`,
+      `Passives (7-8),${analytics.nps.passives},${calcPercentage(analytics.nps.passives, analytics.nps.totalResponses)}%`,
+      `Detractors (0-6),${analytics.nps.detractors},${calcPercentage(analytics.nps.detractors, analytics.nps.totalResponses)}%`,
+    );
+  }
+
+  const csvString = csvContent.join("\n");
 
   // Create filename with sanitized campaign name
   const sanitizedName = campaign.title
@@ -107,7 +135,7 @@ export const exportCampaignAnalytics = (
   const filename = `${sanitizedName}_${campaign.id.slice(0, 8)}_analytics_${timestamp}.csv`;
 
   // Create blob and trigger download
-  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
   
   if (link.download !== undefined) {

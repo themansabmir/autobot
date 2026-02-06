@@ -59,6 +59,8 @@ export const campaignRecipientSchema = z.object({
   startedAt: z.date().nullable(),
   completedAt: z.date().nullable(),
   failedAt: z.date().nullable(),
+  npsScore: z.number().int().min(0).max(10).nullable(),
+  npsRespondedAt: z.date().nullable(),
   errorCode: z.string().nullable(),
   errorMessage: z.string().nullable(),
 }) satisfies z.ZodType<Prisma.CampaignRecipient>;
