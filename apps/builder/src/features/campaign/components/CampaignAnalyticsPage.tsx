@@ -4,9 +4,13 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@typebot.io/ui/components/Button";
 import { Skeleton } from "@typebot.io/ui/components/Skeleton";
 import { ArrowLeft01Icon } from "@typebot.io/ui/icons/ArrowLeft01Icon";
+import { Download01Icon } from "@typebot.io/ui/icons/Download01Icon";
 import { cn } from "@typebot.io/ui/lib/cn";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { trpc } from "@/lib/queryClient";
+import { exportCampaignAnalytics } from "../helpers/exportCampaignAnalytics";
+import { toast } from "@/lib/toast";
 
 type Props = {
   workspaceId: string;
@@ -112,6 +116,7 @@ const FunnelStep = ({
 
 export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
   const router = useRouter();
+  const [isExporting, setIsExporting] = useState(false);
 
   const { data, isLoading } = useQuery(
     trpc.campaigns.getCampaignAnalytics.queryOptions({
@@ -126,6 +131,37 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
       campaignId,
     }),
   );
+
+  const handleExport = () => {
+    if (!analytics || !campaign) {
+      toast({
+        type: "error",
+        title: "No data to export",
+        description: "Analytics data is not available yet.",
+      });
+      return;
+    }
+
+    try {
+      setIsExporting(true);
+      const filename = exportCampaignAnalytics(campaign, analytics);
+      
+      toast({
+        type: "success",
+        title: "Export successful!",
+        description: `Analytics exported as ${filename}`,
+      });
+    } catch (error) {
+      console.error("Export error:", error);
+      toast({
+        type: "error",
+        title: "Export failed",
+        description: "Failed to export analytics. Please try again.",
+      });
+    } finally {
+      setTimeout(() => setIsExporting(false), 500);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -169,7 +205,27 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
             )}
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExport}
+            disabled={isExporting || !analytics}
+            className="gap-2 transition-all hover:shadow-md"
+            aria-label="Export analytics to CSV"
+          >
+            {isExporting ? (
+              <>
+                <div className="size-4 animate-spin rounded-full border-2 border-gray-11 border-t-transparent" />
+                <span>Exporting...</span>
+              </>
+            ) : (
+              <>
+                <Download01Icon className="size-4" />
+                <span>Export to Excel</span>
+              </>
+            )}
+          </Button>
           <div className="px-3 py-1.5 rounded-lg bg-blue-3 text-blue-11 text-sm font-medium">
             {campaign?.status}
           </div>
