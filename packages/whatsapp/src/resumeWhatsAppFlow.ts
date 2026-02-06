@@ -31,7 +31,7 @@ import { sendChatReplyToWhatsApp } from "./sendChatReplyToWhatsApp";
 import { startWhatsAppSession } from "./startWhatsAppSession";
 import { WhatsAppError } from "./WhatsAppError";
 
-const MESSAGE_TOO_OLD_ELAPSED_MS = 3 * 60 * 1000; // 3 minutes
+const MESSAGE_TOO_OLD_ELAPSED_MS = 24 * 60 * 60 * 1000; // 24 hours (was 3 minutes - too short for campaigns)
 const INCOMING_MEDIA_MESSAGE_DEBOUNCE = 3_000;
 
 type Props = {
