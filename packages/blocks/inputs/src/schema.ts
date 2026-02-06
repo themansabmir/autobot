@@ -13,6 +13,7 @@ import { ratingInputBlockSchema } from "./rating/schema";
 import { textInputSchema } from "./text/schema";
 import { timeInputSchema } from "./time/schema";
 import { urlInputSchema } from "./url/schema";
+import { npsInputBlockSchema } from "./nps/schema";
 
 import { whatsAppCarouselBlockSchema } from "./whatsappCarousel/schema";
 import { whatsAppListBlockSchema } from "./whatsappList/schema";
@@ -28,6 +29,7 @@ const inputBlockSchemas = [
   timeInputSchema,
   paymentInputSchema,
   ratingInputBlockSchema,
+  npsInputBlockSchema,
   cardsBlockSchema,
   ctaUrlInputSchema,
   whatsAppListBlockSchema,

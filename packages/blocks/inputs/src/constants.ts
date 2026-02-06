@@ -18,6 +18,7 @@ export enum InputBlockType {
   WHATSAPP_LIST = "whatsapp list",
   WHATSAPP_CAROUSEL = "whatsapp carousel",
   LANGUAGE = "language",
+  NPS = "nps input",
 }
 
 export const replyEventInputTypeFromEnum = {
@@ -38,4 +39,5 @@ export const replyEventInputTypeFromEnum = {
   [InputBlockType.WHATSAPP_LIST]: "whatsapp-list",
   [InputBlockType.WHATSAPP_CAROUSEL]: "whatsapp-carousel",
   [InputBlockType.LANGUAGE]: "language",
+  [InputBlockType.NPS]: "nps",
 } as const;

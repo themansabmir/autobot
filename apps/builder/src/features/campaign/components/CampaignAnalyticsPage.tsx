@@ -296,6 +296,120 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
         </div>
       </div>
 
+      {/* NPS Score Widget */}
+      {analytics.nps && (
+        <div className="rounded-xl border border-gray-6 bg-gradient-to-br from-gray-1 to-gray-2 p-6">
+          <h2 className="text-lg font-bold text-gray-12 mb-4">
+            Net Promoter Score (NPS)
+          </h2>
+
+          {/* Big NPS Score */}
+          <div className="text-center mb-6">
+            <div
+              className={cn(
+                "text-6xl font-bold",
+                analytics.nps.score >= 50
+                  ? "text-green-11"
+                  : analytics.nps.score >= 0
+                    ? "text-yellow-11"
+                    : "text-red-11",
+              )}
+            >
+              {analytics.nps.score}
+            </div>
+            <p className="text-sm text-gray-10 mt-2">
+              {analytics.nps.totalResponses} responses (
+              {analytics.nps.responseRate.toFixed(1)}%)
+            </p>
+          </div>
+
+          {/* Distribution Bars */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-4">
+              <span className="text-sm font-medium text-gray-12 min-w-[120px]">
+                Promoters (9-10)
+              </span>
+              <div className="flex-1 h-10 bg-gray-3 rounded-lg overflow-hidden relative">
+                <div
+                  className="h-full bg-green-9 flex items-center justify-between px-4 transition-all duration-500"
+                  style={{
+                    width: `${analytics.nps.totalResponses > 0 ? (analytics.nps.promoters / analytics.nps.totalResponses) * 100 : 0}%`,
+                  }}
+                >
+                  <span className="text-sm font-bold text-white">
+                    {analytics.nps.promoters}
+                  </span>
+                  <span className="text-xs font-medium text-white/90">
+                    {analytics.nps.totalResponses > 0
+                      ? (
+                          (analytics.nps.promoters /
+                            analytics.nps.totalResponses) *
+                          100
+                        ).toFixed(1)
+                      : "0.0"}
+                    %
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <span className="text-sm font-medium text-gray-12 min-w-[120px]">
+                Passives (7-8)
+              </span>
+              <div className="flex-1 h-10 bg-gray-3 rounded-lg overflow-hidden relative">
+                <div
+                  className="h-full bg-yellow-9 flex items-center justify-between px-4 transition-all duration-500"
+                  style={{
+                    width: `${analytics.nps.totalResponses > 0 ? (analytics.nps.passives / analytics.nps.totalResponses) * 100 : 0}%`,
+                  }}
+                >
+                  <span className="text-sm font-bold text-white">
+                    {analytics.nps.passives}
+                  </span>
+                  <span className="text-xs font-medium text-white/90">
+                    {analytics.nps.totalResponses > 0
+                      ? (
+                          (analytics.nps.passives /
+                            analytics.nps.totalResponses) *
+                          100
+                        ).toFixed(1)
+                      : "0.0"}
+                    %
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <span className="text-sm font-medium text-gray-12 min-w-[120px]">
+                Detractors (0-6)
+              </span>
+              <div className="flex-1 h-10 bg-gray-3 rounded-lg overflow-hidden relative">
+                <div
+                  className="h-full bg-red-9 flex items-center justify-between px-4 transition-all duration-500"
+                  style={{
+                    width: `${analytics.nps.totalResponses > 0 ? (analytics.nps.detractors / analytics.nps.totalResponses) * 100 : 0}%`,
+                  }}
+                >
+                  <span className="text-sm font-bold text-white">
+                    {analytics.nps.detractors}
+                  </span>
+                  <span className="text-xs font-medium text-white/90">
+                    {analytics.nps.totalResponses > 0
+                      ? (
+                          (analytics.nps.detractors /
+                            analytics.nps.totalResponses) *
+                          100
+                        ).toFixed(1)
+                      : "0.0"}
+                    %
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard

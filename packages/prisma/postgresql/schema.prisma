@@ -517,6 +517,10 @@ model CampaignRecipient {
   completedAt DateTime?
   failedAt    DateTime?
 
+  // NPS tracking
+  npsScore       Int?      @db.SmallInt // 0-10 or null
+  npsRespondedAt DateTime?
+
   // Error tracking
   errorMessage String?
   errorCode    String?

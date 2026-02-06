@@ -16,6 +16,16 @@ const campaignAnalyticsSchema = z.object({
   failed: z.number(),
   pending: z.number(),
   queued: z.number(),
+  nps: z
+    .object({
+      score: z.number(),
+      promoters: z.number(),
+      passives: z.number(),
+      detractors: z.number(),
+      totalResponses: z.number(),
+      responseRate: z.number(),
+    })
+    .nullable(),
 });
 
 export const getCampaignAnalytics = authenticatedProcedure
@@ -75,6 +85,8 @@ export const getCampaignAnalytics = authenticatedProcedure
         startedAt: true,
         completedAt: true,
         failedAt: true,
+        npsScore: true,
+        npsRespondedAt: true,
       },
     });
 
@@ -95,6 +107,13 @@ export const getCampaignAnalytics = authenticatedProcedure
     // Initiated = all non-pending recipients
     const initiated = total - pending;
 
+    // Calculate NPS
+    const npsScores = recipients
+      .filter((r) => r.npsScore !== null)
+      .map((r) => r.npsScore!);
+
+    const npsAnalytics = calculateNPS(npsScores, total);
+
     return {
       analytics: {
         total,
@@ -107,6 +126,27 @@ export const getCampaignAnalytics = authenticatedProcedure
         failed,
         pending,
         queued,
+        nps: npsAnalytics,
       },
     };
   });
+
+function calculateNPS(scores: number[], totalRecipients: number) {
+  if (scores.length === 0) return null;
+
+  const promoters = scores.filter((s) => s >= 9).length;
+  const passives = scores.filter((s) => s >= 7 && s <= 8).length;
+  const detractors = scores.filter((s) => s <= 6).length;
+  const totalResponses = scores.length;
+
+  const npsScore = ((promoters - detractors) / totalResponses) * 100;
+
+  return {
+    score: Math.round(npsScore),
+    promoters,
+    passives,
+    detractors,
+    totalResponses,
+    responseRate: (totalResponses / totalRecipients) * 100,
+  };
+}
