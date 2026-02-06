@@ -1,3 +1,4 @@
+import { devProxyBroadcast } from "@typebot.io/lib/devProxy";
 import prisma from "@typebot.io/prisma";
 import { handleProductionWebhookRequest } from "@typebot.io/whatsapp/apiHandlers/handleProductionWebhookRequest";
 import type { NextRequest } from "next/server";
@@ -6,6 +7,9 @@ export async function POST(
   request: NextRequest,
   ctx: { params: Promise<{ workspaceId: string; credentialsId: string }> },
 ) {
+  // Broadcast to all dev proxies (fire-and-forget)
+  await devProxyBroadcast(request);
+
   const { workspaceId, credentialsId } = await ctx.params;
   return handleProductionWebhookRequest(request, {
     workspaceId,

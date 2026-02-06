@@ -1,10 +1,10 @@
 import { useTranslate } from "@tolgee/react";
 import type { Settings } from "@typebot.io/settings/schemas";
+import { Button } from "@typebot.io/ui/components/Button";
 import { Field } from "@typebot.io/ui/components/Field";
 import { Switch } from "@typebot.io/ui/components/Switch";
 import { PlusSignIcon } from "@typebot.io/ui/icons/PlusSignIcon";
 import { TrashIcon } from "@typebot.io/ui/icons/TrashIcon";
-import { Button } from "@typebot.io/ui/components/Button";
 import { DebouncedTextInput } from "@/components/inputs/DebouncedTextInput";
 
 type Props = {
@@ -46,14 +46,14 @@ export const LocalizationForm = ({
           checked={localization?.isEnabled ?? false}
           onCheckedChange={toggleEnabled}
         />
-        <Field.Label>
-          Enable Localization
-        </Field.Label>
+        <Field.Label>Enable Localization</Field.Label>
       </Field.Root>
 
       {localization?.isEnabled && (
         <Field.Root>
-          <Field.Label>Languages ({localization.languages?.length ?? 0})</Field.Label>
+          <Field.Label>
+            Languages ({localization.languages?.length ?? 0})
+          </Field.Label>
           <Field.Container>
             <div className="flex flex-col gap-2">
               {localization.languages?.map((lang, index) => (
@@ -73,11 +73,7 @@ export const LocalizationForm = ({
                   </Button>
                 </div>
               ))}
-              <Button
-                onClick={addLanguage}
-                variant="outline"
-                size="sm"
-              >
+              <Button onClick={addLanguage} variant="outline" size="sm">
                 <PlusSignIcon />
                 Add Language
               </Button>

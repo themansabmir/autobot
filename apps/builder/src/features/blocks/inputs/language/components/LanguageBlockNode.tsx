@@ -1,6 +1,6 @@
+import type { LanguageBlock } from "@typebot.io/blocks-inputs/language/schema";
 import { Badge } from "@typebot.io/ui/components/Badge";
 import { useTypebot } from "@/features/editor/providers/TypebotProvider";
-import type { LanguageBlock } from "@typebot.io/blocks-inputs/language/schema";
 
 type Props = {
   block: LanguageBlock;
@@ -26,7 +26,9 @@ export const LanguageBlockNode = ({ block }: Props) => {
             </Badge>
           ))
         ) : (
-          <p className="text-xs text-gray-500 italic px-1">No languages defined</p>
+          <p className="text-xs text-gray-500 italic px-1">
+            No languages defined
+          </p>
         )}
       </div>
     </div>

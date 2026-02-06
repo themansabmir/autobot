@@ -29,7 +29,7 @@ export interface LanguageTranslationResult {
  */
 const applyTranslations = (
   typebot: Typebot,
-  translations: Record<string, string>
+  translations: Record<string, string>,
 ): Typebot => {
   // Deep clone the typebot
   const translated = JSON.parse(JSON.stringify(typebot)) as Typebot;
@@ -47,7 +47,7 @@ const applyTranslations = (
 const setValueAtPath = (
   obj: Record<string, unknown>,
   path: string,
-  value: unknown
+  value: unknown,
 ): void => {
   const parts = path.split(".");
   let current: Record<string, unknown> = obj;
@@ -76,12 +76,14 @@ const setValueAtPath = (
 export const generateTranslationForLanguage = async (
   typebot: Typebot,
   targetLanguage: string,
-  sourceLanguage?: string
+  sourceLanguage?: string,
 ): Promise<LanguageTranslationResult> => {
   try {
     // Extract translatable content
     const contentMap = extractAsMap(typebot);
-    console.log(`DEBUG: Extracted ${Object.keys(contentMap).length} items to translate`);
+    console.log(
+      `DEBUG: Extracted ${Object.keys(contentMap).length} items to translate`,
+    );
 
     if (Object.keys(contentMap).length === 0) {
       // No translatable content, just clone the typebot
@@ -96,16 +98,22 @@ export const generateTranslationForLanguage = async (
     const translatedMap = await translateMap(
       contentMap,
       targetLanguage,
-      sourceLanguage
+      sourceLanguage,
     );
 
     // Apply translations to create translated typebot
     const translatedTypebot = applyTranslations(typebot, translatedMap);
     const botSize = JSON.stringify(translatedTypebot).length;
-    console.log(`DEBUG: Applied translations. Bot size: ${Math.round(botSize / 1024)} KB`);
+    console.log(
+      `DEBUG: Applied translations. Bot size: ${Math.round(botSize / 1024)} KB`,
+    );
 
     // Upload to MinIO
-    await uploadTranslatedJourney(typebot.id, targetLanguage, translatedTypebot);
+    await uploadTranslatedJourney(
+      typebot.id,
+      targetLanguage,
+      translatedTypebot,
+    );
 
     // Update cache
     await setInCache(typebot.id, targetLanguage, translatedTypebot);
@@ -125,13 +133,13 @@ export const generateTranslationForLanguage = async (
 export const generateTranslations = async (
   typebot: Typebot,
   targetLanguages: string[],
-  defaultLanguage?: string
+  defaultLanguage?: string,
 ): Promise<LanguageTranslationResult[]> => {
   const results: LanguageTranslationResult[] = [];
 
   // Filter out the default/source language
   const languagesToTranslate = targetLanguages.filter(
-    (lang) => lang !== defaultLanguage
+    (lang) => lang !== defaultLanguage,
   );
 
   // Process languages sequentially to avoid rate limiting
@@ -139,7 +147,7 @@ export const generateTranslations = async (
     const result = await generateTranslationForLanguage(
       typebot,
       language,
-      defaultLanguage
+      defaultLanguage,
     );
     results.push(result);
   }
@@ -172,7 +180,7 @@ export const generateTranslations = async (
 export const syncTranslations = async (
   typebot: Typebot,
   enabledLanguages: string[],
-  defaultLanguage?: string
+  defaultLanguage?: string,
 ): Promise<LanguageTranslationResult[]> => {
   const results: LanguageTranslationResult[] = [];
 
@@ -188,10 +196,10 @@ export const syncTranslations = async (
 
   // Find languages to add and remove
   const languagesToAdd = enabledLanguages.filter(
-    (lang) => !existingTranslations.includes(lang)
+    (lang) => !existingTranslations.includes(lang),
   );
   const languagesToRemove = existingTranslations.filter(
-    (lang) => !enabledLanguages.includes(lang)
+    (lang) => !enabledLanguages.includes(lang),
   );
 
   // Remove stale translations
@@ -209,7 +217,7 @@ export const syncTranslations = async (
     const newResults = await generateTranslations(
       typebot,
       languagesToAdd,
-      defaultLanguage
+      defaultLanguage,
     );
     results.push(...newResults);
   } else {
@@ -228,7 +236,7 @@ export const syncTranslations = async (
 export const regenerateAllTranslations = async (
   typebot: Typebot,
   languages: string[],
-  defaultLanguage?: string
+  defaultLanguage?: string,
 ): Promise<LanguageTranslationResult[]> => {
   return generateTranslations(typebot, languages, defaultLanguage);
 };

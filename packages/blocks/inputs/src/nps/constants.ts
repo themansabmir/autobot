@@ -1,5 +1,6 @@
 export const npsInputConstants = {
-  defaultQuestion: "How likely are you to recommend us to a friend or colleague?",
+  defaultQuestion:
+    "How likely are you to recommend us to a friend or colleague?",
   defaultLowLabel: "Not at all likely",
   defaultHighLabel: "Extremely likely",
   minScore: 0,

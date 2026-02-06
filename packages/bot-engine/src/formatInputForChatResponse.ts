@@ -87,15 +87,15 @@ export const formatInputForChatResponse = async (
         languages: typebot?.settings?.localization?.languages,
         blockOptions: block.options,
       });
-      
+
       const languages = typebot?.settings?.localization?.languages ?? [];
       const items = languages.map((language: string) => ({
         id: language,
         content: language,
       }));
-      
+
       console.log("🔍 [LANGUAGE Block] Generated items:", items);
-      
+
       return {
         ...block,
         options: block.options,

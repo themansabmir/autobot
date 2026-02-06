@@ -7,8 +7,8 @@
  * To enable, set I18N_ENABLED = true and ensure @typebot.io/i18n is properly configured.
  */
 
-import type { Typebot } from "@typebot.io/typebot/schemas/typebot";
 import { regenerateAllTranslations } from "@typebot.io/i18n";
+import type { Typebot } from "@typebot.io/typebot/schemas/typebot";
 
 type LocalizationSettings = {
   isEnabled?: boolean;
@@ -25,7 +25,7 @@ const I18N_ENABLED = true;
  */
 export const triggerTranslationGeneration = (
   typebot: Typebot,
-  localizationSettings: LocalizationSettings | undefined
+  localizationSettings: LocalizationSettings | undefined,
 ): void => {
   console.log("DEBUG: triggerTranslationGeneration called", {
     typebotId: typebot.id,
@@ -44,7 +44,7 @@ export const triggerTranslationGeneration = (
   regenerateAllTranslations(
     typebot,
     localizationSettings.languages ?? [],
-    localizationSettings.defaultLanguage
+    localizationSettings.defaultLanguage,
   ).catch((error) => {
     console.error("Failed to regenerate translations:", error);
   });

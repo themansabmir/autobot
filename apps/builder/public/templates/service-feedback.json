@@ -23,9 +23,7 @@
             "richText": [
               {
                 "type": "p",
-                "children": [
-                  { "text": "Hi there! 👋" }
-                ]
+                "children": [{ "text": "Hi there! 👋" }]
               }
             ]
           }
@@ -38,7 +36,9 @@
               {
                 "type": "p",
                 "children": [
-                  { "text": "We'd love to hear your thoughts on our service to help us improve." }
+                  {
+                    "text": "We'd love to hear your thoughts on our service to help us improve."
+                  }
                 ]
               }
             ]
@@ -51,9 +51,7 @@
             "richText": [
               {
                 "type": "p",
-                "children": [
-                  { "text": "It will only take 2 minutes." }
-                ]
+                "children": [{ "text": "It will only take 2 minutes." }]
               }
             ]
           }
@@ -62,12 +60,10 @@
           "id": "block-start-button",
           "type": "text",
           "content": {
-            "richText": [
-               { "type": "p", "children": [{ "text": "Ready?" }] }
-            ]
+            "richText": [{ "type": "p", "children": [{ "text": "Ready?" }] }]
           }
         },
-         {
+        {
           "id": "block-start-input",
           "type": "choice input",
           "items": [
@@ -93,7 +89,9 @@
               {
                 "type": "p",
                 "children": [
-                  { "text": "First, how satisfied are you with our service overall?" }
+                  {
+                    "text": "First, how satisfied are you with our service overall?"
+                  }
                 ]
               }
             ]
@@ -128,7 +126,9 @@
               {
                 "type": "p",
                 "children": [
-                  { "text": "How likely are you to recommend us to a friend or colleague?" }
+                  {
+                    "text": "How likely are you to recommend us to a friend or colleague?"
+                  }
                 ]
               }
             ]
@@ -151,7 +151,7 @@
           "id": "block-nps-reason-question",
           "type": "text",
           "content": {
-             "richText": [
+            "richText": [
               {
                 "type": "p",
                 "children": [
@@ -162,13 +162,13 @@
           }
         },
         {
-           "id": "block-nps-reason-input",
-           "type": "text input",
-           "outgoingEdgeId": "edge-nps-to-ces",
-           "options": {
-             "variableId": "var-nps-reason",
-             "isLong": true
-           }
+          "id": "block-nps-reason-input",
+          "type": "text input",
+          "outgoingEdgeId": "edge-nps-to-ces",
+          "options": {
+            "variableId": "var-nps-reason",
+            "isLong": true
+          }
         }
       ]
     },
@@ -203,22 +203,22 @@
             {
               "id": "item-ces-easy",
               "outgoingEdgeId": "edge-ces-to-feedback",
-               "content": "Easy"
+              "content": "Easy"
             },
             {
               "id": "item-ces-neutral",
               "outgoingEdgeId": "edge-ces-to-feedback",
-               "content": "Neutral"
+              "content": "Neutral"
             },
             {
               "id": "item-ces-difficult",
               "outgoingEdgeId": "edge-ces-to-feedback",
-               "content": "Difficult"
+              "content": "Difficult"
             },
             {
               "id": "item-ces-very-difficult",
               "outgoingEdgeId": "edge-ces-to-feedback",
-               "content": "Very Difficult"
+              "content": "Very Difficult"
             }
           ],
           "options": {
@@ -240,42 +240,42 @@
               {
                 "type": "p",
                 "children": [
-                  { "text": "What aspect of our service did you find most valuable?" }
+                  {
+                    "text": "What aspect of our service did you find most valuable?"
+                  }
                 ]
               }
             ]
           }
         },
         {
-           "id": "block-valuable-input",
-           "type": "text input",
-           "options": {
-             "variableId": "var-valuable-aspect",
-             "isLong": true
-           }
+          "id": "block-valuable-input",
+          "type": "text input",
+          "options": {
+            "variableId": "var-valuable-aspect",
+            "isLong": true
+          }
         },
-         {
+        {
           "id": "block-improve-question",
           "type": "text",
           "content": {
             "richText": [
               {
                 "type": "p",
-                "children": [
-                  { "text": "And what could we improve?" }
-                ]
+                "children": [{ "text": "And what could we improve?" }]
               }
             ]
           }
         },
         {
-           "id": "block-improve-input",
-           "type": "text input",
-            "outgoingEdgeId": "edge-feedback-to-outro",
-           "options": {
-             "variableId": "var-improvements",
-             "isLong": true
-           }
+          "id": "block-improve-input",
+          "type": "text input",
+          "outgoingEdgeId": "edge-feedback-to-outro",
+          "options": {
+            "variableId": "var-improvements",
+            "isLong": true
+          }
         }
       ]
     },
@@ -292,18 +292,20 @@
               {
                 "type": "p",
                 "children": [
-                  { "text": "Thank you so much! Your feedback helps us grow. 🚀" }
+                  {
+                    "text": "Thank you so much! Your feedback helps us grow. 🚀"
+                  }
                 ]
               }
             ]
           }
         },
         {
-             "id": "block-outro-gif",
-            "type": "image",
-            "content": {
-                "url": "https://media3.giphy.com/media/qC2REWsp3fQ1v2mm74/giphy.gif?cid=fe3852a38k350b15tly68dp7plh5iskmlonklrofvce975cq&rid=giphy.gif&ct=g"
-            }
+          "id": "block-outro-gif",
+          "type": "image",
+          "content": {
+            "url": "https://media3.giphy.com/media/qC2REWsp3fQ1v2mm74/giphy.gif?cid=fe3852a38k350b15tly68dp7plh5iskmlonklrofvce975cq&rid=giphy.gif&ct=g"
+          }
         }
       ]
     }
@@ -329,29 +331,32 @@
       "from": { "blockId": "block-nps-reason-input" },
       "to": { "groupId": "group-ces" }
     },
-     {
+    {
       "id": "edge-ces-to-feedback",
       "from": { "blockId": "block-ces-input", "itemId": "item-ces-very-easy" },
       "to": { "groupId": "group-feedback" }
     },
-     {
+    {
       "id": "edge-ces-to-feedback-2",
       "from": { "blockId": "block-ces-input", "itemId": "item-ces-easy" },
       "to": { "groupId": "group-feedback" }
     },
-     {
+    {
       "id": "edge-ces-to-feedback-3",
       "from": { "blockId": "block-ces-input", "itemId": "item-ces-neutral" },
       "to": { "groupId": "group-feedback" }
     },
-     {
+    {
       "id": "edge-ces-to-feedback-4",
       "from": { "blockId": "block-ces-input", "itemId": "item-ces-difficult" },
       "to": { "groupId": "group-feedback" }
     },
-     {
+    {
       "id": "edge-ces-to-feedback-5",
-      "from": { "blockId": "block-ces-input", "itemId": "item-ces-very-difficult" },
+      "from": {
+        "blockId": "block-ces-input",
+        "itemId": "item-ces-very-difficult"
+      },
       "to": { "groupId": "group-feedback" }
     },
     {

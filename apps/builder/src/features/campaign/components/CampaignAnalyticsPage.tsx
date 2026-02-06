@@ -9,8 +9,8 @@ import { cn } from "@typebot.io/ui/lib/cn";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { trpc } from "@/lib/queryClient";
-import { exportCampaignAnalytics } from "../helpers/exportCampaignAnalytics";
 import { toast } from "@/lib/toast";
+import { exportCampaignAnalytics } from "../helpers/exportCampaignAnalytics";
 
 type Props = {
   workspaceId: string;
@@ -145,7 +145,7 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
     try {
       setIsExporting(true);
       const filename = exportCampaignAnalytics(campaign, analytics);
-      
+
       toast({
         type: "success",
         title: "Export successful!",
@@ -244,15 +244,15 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
           </p>
           <div className="mt-2 flex items-center gap-2">
             <div className="h-1.5 flex-1 bg-gray-4 rounded-full overflow-hidden">
-             <div
-               className="h-full bg-purple-9 rounded-full"
-               style={{ width: `${analytics.sent > 0 ? (analytics.delivered / analytics.sent) * 100 : 0}%` }}
-             />
+              <div
+                className="h-full bg-purple-9 rounded-full"
+                style={{
+                  width: `${analytics.sent > 0 ? (analytics.delivered / analytics.sent) * 100 : 0}%`,
+                }}
+              />
             </div>
           </div>
-          <p className="text-xs text-gray-10 mt-2">
-            Delivered / Sent
-          </p>
+          <p className="text-xs text-gray-10 mt-2">Delivered / Sent</p>
         </div>
         <div className="rounded-xl border border-gray-6 bg-gradient-to-br from-gray-1 to-gray-2 p-6 transition-all hover:shadow-lg hover:border-gray-7">
           <p className="text-sm font-medium text-gray-11">Open Rate</p>
@@ -262,17 +262,17 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
               : "0.0"}
             %
           </p>
-           <div className="mt-2 flex items-center gap-2">
+          <div className="mt-2 flex items-center gap-2">
             <div className="h-1.5 flex-1 bg-gray-4 rounded-full overflow-hidden">
-             <div
-               className="h-full bg-orange-9 rounded-full"
-               style={{ width: `${analytics.delivered > 0 ? (analytics.opened / analytics.delivered) * 100 : 0}%` }}
-             />
+              <div
+                className="h-full bg-orange-9 rounded-full"
+                style={{
+                  width: `${analytics.delivered > 0 ? (analytics.opened / analytics.delivered) * 100 : 0}%`,
+                }}
+              />
             </div>
           </div>
-          <p className="text-xs text-gray-10 mt-2">
-            Opened / Delivered
-          </p>
+          <p className="text-xs text-gray-10 mt-2">Opened / Delivered</p>
         </div>
         <div className="rounded-xl border border-gray-6 bg-gradient-to-br from-gray-1 to-gray-2 p-6 transition-all hover:shadow-lg hover:border-gray-7">
           <p className="text-sm font-medium text-gray-11">Completion Rate</p>
@@ -282,17 +282,17 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
               : "0.0"}
             %
           </p>
-           <div className="mt-2 flex items-center gap-2">
+          <div className="mt-2 flex items-center gap-2">
             <div className="h-1.5 flex-1 bg-gray-4 rounded-full overflow-hidden">
-             <div
-               className="h-full bg-teal-9 rounded-full"
-               style={{ width: `${analytics.started > 0 ? (analytics.completed / analytics.started) * 100 : 0}%` }}
-             />
+              <div
+                className="h-full bg-teal-9 rounded-full"
+                style={{
+                  width: `${analytics.started > 0 ? (analytics.completed / analytics.started) * 100 : 0}%`,
+                }}
+              />
             </div>
           </div>
-          <p className="text-xs text-gray-10 mt-2">
-            Completed / Started
-          </p>
+          <p className="text-xs text-gray-10 mt-2">Completed / Started</p>
         </div>
       </div>
 
@@ -523,7 +523,9 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
       {/* Detailed Stats Table */}
       <div className="rounded-xl border border-gray-6 bg-gradient-to-br from-gray-1 to-gray-2 overflow-hidden">
         <div className="p-6 border-b border-gray-6">
-          <h2 className="text-lg font-bold text-gray-12">Detailed Statistics</h2>
+          <h2 className="text-lg font-bold text-gray-12">
+            Detailed Statistics
+          </h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -547,7 +549,10 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
                   {analytics.pending}
                 </td>
                 <td className="px-6 py-4 text-sm text-right text-gray-11">
-                  {analytics.total > 0 ? ((analytics.pending / analytics.total) * 100).toFixed(1) : "0.0"}%
+                  {analytics.total > 0
+                    ? ((analytics.pending / analytics.total) * 100).toFixed(1)
+                    : "0.0"}
+                  %
                 </td>
               </tr>
               <tr className="hover:bg-gray-2">
@@ -556,7 +561,10 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
                   {analytics.queued}
                 </td>
                 <td className="px-6 py-4 text-sm text-right text-gray-11">
-                  {analytics.total > 0 ? ((analytics.queued / analytics.total) * 100).toFixed(1) : "0.0"}%
+                  {analytics.total > 0
+                    ? ((analytics.queued / analytics.total) * 100).toFixed(1)
+                    : "0.0"}
+                  %
                 </td>
               </tr>
               <tr className="hover:bg-gray-2">
@@ -565,7 +573,10 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
                   {analytics.sent}
                 </td>
                 <td className="px-6 py-4 text-sm text-right text-gray-11">
-                  {analytics.total > 0 ? ((analytics.sent / analytics.total) * 100).toFixed(1) : "0.0"}%
+                  {analytics.total > 0
+                    ? ((analytics.sent / analytics.total) * 100).toFixed(1)
+                    : "0.0"}
+                  %
                 </td>
               </tr>
               <tr className="hover:bg-gray-2">
@@ -574,7 +585,10 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
                   {analytics.delivered}
                 </td>
                 <td className="px-6 py-4 text-sm text-right text-gray-11">
-                  {analytics.total > 0 ? ((analytics.delivered / analytics.total) * 100).toFixed(1) : "0.0"}%
+                  {analytics.total > 0
+                    ? ((analytics.delivered / analytics.total) * 100).toFixed(1)
+                    : "0.0"}
+                  %
                 </td>
               </tr>
               <tr className="hover:bg-gray-2">
@@ -583,7 +597,10 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
                   {analytics.opened}
                 </td>
                 <td className="px-6 py-4 text-sm text-right text-gray-11">
-                  {analytics.total > 0 ? ((analytics.opened / analytics.total) * 100).toFixed(1) : "0.0"}%
+                  {analytics.total > 0
+                    ? ((analytics.opened / analytics.total) * 100).toFixed(1)
+                    : "0.0"}
+                  %
                 </td>
               </tr>
               <tr className="hover:bg-gray-2">
@@ -592,7 +609,10 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
                   {analytics.started}
                 </td>
                 <td className="px-6 py-4 text-sm text-right text-gray-11">
-                  {analytics.total > 0 ? ((analytics.started / analytics.total) * 100).toFixed(1) : "0.0"}%
+                  {analytics.total > 0
+                    ? ((analytics.started / analytics.total) * 100).toFixed(1)
+                    : "0.0"}
+                  %
                 </td>
               </tr>
               <tr className="hover:bg-gray-2">
@@ -601,7 +621,10 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
                   {analytics.completed}
                 </td>
                 <td className="px-6 py-4 text-sm text-right text-gray-11">
-                  {analytics.total > 0 ? ((analytics.completed / analytics.total) * 100).toFixed(1) : "0.0"}%
+                  {analytics.total > 0
+                    ? ((analytics.completed / analytics.total) * 100).toFixed(1)
+                    : "0.0"}
+                  %
                 </td>
               </tr>
               <tr className="hover:bg-gray-2 bg-red-2">
@@ -612,7 +635,10 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
                   {analytics.failed}
                 </td>
                 <td className="px-6 py-4 text-sm text-right text-red-10">
-                  {analytics.total > 0 ? ((analytics.failed / analytics.total) * 100).toFixed(1) : "0.0"}%
+                  {analytics.total > 0
+                    ? ((analytics.failed / analytics.total) * 100).toFixed(1)
+                    : "0.0"}
+                  %
                 </td>
               </tr>
             </tbody>

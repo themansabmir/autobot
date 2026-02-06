@@ -1,10 +1,10 @@
 export {
-  getMinioClient,
+  deleteAllTranslations,
+  deleteTranslatedJourney,
   ensureBucketExists,
   getJourneyPath,
-  uploadTranslatedJourney,
+  getMinioClient,
   getTranslatedJourney,
-  deleteTranslatedJourney,
-  deleteAllTranslations,
   listTranslations,
+  uploadTranslatedJourney,
 } from "./i18nMinioClient";

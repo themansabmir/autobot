@@ -40,7 +40,7 @@ export const exportCampaignAnalytics = (
     // Header
     "Campaign Analytics Export",
     "",
-    
+
     // Campaign Overview Section
     "CAMPAIGN OVERVIEW",
     "Field,Value",
@@ -128,16 +128,13 @@ export const exportCampaignAnalytics = (
   const sanitizedName = campaign.title
     .replace(/[^a-z0-9]/gi, "_")
     .toLowerCase();
-  const timestamp = new Date()
-    .toISOString()
-    .replace(/[:.]/g, "-")
-    .slice(0, 19);
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
   const filename = `${sanitizedName}_${campaign.id.slice(0, 8)}_analytics_${timestamp}.csv`;
 
   // Create blob and trigger download
   const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
-  
+
   if (link.download !== undefined) {
     const url = URL.createObjectURL(blob);
     link.setAttribute("href", url);

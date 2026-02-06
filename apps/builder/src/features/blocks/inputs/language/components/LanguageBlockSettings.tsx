@@ -1,10 +1,10 @@
 import { useTranslate } from "@tolgee/react";
+import type { LanguageBlock } from "@typebot.io/blocks-inputs/language/schema";
+import type { Settings } from "@typebot.io/settings/schemas";
+import { Field } from "@typebot.io/ui/components/Field";
+import { DebouncedTextInput } from "@/components/inputs/DebouncedTextInput";
 import { useTypebot } from "@/features/editor/providers/TypebotProvider";
 import { LocalizationForm } from "@/features/settings/components/LocalizationForm";
-import type { Settings } from "@typebot.io/settings/schemas";
-import type { LanguageBlock } from "@typebot.io/blocks-inputs/language/schema";
-import { DebouncedTextInput } from "@/components/inputs/DebouncedTextInput";
-import { Field } from "@typebot.io/ui/components/Field";
 
 type Props = {
   options: LanguageBlock["options"];

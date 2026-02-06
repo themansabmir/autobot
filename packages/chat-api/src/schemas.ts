@@ -10,6 +10,7 @@ import { ctaUrlInputSchema } from "@typebot.io/blocks-inputs/ctaUrl/schema";
 import { dateInputSchema } from "@typebot.io/blocks-inputs/date/schema";
 import { emailInputSchema } from "@typebot.io/blocks-inputs/email/schema";
 import { fileInputBlockSchemas } from "@typebot.io/blocks-inputs/file/schema";
+import { languageBlockSchema } from "@typebot.io/blocks-inputs/language/schema";
 import { numberInputSchema } from "@typebot.io/blocks-inputs/number/schema";
 import {
   paymentInputRuntimeOptionsSchema,
@@ -23,7 +24,6 @@ import { timeInputSchema } from "@typebot.io/blocks-inputs/time/schema";
 import { urlInputSchema } from "@typebot.io/blocks-inputs/url/schema";
 import { whatsAppCarouselBlockSchema } from "@typebot.io/blocks-inputs/whatsappCarousel/schema";
 import { whatsAppListBlockSchema } from "@typebot.io/blocks-inputs/whatsappList/schema";
-import { languageBlockSchema } from "@typebot.io/blocks-inputs/language/schema";
 import { logInSessionSchema } from "@typebot.io/logs/schemas";
 import { settingsSchema } from "@typebot.io/settings/schemas";
 import { dynamicThemeSchema, themeSchema } from "@typebot.io/theme/schemas";

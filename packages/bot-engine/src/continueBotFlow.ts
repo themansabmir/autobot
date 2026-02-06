@@ -43,6 +43,7 @@ import { executeInvalidReplyEvent } from "./events/executeInvalidReplyEvent";
 import { executeReplyEvent } from "./events/executeReplyEvent";
 import { formatInputForChatResponse } from "./formatInputForChatResponse";
 import { getReplyOutgoingEdge } from "./getReplyOutgoingEdge";
+import { loadTranslatedJourney } from "./i18n/loadTranslatedJourney";
 import { saveAnswer } from "./queries/saveAnswer";
 import { resetSessionState } from "./resetSessionState";
 import { startBotFlow } from "./startBotFlow";
@@ -50,7 +51,6 @@ import type { ContinueBotFlowResponse, SkipReply, SuccessReply } from "./types";
 import { updateVariablesInSession } from "./updateVariablesInSession";
 import { validateAndParseInputMessage } from "./validateAndParseInputMessage";
 import { walkFlowForward } from "./walkFlowForward";
-import { loadTranslatedJourney } from "./i18n/loadTranslatedJourney";
 
 type Params = {
   version: 1 | 2;
@@ -219,7 +219,7 @@ export const continueBotFlow = async (
           const translatedTypebot = await loadTranslatedJourney(
             newSessionState.typebotsQueue[0].typebot.id,
             formattedReply,
-            newSessionState.typebotsQueue[0].typebot
+            newSessionState.typebotsQueue[0].typebot,
           );
 
           // Swap the typebot in the queue with the translated version
@@ -231,7 +231,7 @@ export const continueBotFlow = async (
                     ...item,
                     typebot: translatedTypebot,
                   }
-                : item
+                : item,
             ),
           };
         } catch (error) {
