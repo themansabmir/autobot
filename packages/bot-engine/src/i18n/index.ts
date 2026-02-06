@@ -1,1 +1,4 @@
-export { loadTranslatedJourney, hasTranslatedJourney } from "./loadTranslatedJourney";
+export {
+  hasTranslatedJourney,
+  loadTranslatedJourney,
+} from "./loadTranslatedJourney";

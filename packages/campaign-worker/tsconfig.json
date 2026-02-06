@@ -3,23 +3,13 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@typebot.io/i18n": [
-        "../i18n/src/index.ts"
-      ],
-      "@typebot.io/i18n/*": [
-        "../i18n/src/*.ts"
-      ],
-      "@typebot.io/bot-engine/*": [
-        "../bot-engine/src/*.ts"
-      ],
-      "@typebot.io/bot-engine": [
-        "../bot-engine/src/index.ts"
-      ]
+      "@typebot.io/i18n": ["../i18n/src/index.ts"],
+      "@typebot.io/i18n/*": ["../i18n/src/*.ts"],
+      "@typebot.io/bot-engine/*": ["../bot-engine/src/*.ts"],
+      "@typebot.io/bot-engine": ["../bot-engine/src/index.ts"]
     },
     "outDir": "./dist",
     "rootDir": "./src"
   },
-  "include": [
-    "src/**/*"
-  ]
+  "include": ["src/**/*"]
 }

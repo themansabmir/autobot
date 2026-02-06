@@ -24,7 +24,7 @@ export const languageBlockSchema = blockBaseSchema.merge(
     type: z.enum([InputBlockType.LANGUAGE]),
     items: z.array(languageItemSchema).optional(),
     options: languageBlockOptionsSchema.optional(),
-  })
+  }),
 );
 
 export type LanguageItem = z.infer<typeof languageItemSchema>;

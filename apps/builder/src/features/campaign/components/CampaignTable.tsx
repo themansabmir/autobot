@@ -173,7 +173,7 @@ const CampaignRow = ({
               className="size-8"
               aria-label="View analytics"
               onClick={() =>
-                window.location.href = `/typebots/${campaign.typebotId}/campaigns/${campaign.id}/analytics`
+                (window.location.href = `/typebots/${campaign.typebotId}/campaigns/${campaign.id}/analytics`)
               }
             >
               <AnalyticsIcon className="size-4" />

@@ -1,7 +1,7 @@
 export {
   generateTranslationForLanguage,
   generateTranslations,
-  syncTranslations,
-  regenerateAllTranslations,
   type LanguageTranslationResult,
+  regenerateAllTranslations,
+  syncTranslations,
 } from "./translationGenerationService";

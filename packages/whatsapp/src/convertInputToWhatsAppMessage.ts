@@ -150,18 +150,27 @@ export const convertInputToWhatsAppMessages = async ({
     }
     case InputBlockType.LANGUAGE: {
       const languageInput = input as any;
-      const placeholderText = languageInput.options?.labels?.placeholder || "Choose your language";
-      const allItems = (languageInput.items?.filter((item: any) => isDefined(item.content)) ?? []) as ButtonItem[];
-      
+      const placeholderText =
+        languageInput.options?.labels?.placeholder || "Choose your language";
+      const allItems = (languageInput.items?.filter((item: any) =>
+        isDefined(item.content),
+      ) ?? []) as ButtonItem[];
+
       if (allItems.length === 0) {
-        return [{
-          type: "text",
-          text: { body: placeholderText },
-        }];
+        return [
+          {
+            type: "text",
+            text: { body: placeholderText },
+          },
+        ];
       }
 
       // Use List message for 4-10 options if enabled
-      if (allItems.length > 3 && allItems.length <= 10 && env.WHATSAPP_ENABLE_LIST_MESSAGES) {
+      if (
+        allItems.length > 3 &&
+        allItems.length <= 10 &&
+        env.WHATSAPP_ENABLE_LIST_MESSAGES
+      ) {
         const itemContents = allItems.map((item) => item.content as string);
         const uniqueTitles = getUniqueButtonTitles(itemContents);
 
@@ -172,7 +181,9 @@ export const convertInputToWhatsAppMessages = async ({
               type: "list",
               body: { text: placeholderText },
               action: {
-                button: (languageInput.options?.labels?.button || "Languages").slice(0, 20),
+                button: (
+                  languageInput.options?.labels?.button || "Languages"
+                ).slice(0, 20),
                 sections: [
                   {
                     rows: allItems.map((item, idx) => ({
@@ -186,12 +197,12 @@ export const convertInputToWhatsAppMessages = async ({
           },
         ];
       }
-      
+
       const items = groupArrayByArraySize(
         allItems,
         env.WHATSAPP_INTERACTIVE_GROUP_SIZE,
       ) as ButtonItem[][];
-      
+
       return items.map((items, idx) => ({
         type: "interactive",
         interactive: {
@@ -232,19 +243,29 @@ export const convertInputToWhatsAppMessages = async ({
               body: lastMessageText
                 ? `${lastMessageText}\n\n` +
                   choiceInput.items
-                    .map((item: any, idx: number) => `${idx + 1}. ${item.content}`)
+                    .map(
+                      (item: any, idx: number) => `${idx + 1}. ${item.content}`,
+                    )
                     .join("\n")
                 : choiceInput.items
-                    .map((item: any, idx: number) => `${idx + 1}. ${item.content}`)
+                    .map(
+                      (item: any, idx: number) => `${idx + 1}. ${item.content}`,
+                    )
                     .join("\n"),
             },
           },
         ];
 
-      const allItems = (choiceInput.items.filter((item: any) => isDefined(item.content))) as ButtonItem[];
+      const allItems = choiceInput.items.filter((item: any) =>
+        isDefined(item.content),
+      ) as ButtonItem[];
 
       // Use List message for 4-10 options if enabled
-      if (allItems.length > 3 && allItems.length <= 10 && env.WHATSAPP_ENABLE_LIST_MESSAGES) {
+      if (
+        allItems.length > 3 &&
+        allItems.length <= 10 &&
+        env.WHATSAPP_ENABLE_LIST_MESSAGES
+      ) {
         const itemContents = allItems.map((item) => item.content as string);
         const uniqueTitles = getUniqueButtonTitles(itemContents);
 
@@ -255,7 +276,9 @@ export const convertInputToWhatsAppMessages = async ({
               type: "list",
               body: { text: lastMessageText || "―" },
               action: {
-                button: (choiceInput.options?.labels?.button || "Options").slice(0, 20),
+                button: (
+                  choiceInput.options?.labels?.button || "Options"
+                ).slice(0, 20),
                 sections: [
                   {
                     rows: allItems.map((item, idx) => ({

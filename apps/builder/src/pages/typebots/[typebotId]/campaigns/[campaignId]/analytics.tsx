@@ -1,8 +1,8 @@
+import { useRouter } from "next/router";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Seo } from "@/components/Seo";
 import { CampaignAnalyticsPage } from "@/features/campaign/components/CampaignAnalyticsPage";
 import { useWorkspace } from "@/features/workspace/WorkspaceProvider";
-import { useRouter } from "next/router";
 
 export default function CampaignAnalytics() {
   const router = useRouter();

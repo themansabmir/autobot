@@ -63,7 +63,7 @@ async function uploadMediaForPreview(typebot: any) {
             }).catch(() => null);
 
             if (mediaId) {
-              ;(block.content as any).mediaId = mediaId;
+              (block.content as any).mediaId = mediaId;
               hasChanges = true;
               console.log(
                 `✅ [Preview] ${block.type} uploaded! mediaId: ${mediaId}`,

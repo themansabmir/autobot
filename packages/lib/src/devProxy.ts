@@ -18,8 +18,7 @@ export async function devProxyBroadcast(
 ): Promise<null> {
   if (!env.DEV_PROXY_URLS) return null;
 
-  const urls = env.DEV_PROXY_URLS
-    .split(";")
+  const urls = env.DEV_PROXY_URLS.split(";")
     .map((u) => u.trim())
     .filter(Boolean);
   if (urls.length === 0) return null;
