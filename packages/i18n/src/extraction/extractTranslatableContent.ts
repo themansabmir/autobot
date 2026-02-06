@@ -16,33 +16,30 @@ export interface TranslatableItem {
   type: "bubble" | "button" | "placeholder" | "label" | "option";
 }
 
+import { supportedLanguages } from "@typebot.io/lib/languages";
+
 /**
  * Normalize language name to ISO code
  */
 export const normalizeLanguageCode = (lang: string): string => {
-  const mapping: Record<string, string> = {
-    english: "en",
-    hindi: "hi",
-    french: "fr",
-    spanish: "es",
-    german: "de",
-    portuguese: "pt",
-    italian: "it",
-    dutch: "nl",
-    russian: "ru",
-    chinese: "zh-CN",
-    japanese: "ja",
-    korean: "ko",
-    arabic: "ar",
-    bengali: "bn",
-    turkish: "tr",
-    vietnamese: "vi",
-    indonesian: "id",
-    thai: "th",
-  };
+  const normalized = lang.trim();
+  
+  // 1. Check if it's already a code (exact match in values)
+  if (Object.values(supportedLanguages).includes(normalized.toLowerCase())) {
+    return normalized.toLowerCase();
+  }
 
-  const normalized = lang.toLowerCase().trim();
-  return mapping[normalized] || normalized;
+  // 2. Check if it's a name (exact match in keys)
+  const code = supportedLanguages[normalized];
+  if (code) return code;
+
+  // 3. Fallback to case-insensitive name match
+  const lowerCaseName = normalized.toLowerCase();
+  const foundEntry = Object.entries(supportedLanguages).find(
+    ([name]) => name.toLowerCase() === lowerCaseName
+  );
+  
+  return foundEntry ? foundEntry[1] : lowerCaseName;
 };
 
 /**

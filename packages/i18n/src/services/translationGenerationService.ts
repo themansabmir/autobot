@@ -10,7 +10,10 @@
 
 import type { Typebot } from "@typebot.io/typebot/schemas/typebot";
 import { invalidateCache, setInCache } from "../cache/translationCache";
-import { extractAsMap } from "../extraction/extractTranslatableContent";
+import {
+  extractAsMap,
+  normalizeLanguageCode,
+} from "../extraction/extractTranslatableContent";
 import {
   deleteTranslatedJourney,
   listTranslations,

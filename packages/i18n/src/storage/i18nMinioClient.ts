@@ -4,6 +4,7 @@
 
 import { env } from "@typebot.io/env";
 import { Client as MinioClient } from "minio";
+import { normalizeLanguageCode } from "../extraction/extractTranslatableContent";
 
 const I18N_BUCKET = "bot-i18n";
 
@@ -63,7 +64,8 @@ export const ensureBucketExists = async (): Promise<void> => {
  * Get the path for a translated journey
  */
 export const getJourneyPath = (botId: string, language: string): string => {
-  return `${botId}/${language}.json`;
+  const normalizedLanguage = normalizeLanguageCode(language);
+  return `${botId}/${normalizedLanguage}.json`;
 };
 
 /**
@@ -141,6 +143,7 @@ export const deleteTranslatedJourney = async (
     await ensureBucketExists();
     const client = getMinioClient();
     const path = getJourneyPath(botId, language);
+    console.log(`DEBUG: Deleting translated journey from ${I18N_BUCKET}/${path}...`);
     await client.removeObject(I18N_BUCKET, path);
   } catch (error: unknown) {
     // Ignore if object doesn't exist
