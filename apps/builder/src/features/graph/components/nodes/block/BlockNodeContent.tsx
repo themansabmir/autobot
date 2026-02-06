@@ -131,6 +131,9 @@ export const BlockNodeContent = ({
     case InputBlockType.LANGUAGE: {
       return <LanguageBlockNode block={block as any} />;
     }
+    case InputBlockType.NPS: {
+      return <RatingInputContent block={block as any} />;
+    }
     case LogicBlockType.SET_VARIABLE: {
       return <SetVariableContent block={block} />;
     }

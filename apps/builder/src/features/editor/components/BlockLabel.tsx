@@ -66,6 +66,7 @@ export const getInputBlockLabel = (
   [InputBlockType.WHATSAPP_LIST]: "WhatsApp List",
   [InputBlockType.WHATSAPP_CAROUSEL]: "WhatsApp Carousel",
   [InputBlockType.LANGUAGE]: "Language",
+  [InputBlockType.NPS]: "NPS",
 });
 
 export const getLogicBlockLabel = (
