@@ -51,7 +51,6 @@ import type { ContinueBotFlowResponse, SkipReply, SuccessReply } from "./types";
 import { updateVariablesInSession } from "./updateVariablesInSession";
 import { validateAndParseInputMessage } from "./validateAndParseInputMessage";
 import { walkFlowForward } from "./walkFlowForward";
-import { loadTranslatedJourney } from "./i18n/loadTranslatedJourney";
 import { normalizeLanguageCode } from "@typebot.io/i18n";
 
 type Params = {

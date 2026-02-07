@@ -29,7 +29,6 @@ import { TimeNodeContent } from "@/features/blocks/inputs/time/components/TimeNo
 import { UrlNodeContent } from "@/features/blocks/inputs/url/components/UrlNodeContent";
 import { WhatsAppCarouselContent } from "@/features/blocks/inputs/whatsappCarousel/components/WhatsAppCarouselContent";
 import { WhatsAppListBlockNode } from "@/features/blocks/inputs/whatsappList/components/WhatsAppListBlockNode";
-import { LanguageBlockNode } from "@/features/blocks/inputs/language/components/LanguageBlockNode";
 import { NpsInputContent } from "@/features/blocks/inputs/nps/components/NpsInputContent";
 import { ChatwootNodeBody } from "@/features/blocks/integrations/chatwoot/components/ChatwootNodeBody";
 import { GoogleAnalyticsNodeBody } from "@/features/blocks/integrations/googleAnalytics/components/GoogleAnalyticsNodeBody";
