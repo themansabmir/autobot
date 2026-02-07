@@ -1,7 +1,7 @@
 import type { ChangeEventDetails } from "@typebot.io/ui/components/Field";
 import { Input, type InputProps } from "@typebot.io/ui/components/Input";
 import { cn } from "@typebot.io/ui/lib/cn";
-import { forwardRef, useRef } from "react";
+import { forwardRef, useEffect, useRef, useState } from "react";
 import { VariablesButton } from "@/features/variables/components/VariablesButton";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useInjectableInputValue } from "@/hooks/useInjectableInputValue";
@@ -12,7 +12,15 @@ type Props = Omit<InputProps, "defaultValue"> & {
 };
 
 export const DebouncedTextInput = forwardRef<HTMLInputElement, Props>(
-  ({ debounceTimeout = 1000, ...props }, ref) => {
+  ({ debounceTimeout = 1000, value: valueProp, defaultValue, ...props }, ref) => {
+    const [localValue, setLocalValue] = useState(valueProp ?? defaultValue ?? "");
+
+    useEffect(() => {
+      if (valueProp !== undefined) {
+        setLocalValue(valueProp);
+      }
+    }, [valueProp]);
+
     const commitValue = useDebounce(
       (value: string, eventDetails: ChangeEventDetails) => {
         props.onValueChange?.(value, eventDetails);
@@ -20,12 +28,19 @@ export const DebouncedTextInput = forwardRef<HTMLInputElement, Props>(
       debounceTimeout,
     );
 
+    const handleChange = (value: string, eventDetails: ChangeEventDetails) => {
+      setLocalValue(value);
+      commitValue(value, eventDetails);
+    };
+
     return (
       <Input
         {...props}
+        value={localValue}
         ref={ref}
-        onValueChange={(value, eventDetails) => {
-          commitValue(value, eventDetails);
+        onValueChange={handleChange}
+        onBlur={() => {
+          commitValue.flush();
         }}
       />
     );

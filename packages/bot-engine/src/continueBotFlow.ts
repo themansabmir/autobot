@@ -51,7 +51,6 @@ import type { ContinueBotFlowResponse, SkipReply, SuccessReply } from "./types";
 import { updateVariablesInSession } from "./updateVariablesInSession";
 import { validateAndParseInputMessage } from "./validateAndParseInputMessage";
 import { walkFlowForward } from "./walkFlowForward";
-import { loadTranslatedJourney } from "./i18n/loadTranslatedJourney";
 import { normalizeLanguageCode } from "@typebot.io/i18n";
 
 type Params = {
@@ -220,13 +219,16 @@ export const continueBotFlow = async (
         newSessionState.typebotsQueue[0].typebot.settings?.localization
           ?.languages?.[0];
 
-      // Only swap journey if selected language is different from default
-      if (normalizedLanguage !== defaultLanguage) {
+      // Only swap journey if selected language is different from default AND different from current
+      if (
+        normalizedLanguage !== defaultLanguage &&
+        normalizedLanguage !== newSessionState.language
+      ) {
         try {
           const translatedTypebot = await loadTranslatedJourney(
             newSessionState.typebotsQueue[0].typebot.id,
             normalizedLanguage,
-            newSessionState.typebotsQueue[0].typebot
+            newSessionState.typebotsQueue[0].typebot,
           );
 
           // Swap the typebot in the queue with the translated version

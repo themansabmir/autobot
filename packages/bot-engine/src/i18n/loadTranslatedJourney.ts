@@ -8,7 +8,12 @@
  */
 
 import type { TypebotInSession } from "@typebot.io/chat-session/schemas";
-import { getTranslatedJourney, listTranslations } from "@typebot.io/i18n";
+import {
+  getFromCache,
+  getTranslatedJourney,
+  listTranslations,
+  setInCache,
+} from "@typebot.io/i18n";
 
 // Feature flag - set to true to enable i18n (requires proper memory configuration)
 const I18N_ENABLED = true;
@@ -27,11 +32,25 @@ export const loadTranslatedJourney = async (
   }
 
   try {
+    // Try to get from cache first
+    const cached = await getFromCache<TypebotInSession>(botId, language);
+    if (cached) {
+      console.log(`[i18n] Cache hit for ${language}`);
+      return cached;
+    }
+
     const translatedJourney = await getTranslatedJourney<TypebotInSession>(
       botId,
       language,
     );
-    return translatedJourney ?? defaultTypebot;
+
+    if (translatedJourney) {
+      // Set in cache for future requests
+      await setInCache(botId, language, translatedJourney);
+      return translatedJourney;
+    }
+
+    return defaultTypebot;
   } catch (error) {
     console.error(`Failed to load translated journey for ${language}:`, error);
     return defaultTypebot;
