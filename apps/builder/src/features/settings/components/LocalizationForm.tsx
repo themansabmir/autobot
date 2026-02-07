@@ -5,7 +5,6 @@ import { Field } from "@typebot.io/ui/components/Field";
 import { Switch } from "@typebot.io/ui/components/Switch";
 import { PlusSignIcon } from "@typebot.io/ui/icons/PlusSignIcon";
 import { TrashIcon } from "@typebot.io/ui/icons/TrashIcon";
-import { Button } from "@typebot.io/ui/components/Button";
 import { BasicAutocompleteInput } from "@/components/inputs/BasicAutocompleteInput";
 import { commonLanguages } from "@typebot.io/lib/languages";
 import { useState } from "react";
