@@ -24,6 +24,8 @@ import { TimeInputSettings } from "@/features/blocks/inputs/time/components/Time
 import { UrlInputSettings } from "@/features/blocks/inputs/url/components/UrlInputSettings";
 import { WhatsAppCarouselSettings } from "@/features/blocks/inputs/whatsappCarousel/components/WhatsAppCarouselSettings";
 import { WhatsAppListSettings } from "@/features/blocks/inputs/whatsappList/components/WhatsAppListSettings";
+import { LanguageBlockSettings } from "@/features/blocks/inputs/language/components/LanguageBlockSettings";
+import { NpsInputSettings } from "@/features/blocks/inputs/nps/components/NpsInputSettings";
 import { ChatwootSettings } from "@/features/blocks/integrations/chatwoot/components/ChatwootSettings";
 import { GoogleAnalyticsSettings } from "@/features/blocks/integrations/googleAnalytics/components/GoogleAnalyticsSettings";
 import { GoogleSheetsSettings } from "@/features/blocks/integrations/googleSheets/components/GoogleSheetsSettings";
@@ -280,7 +282,7 @@ export const NodeSettings = ({
     }
     case InputBlockType.NPS: {
       return (
-        <RatingInputSettings
+        <NpsInputSettings
           options={node.options}
           onOptionsChange={updateOptions}
         />
