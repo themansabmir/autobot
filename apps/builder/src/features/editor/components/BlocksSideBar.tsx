@@ -36,6 +36,17 @@ import {
 // Integration blocks migrated to forged blocks
 const legacyIntegrationBlocks = [IntegrationBlockType.OPEN_AI];
 
+// Allowed integrations to show in sidebar
+const ALLOWED_INTEGRATIONS = [
+  IntegrationBlockType.HTTP_REQUEST,
+  IntegrationBlockType.GOOGLE_SHEETS,
+];
+
+// Allowed forged blocks to show in sidebar
+const ALLOWED_FORGED_BLOCKS = [
+  "nocodb",
+];
+
 export const BlocksSideBar = () => {
   const { t } = useTranslate();
   const {
@@ -134,6 +145,11 @@ export const BlocksSideBar = () => {
 
   const filteredForgedBlockIds = Object.values(forgedBlocks)
     .filter((block) => {
+      // Only show allowed forged blocks
+      if (!ALLOWED_FORGED_BLOCKS.includes(block.id)) {
+        return false;
+      }
+      
       return (
         block.id.toLowerCase().includes(searchInput.toLowerCase()) ||
         (block.tags &&
@@ -180,6 +196,7 @@ export const BlocksSideBar = () => {
     IntegrationBlockType,
   ).filter(
     (type) =>
+      ALLOWED_INTEGRATIONS.includes(type) &&
       getIntegrationBlockLabel(t)
         [type].toLowerCase()
         .includes(searchInput.toLowerCase()) &&
@@ -283,24 +300,22 @@ export const BlocksSideBar = () => {
           </div>
         </div>
 
-        {env.NEXT_PUBLIC_SHOW_INTEGRATIONS && (
-          <div className="flex flex-col gap-2">
-            <h4 className="text-sm">
-              {t("editor.sidebarBlocks.blockType.integrations.heading")}
-            </h4>
-            <div className="grid gap-3 grid-cols-2">
-              {filteredIntegrationBlockTypes
-                .concat(filteredForgedBlockIds as any)
-                .map((type) => (
-                  <BlockCard
-                    key={type}
-                    type={type}
-                    onMouseDown={initBlockDragging}
-                  />
-                ))}
-            </div>
+        <div className="flex flex-col gap-2">
+          <h4 className="text-sm">
+            {t("editor.sidebarBlocks.blockType.integrations.heading")}
+          </h4>
+          <div className="grid gap-3 grid-cols-2">
+            {filteredIntegrationBlockTypes
+              .concat(filteredForgedBlockIds as any)
+              .map((type) => (
+                <BlockCard
+                  key={type}
+                  type={type}
+                  onMouseDown={initBlockDragging}
+                />
+              ))}
           </div>
-        )}
+        </div>
 
         {draggedBlockType && (
           <Portal>

@@ -29,6 +29,7 @@ import { TimeNodeContent } from "@/features/blocks/inputs/time/components/TimeNo
 import { UrlNodeContent } from "@/features/blocks/inputs/url/components/UrlNodeContent";
 import { WhatsAppCarouselContent } from "@/features/blocks/inputs/whatsappCarousel/components/WhatsAppCarouselContent";
 import { WhatsAppListBlockNode } from "@/features/blocks/inputs/whatsappList/components/WhatsAppListBlockNode";
+import { NpsInputContent } from "@/features/blocks/inputs/nps/components/NpsInputContent";
 import { ChatwootNodeBody } from "@/features/blocks/integrations/chatwoot/components/ChatwootNodeBody";
 import { GoogleAnalyticsNodeBody } from "@/features/blocks/integrations/googleAnalytics/components/GoogleAnalyticsNodeBody";
 import { GoogleSheetsNodeContent } from "@/features/blocks/integrations/googleSheets/components/GoogleSheetsNodeContent";
@@ -132,7 +133,7 @@ export const BlockNodeContent = ({
       return <LanguageBlockNode block={block as any} />;
     }
     case InputBlockType.NPS: {
-      return <RatingInputContent block={block as any} />;
+      return <NpsInputContent variableId={block.options?.variableId} block={block} />;
     }
     case LogicBlockType.SET_VARIABLE: {
       return <SetVariableContent block={block} />;
