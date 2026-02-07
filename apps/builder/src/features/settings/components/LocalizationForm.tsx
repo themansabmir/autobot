@@ -1,4 +1,4 @@
-import { useTranslate } from "@tolgee/react";
+﻿import { useTranslate } from "@tolgee/react";
 import type { Settings } from "@typebot.io/settings/schemas";
 import { Button } from "@typebot.io/ui/components/Button";
 import { Field } from "@typebot.io/ui/components/Field";
@@ -82,7 +82,7 @@ export const LocalizationForm = ({
                   onClick={addLanguage}
                   variant="outline"
                   size="sm"
-                  isDisabled={
+                  disabled={
                     !selectedLanguage ||
                     !commonLanguages.some(
                       (l) => l.toLowerCase() === selectedLanguage.toLowerCase()
@@ -96,10 +96,10 @@ export const LocalizationForm = ({
 
               <div className="flex flex-col gap-2">
                 {localization.languages?.map((lang, index) => (
-                  <div key={index} className="flex gap-2 items-center">
+                  <div key={lang} className="flex gap-2 items-center">
                     <DebouncedTextInput
                       placeholder="e.g. English"
-                      defaultValue={lang}
+                      value={lang}
                       onValueChange={(v) => updateLanguage(index, v)}
                     />
                     <Button
