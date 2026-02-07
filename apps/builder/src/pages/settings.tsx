@@ -1,9 +1,8 @@
-
+import { useTranslate } from "@tolgee/react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Seo } from "@/components/Seo";
-import { WorkspaceSettingsForm } from "@/features/workspace/components/WorkspaceSettingsForm";
 import { MyAccountForm } from "@/features/user/components/MyAccountForm";
-import { useTranslate } from "@tolgee/react";
+import { WorkspaceSettingsForm } from "@/features/workspace/components/WorkspaceSettingsForm";
 
 export default function SettingsPage() {
   const { t } = useTranslate();

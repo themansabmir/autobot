@@ -43,6 +43,7 @@ import { executeInvalidReplyEvent } from "./events/executeInvalidReplyEvent";
 import { executeReplyEvent } from "./events/executeReplyEvent";
 import { formatInputForChatResponse } from "./formatInputForChatResponse";
 import { getReplyOutgoingEdge } from "./getReplyOutgoingEdge";
+import { loadTranslatedJourney } from "./i18n/loadTranslatedJourney";
 import { saveAnswer } from "./queries/saveAnswer";
 import { resetSessionState } from "./resetSessionState";
 import { startBotFlow } from "./startBotFlow";
@@ -51,6 +52,7 @@ import { updateVariablesInSession } from "./updateVariablesInSession";
 import { validateAndParseInputMessage } from "./validateAndParseInputMessage";
 import { walkFlowForward } from "./walkFlowForward";
 import { loadTranslatedJourney } from "./i18n/loadTranslatedJourney";
+import { normalizeLanguageCode } from "@typebot.io/i18n";
 
 type Params = {
   version: 1 | 2;
@@ -124,6 +126,7 @@ export const continueBotFlow = async (
       block,
       variables: newSessionState.typebotsQueue[0].typebot.variables,
       sessionStore,
+      typebot: newSessionState.typebotsQueue[0].typebot,
     });
 
     if (
@@ -206,7 +209,11 @@ export const continueBotFlow = async (
         : reply,
     );
     if (block.type === InputBlockType.LANGUAGE && formattedReply) {
-      newSessionState.language = formattedReply;
+      const normalizedLanguage = normalizeLanguageCode(formattedReply);
+      console.log(
+        `[i18n] Language selected: ${formattedReply} -> normalized to: ${normalizedLanguage}`
+      );
+      newSessionState.language = normalizedLanguage;
 
       // Load translated journey for the selected language
       const defaultLanguage =
@@ -214,11 +221,11 @@ export const continueBotFlow = async (
           ?.languages?.[0];
 
       // Only swap journey if selected language is different from default
-      if (formattedReply !== defaultLanguage) {
+      if (normalizedLanguage !== defaultLanguage) {
         try {
           const translatedTypebot = await loadTranslatedJourney(
             newSessionState.typebotsQueue[0].typebot.id,
-            formattedReply,
+            normalizedLanguage,
             newSessionState.typebotsQueue[0].typebot
           );
 
@@ -231,7 +238,7 @@ export const continueBotFlow = async (
                     ...item,
                     typebot: translatedTypebot,
                   }
-                : item
+                : item,
             ),
           };
         } catch (error) {

@@ -18,6 +18,7 @@ import { CtaUrlNodeContent } from "@/features/blocks/inputs/ctaUrl/components/Ct
 import { DateNodeContent } from "@/features/blocks/inputs/date/components/DateNodeContent";
 import { EmailInputNodeContent } from "@/features/blocks/inputs/emailInput/components/EmailInputNodeContent";
 import { FileInputContent } from "@/features/blocks/inputs/fileUpload/components/FileInputContent";
+import { LanguageBlockNode } from "@/features/blocks/inputs/language/components/LanguageBlockNode";
 import { NumberNodeContent } from "@/features/blocks/inputs/number/components/NumberNodeContent";
 import { PaymentInputContent } from "@/features/blocks/inputs/payment/components/PaymentInputContent";
 import { PhoneNodeContent } from "@/features/blocks/inputs/phone/components/PhoneNodeContent";

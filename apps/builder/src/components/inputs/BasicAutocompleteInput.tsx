@@ -1,6 +1,6 @@
 import { Autocomplete } from "@typebot.io/ui/components/Autocomplete";
 import { useOpenControls } from "@typebot.io/ui/hooks/useOpenControls";
-import { forwardRef, useRef, useState } from "react";
+import { forwardRef, useEffect, useRef, useState } from "react";
 import { VariablesButton } from "@/features/variables/components/VariablesButton";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useInjectableInputValue } from "@/hooks/useInjectableInputValue";
@@ -31,9 +31,14 @@ export const BasicAutocompleteInput = forwardRef<HTMLInputElement, Props>(
     const { onOpen, onClose, isOpen } = useOpenControls();
     const [inputValue, setInputValue] = useState(value ?? defaultValue);
 
+    useEffect(() => {
+      if (value !== undefined) setInputValue(value);
+    }, [value]);
+
     const _onChange = (value: string | undefined) => {
       setInputValue(value);
-      commitValue(value);
+      if (debounceTimeout === 0) onChange(value);
+      else commitValue(value);
     };
 
     const commitValue = useDebounce((value: string | undefined) => {

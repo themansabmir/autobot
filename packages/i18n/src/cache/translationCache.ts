@@ -95,7 +95,7 @@ const getRedisClient = async (): Promise<Redis | null> => {
  */
 export const getFromCache = async <T = object>(
   botId: string,
-  language: string
+  language: string,
 ): Promise<T | null> => {
   const key = getCacheKey(botId, language);
 
@@ -123,7 +123,7 @@ export const setInCache = async (
   botId: string,
   language: string,
   journey: object,
-  ttlSeconds: number = DEFAULT_TTL_SECONDS
+  ttlSeconds: number = DEFAULT_TTL_SECONDS,
 ): Promise<void> => {
   const key = getCacheKey(botId, language);
 
@@ -146,7 +146,7 @@ export const setInCache = async (
  */
 export const invalidateCache = async (
   botId: string,
-  language: string
+  language: string,
 ): Promise<void> => {
   const key = getCacheKey(botId, language);
 
@@ -168,7 +168,7 @@ export const invalidateCache = async (
  * Invalidate all cached translations for a bot
  */
 export const invalidateAllCacheForBot = async (
-  botId: string
+  botId: string,
 ): Promise<void> => {
   const prefix = `i18n:${botId}:`;
 

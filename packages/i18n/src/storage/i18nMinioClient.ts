@@ -4,6 +4,7 @@
 
 import { env } from "@typebot.io/env";
 import { Client as MinioClient } from "minio";
+import { normalizeLanguageCode } from "../extraction/extractTranslatableContent";
 
 const I18N_BUCKET = "bot-i18n";
 
@@ -17,7 +18,7 @@ export const getMinioClient = (): MinioClient => {
 
   if (!env.S3_ENDPOINT || !env.S3_ACCESS_KEY || !env.S3_SECRET_KEY) {
     throw new Error(
-      "S3/MinIO not properly configured. Missing one of: S3_ENDPOINT, S3_ACCESS_KEY, S3_SECRET_KEY"
+      "S3/MinIO not properly configured. Missing one of: S3_ENDPOINT, S3_ACCESS_KEY, S3_SECRET_KEY",
     );
   }
 
@@ -47,7 +48,9 @@ export const ensureBucketExists = async (): Promise<void> => {
       console.log(`DEBUG: Bucket ${I18N_BUCKET} created.`);
     } catch (error: any) {
       if (error?.code === "BucketAlreadyOwnedByYou") {
-        console.log(`DEBUG: Bucket ${I18N_BUCKET} already exists (race condition).`);
+        console.log(
+          `DEBUG: Bucket ${I18N_BUCKET} already exists (race condition).`,
+        );
       } else {
         throw error;
       }
@@ -61,7 +64,8 @@ export const ensureBucketExists = async (): Promise<void> => {
  * Get the path for a translated journey
  */
 export const getJourneyPath = (botId: string, language: string): string => {
-  return `${botId}/${language}.json`;
+  const normalizedLanguage = normalizeLanguageCode(language);
+  return `${botId}/${normalizedLanguage}.json`;
 };
 
 /**
@@ -70,7 +74,7 @@ export const getJourneyPath = (botId: string, language: string): string => {
 export const uploadTranslatedJourney = async (
   botId: string,
   language: string,
-  journeyJson: object
+  journeyJson: object,
 ): Promise<string> => {
   await ensureBucketExists();
   const client = getMinioClient();
@@ -78,7 +82,9 @@ export const uploadTranslatedJourney = async (
   const jsonString = JSON.stringify(journeyJson);
   const buffer = Buffer.from(jsonString, "utf-8");
 
-  console.log(`DEBUG: Uploading translated journey to ${I18N_BUCKET}/${path}...`);
+  console.log(
+    `DEBUG: Uploading translated journey to ${I18N_BUCKET}/${path}...`,
+  );
   await client.putObject(I18N_BUCKET, path, buffer, buffer.length, {
     "Content-Type": "application/json",
     "Cache-Control": "public, max-age=3600",
@@ -93,7 +99,7 @@ export const uploadTranslatedJourney = async (
  */
 export const getTranslatedJourney = async <T = object>(
   botId: string,
-  language: string
+  language: string,
 ): Promise<T | null> => {
   try {
     const client = getMinioClient();
@@ -131,12 +137,13 @@ export const getTranslatedJourney = async <T = object>(
  */
 export const deleteTranslatedJourney = async (
   botId: string,
-  language: string
+  language: string,
 ): Promise<void> => {
   try {
     await ensureBucketExists();
     const client = getMinioClient();
     const path = getJourneyPath(botId, language);
+    console.log(`DEBUG: Deleting translated journey from ${I18N_BUCKET}/${path}...`);
     await client.removeObject(I18N_BUCKET, path);
   } catch (error: unknown) {
     // Ignore if object doesn't exist

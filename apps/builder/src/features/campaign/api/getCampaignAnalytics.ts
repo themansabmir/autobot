@@ -1,5 +1,4 @@
 import { TRPCError } from "@trpc/server";
-import type { RecipientStatus } from "@typebot.io/schemas/features/campaign";
 import prisma from "@typebot.io/prisma";
 import { z } from "@typebot.io/zod";
 import { getUserModeInWorkspace } from "@/features/workspace/helpers/getUserRoleInWorkspace";

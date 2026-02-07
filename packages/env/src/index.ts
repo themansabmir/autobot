@@ -385,6 +385,8 @@ const whatsAppEnv = {
     WHATSAPP_ENABLE_LIST_MESSAGES: boolean.optional().default("true"),
     WHATSAPP_ENABLE_CTA_URL_MESSAGES: boolean.optional().default("true"),
     WHATSAPP_ENABLE_EXTENDED_TEMPLATES: boolean.optional().default("true"),
+    // Dev proxy for local development
+    DEV_PROXY_URLS: z.string().optional(),
   },
 };
 

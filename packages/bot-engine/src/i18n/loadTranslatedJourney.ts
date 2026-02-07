@@ -20,7 +20,7 @@ const I18N_ENABLED = true;
 export const loadTranslatedJourney = async (
   botId: string,
   language: string,
-  defaultTypebot: TypebotInSession
+  defaultTypebot: TypebotInSession,
 ): Promise<TypebotInSession> => {
   if (!I18N_ENABLED || !language) {
     return defaultTypebot;
@@ -29,7 +29,7 @@ export const loadTranslatedJourney = async (
   try {
     const translatedJourney = await getTranslatedJourney<TypebotInSession>(
       botId,
-      language
+      language,
     );
     return translatedJourney ?? defaultTypebot;
   } catch (error) {
@@ -43,7 +43,7 @@ export const loadTranslatedJourney = async (
  */
 export const hasTranslatedJourney = async (
   botId: string,
-  language: string
+  language: string,
 ): Promise<boolean> => {
   if (!I18N_ENABLED || !language) {
     return false;

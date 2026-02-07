@@ -16,33 +16,30 @@ export interface TranslatableItem {
   type: "bubble" | "button" | "placeholder" | "label" | "option";
 }
 
+import { supportedLanguages } from "@typebot.io/lib/languages";
+
 /**
  * Normalize language name to ISO code
  */
 export const normalizeLanguageCode = (lang: string): string => {
-  const mapping: Record<string, string> = {
-    english: "en",
-    hindi: "hi",
-    french: "fr",
-    spanish: "es",
-    german: "de",
-    portuguese: "pt",
-    italian: "it",
-    dutch: "nl",
-    russian: "ru",
-    chinese: "zh-CN",
-    japanese: "ja",
-    korean: "ko",
-    arabic: "ar",
-    bengali: "bn",
-    turkish: "tr",
-    vietnamese: "vi",
-    indonesian: "id",
-    thai: "th",
-  };
+  const normalized = lang.trim();
+  
+  // 1. Check if it's already a code (exact match in values)
+  if (Object.values(supportedLanguages).includes(normalized.toLowerCase())) {
+    return normalized.toLowerCase();
+  }
 
-  const normalized = lang.toLowerCase().trim();
-  return mapping[normalized] || normalized;
+  // 2. Check if it's a name (exact match in keys)
+  const code = supportedLanguages[normalized];
+  if (code) return code;
+
+  // 3. Fallback to case-insensitive name match
+  const lowerCaseName = normalized.toLowerCase();
+  const foundEntry = Object.entries(supportedLanguages).find(
+    ([name]) => name.toLowerCase() === lowerCaseName
+  );
+  
+  return foundEntry ? foundEntry[1] : lowerCaseName;
 };
 
 /**
@@ -50,7 +47,7 @@ export const normalizeLanguageCode = (lang: string): string => {
  */
 const extractFromRichText = (
   richText: unknown[],
-  basePath: string
+  basePath: string,
 ): TranslatableItem[] => {
   const items: TranslatableItem[] = [];
 
@@ -112,7 +109,7 @@ const extractPlainTextFromRichText = (richText: unknown[]): string => {
 const extractFromTextBubble = (
   block: Record<string, unknown>,
   groupIndex: number,
-  blockIndex: number
+  blockIndex: number,
 ): TranslatableItem[] => {
   const items: TranslatableItem[] = [];
   const content = block.content as Record<string, unknown> | undefined;
@@ -143,8 +140,8 @@ const extractFromTextBubble = (
     items.push(
       ...extractFromRichText(
         content.richText,
-        `groups.${groupIndex}.blocks.${blockIndex}.content.richText`
-      )
+        `groups.${groupIndex}.blocks.${blockIndex}.content.richText`,
+      ),
     );
   }
 
@@ -157,7 +154,7 @@ const extractFromTextBubble = (
 const extractFromButtonItems = (
   items: unknown[],
   groupIndex: number,
-  blockIndex: number
+  blockIndex: number,
 ): TranslatableItem[] => {
   const translatableItems: TranslatableItem[] = [];
 
@@ -183,7 +180,7 @@ const extractFromButtonItems = (
 const extractFromInputOptions = (
   options: Record<string, unknown>,
   groupIndex: number,
-  blockIndex: number
+  blockIndex: number,
 ): TranslatableItem[] => {
   const items: TranslatableItem[] = [];
   const basePath = `groups.${groupIndex}.blocks.${blockIndex}.options`;
@@ -239,7 +236,7 @@ const extractFromInputOptions = (
  * Extract all translatable content from a typebot
  */
 export const extractTranslatableContent = (
-  typebot: Typebot
+  typebot: Typebot,
 ): TranslatableItem[] => {
   const items: TranslatableItem[] = [];
 
@@ -258,7 +255,7 @@ export const extractTranslatableContent = (
       // Blocks with items (buttons, picture choice, etc.)
       if (Array.isArray(blockObj.items)) {
         items.push(
-          ...extractFromButtonItems(blockObj.items, groupIndex, blockIndex)
+          ...extractFromButtonItems(blockObj.items, groupIndex, blockIndex),
         );
       }
 
@@ -268,8 +265,8 @@ export const extractTranslatableContent = (
           ...extractFromInputOptions(
             blockObj.options as Record<string, unknown>,
             groupIndex,
-            blockIndex
-          )
+            blockIndex,
+          ),
         );
       }
     });

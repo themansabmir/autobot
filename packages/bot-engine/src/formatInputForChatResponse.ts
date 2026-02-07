@@ -12,6 +12,7 @@ import { injectVariableValuesInButtonsInputBlock } from "./blocks/inputs/buttons
 import { parseDateInput } from "./blocks/inputs/date/parseDateInput";
 import { computePaymentInputRuntimeOptions } from "./blocks/inputs/payment/computePaymentInputRuntimeOptions";
 import { injectVariableValuesInPictureChoiceBlock } from "./blocks/inputs/pictureChoice/injectVariableValuesInPictureChoiceBlock";
+import { normalizeLanguageCode } from "@typebot.io/i18n";
 import { getPrefilledInputValue } from "./getPrefilledValue";
 
 export const formatInputForChatResponse = async (
@@ -73,6 +74,18 @@ export const formatInputForChatResponse = async (
         },
       );
     }
+    case InputBlockType.NPS: {
+      return deepParseVariables(
+        {
+          ...block,
+          prefilledValue: getPrefilledInputValue(variables)(block),
+        },
+        {
+          variables,
+          sessionStore,
+        },
+      );
+    }
     case InputBlockType.CARDS: {
       return injectVariableValuesInCardsBlock(block, {
         variables,
@@ -87,15 +100,15 @@ export const formatInputForChatResponse = async (
         languages: typebot?.settings?.localization?.languages,
         blockOptions: block.options,
       });
-      
+
       const languages = typebot?.settings?.localization?.languages ?? [];
       const items = languages.map((language: string) => ({
-        id: language,
+        id: normalizeLanguageCode(language),
         content: language,
       }));
-      
+
       console.log("🔍 [LANGUAGE Block] Generated items:", items);
-      
+
       return {
         ...block,
         options: block.options,

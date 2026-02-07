@@ -3,7 +3,11 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@typebot.io/i18n": ["../../packages/i18n/src/index.ts"],
+      "@typebot.io/i18n/*": ["../../packages/i18n/src/*.ts"],
+      "@typebot.io/bot-engine/*": ["../../packages/bot-engine/src/*.ts"],
+      "@typebot.io/bot-engine": ["../../packages/bot-engine/src/index.ts"]
     },
     "strictNullChecks": true
   },

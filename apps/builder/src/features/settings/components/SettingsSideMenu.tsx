@@ -2,16 +2,16 @@ import { useTranslate } from "@tolgee/react";
 import type { Settings } from "@typebot.io/settings/schemas";
 import { Accordion } from "@typebot.io/ui/components/Accordion";
 import { ChatIcon } from "@typebot.io/ui/icons/ChatIcon";
+import { Globe02Icon } from "@typebot.io/ui/icons/Globe02Icon";
 import { MoreHorizontalIcon } from "@typebot.io/ui/icons/MoreHorizontalIcon";
 import { SourceCodeIcon } from "@typebot.io/ui/icons/SourceCodeIcon";
 import { SquareLock01Icon } from "@typebot.io/ui/icons/SquareLock01Icon";
 import { useTypebot } from "@/features/editor/providers/TypebotProvider";
 import { GeneralSettingsForm } from "./GeneralSettingsForm";
+import { LocalizationForm } from "./LocalizationForm";
 import { MetadataForm } from "./MetadataForm";
 import { SecurityForm } from "./SecurityForm";
 import { TypingEmulationForm } from "./TypingEmulationForm";
-import { Globe02Icon } from "@typebot.io/ui/icons/Globe02Icon";
-import { LocalizationForm } from "./LocalizationForm";
 
 export const SettingsSideMenu = () => {
   const { typebot, updateTypebot } = useTypebot();
