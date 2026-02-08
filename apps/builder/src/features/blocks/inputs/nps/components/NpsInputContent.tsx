@@ -1,4 +1,3 @@
-import { useTranslate } from "@tolgee/react";
 import { npsInputConstants } from "@typebot.io/blocks-inputs/nps/constants";
 import type { NpsInputBlock } from "@typebot.io/blocks-inputs/nps/schema";
 import { WithVariableContent } from "@/features/graph/components/nodes/block/WithVariableContent";
@@ -9,8 +8,6 @@ type Props = {
 };
 
 export const NpsInputContent = ({ variableId, block }: Props) => {
-  const { t } = useTranslate();
-
   return variableId ? (
     <WithVariableContent variableId={variableId} />
   ) : (

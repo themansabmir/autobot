@@ -1,4 +1,3 @@
-import { useTranslate } from "@tolgee/react";
 import type { LanguageBlock } from "@typebot.io/blocks-inputs/language/schema";
 import type { Settings } from "@typebot.io/settings/schemas";
 import { Field } from "@typebot.io/ui/components/Field";
@@ -13,7 +12,6 @@ type Props = {
 
 export const LanguageBlockSettings = ({ options, onOptionsChange }: Props) => {
   const { typebot, updateTypebot } = useTypebot();
-  const { t } = useTranslate();
 
   const handleLocalizationChange = (localization: Settings["localization"]) =>
     typebot &&

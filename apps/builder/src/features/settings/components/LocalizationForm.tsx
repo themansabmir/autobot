@@ -1,5 +1,4 @@
-﻿import { useTranslate } from "@tolgee/react";
-import { commonLanguages } from "@typebot.io/lib/languages";
+﻿import { commonLanguages } from "@typebot.io/lib/languages";
 import type { Settings } from "@typebot.io/settings/schemas";
 import { Button } from "@typebot.io/ui/components/Button";
 import { Field } from "@typebot.io/ui/components/Field";
@@ -19,7 +18,6 @@ export const LocalizationForm = ({
   localization,
   onLocalizationChange,
 }: Props) => {
-  const { t } = useTranslate();
   const [selectedLanguage, setSelectedLanguage] = useState("");
 
   const toggleEnabled = (isEnabled: boolean) =>
