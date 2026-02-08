@@ -143,7 +143,9 @@ export const deleteTranslatedJourney = async (
     await ensureBucketExists();
     const client = getMinioClient();
     const path = getJourneyPath(botId, language);
-    console.log(`DEBUG: Deleting translated journey from ${I18N_BUCKET}/${path}...`);
+    console.log(
+      `DEBUG: Deleting translated journey from ${I18N_BUCKET}/${path}...`,
+    );
     await client.removeObject(I18N_BUCKET, path);
   } catch (error: unknown) {
     // Ignore if object doesn't exist

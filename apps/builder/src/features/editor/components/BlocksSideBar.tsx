@@ -43,9 +43,7 @@ const ALLOWED_INTEGRATIONS = [
 ];
 
 // Allowed forged blocks to show in sidebar
-const ALLOWED_FORGED_BLOCKS = [
-  "nocodb",
-];
+const ALLOWED_FORGED_BLOCKS = ["nocodb"];
 
 export const BlocksSideBar = () => {
   const { t } = useTranslate();
@@ -149,7 +147,7 @@ export const BlocksSideBar = () => {
       if (!ALLOWED_FORGED_BLOCKS.includes(block.id)) {
         return false;
       }
-      
+
       return (
         block.id.toLowerCase().includes(searchInput.toLowerCase()) ||
         (block.tags &&

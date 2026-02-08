@@ -23,7 +23,7 @@ import { supportedLanguages } from "@typebot.io/lib/languages";
  */
 export const normalizeLanguageCode = (lang: string): string => {
   const normalized = lang.trim();
-  
+
   // 1. Check if it's already a code (exact match in values)
   if (Object.values(supportedLanguages).includes(normalized.toLowerCase())) {
     return normalized.toLowerCase();
@@ -36,9 +36,9 @@ export const normalizeLanguageCode = (lang: string): string => {
   // 3. Fallback to case-insensitive name match
   const lowerCaseName = normalized.toLowerCase();
   const foundEntry = Object.entries(supportedLanguages).find(
-    ([name]) => name.toLowerCase() === lowerCaseName
+    ([name]) => name.toLowerCase() === lowerCaseName,
   );
-  
+
   return foundEntry ? foundEntry[1] : lowerCaseName;
 };
 

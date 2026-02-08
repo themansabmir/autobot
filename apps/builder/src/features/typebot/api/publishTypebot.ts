@@ -334,7 +334,7 @@ export const publishTypebot = authenticatedProcedure
     // Trigger translation sync for the published version
     triggerTranslationGeneration(
       existingTypebot as any,
-      existingTypebot.settings as any
+      existingTypebot.settings as any,
     );
 
     return {

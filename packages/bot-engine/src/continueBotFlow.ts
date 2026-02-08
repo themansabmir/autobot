@@ -26,6 +26,7 @@ import { forgedBlocks } from "@typebot.io/forge-repository/definitions";
 import type { ForgedBlock } from "@typebot.io/forge-repository/schemas";
 import { getBlockById } from "@typebot.io/groups/helpers/getBlockById";
 import type { Group } from "@typebot.io/groups/schemas";
+import { normalizeLanguageCode } from "@typebot.io/i18n";
 import { parseUnknownError } from "@typebot.io/lib/parseUnknownError";
 import { byId, isDefined, isNotDefined } from "@typebot.io/lib/utils";
 import type { AnswerInSessionState } from "@typebot.io/results/schemas/answers";
@@ -51,7 +52,6 @@ import type { ContinueBotFlowResponse, SkipReply, SuccessReply } from "./types";
 import { updateVariablesInSession } from "./updateVariablesInSession";
 import { validateAndParseInputMessage } from "./validateAndParseInputMessage";
 import { walkFlowForward } from "./walkFlowForward";
-import { normalizeLanguageCode } from "@typebot.io/i18n";
 
 type Params = {
   version: 1 | 2;
@@ -210,7 +210,7 @@ export const continueBotFlow = async (
     if (block.type === InputBlockType.LANGUAGE && formattedReply) {
       const normalizedLanguage = normalizeLanguageCode(formattedReply);
       console.log(
-        `[i18n] Language selected: ${formattedReply} -> normalized to: ${normalizedLanguage}`
+        `[i18n] Language selected: ${formattedReply} -> normalized to: ${normalizedLanguage}`,
       );
       newSessionState.language = normalizedLanguage;
 

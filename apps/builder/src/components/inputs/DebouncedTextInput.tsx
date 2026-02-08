@@ -12,8 +12,13 @@ type Props = Omit<InputProps, "defaultValue"> & {
 };
 
 export const DebouncedTextInput = forwardRef<HTMLInputElement, Props>(
-  ({ debounceTimeout = 1000, value: valueProp, defaultValue, ...props }, ref) => {
-    const [localValue, setLocalValue] = useState(valueProp ?? defaultValue ?? "");
+  (
+    { debounceTimeout = 1000, value: valueProp, defaultValue, ...props },
+    ref,
+  ) => {
+    const [localValue, setLocalValue] = useState(
+      valueProp ?? defaultValue ?? "",
+    );
 
     useEffect(() => {
       if (valueProp !== undefined) {

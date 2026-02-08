@@ -7,8 +7,8 @@
  * To enable, set I18N_ENABLED = true and ensure @typebot.io/i18n is properly configured.
  */
 
-import type { Typebot } from "@typebot.io/typebot/schemas/typebot";
 import { syncTranslations } from "@typebot.io/i18n";
+import type { Typebot } from "@typebot.io/typebot/schemas/typebot";
 
 type LocalizationSettings = {
   isEnabled?: boolean;
@@ -45,7 +45,7 @@ export const triggerTranslationGeneration = (
   syncTranslations(
     typebot,
     localizationSettings.languages ?? [],
-    localizationSettings.defaultLanguage
+    localizationSettings.defaultLanguage,
   )
     .then((results) => {
       console.log(`✅ [i18n] Sync complete for ${typebot.id}`, results);

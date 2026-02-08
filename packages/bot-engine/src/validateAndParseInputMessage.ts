@@ -3,6 +3,7 @@ import { defaultFileInputOptions } from "@typebot.io/blocks-inputs/file/constant
 import type { InputBlock } from "@typebot.io/blocks-inputs/schema";
 import type { InputMessage } from "@typebot.io/chat-api/schemas";
 import { env } from "@typebot.io/env";
+import { normalizeLanguageCode } from "@typebot.io/i18n";
 import { parseAllowedFileTypesMetadata } from "@typebot.io/lib/extensionFromMimeType";
 import { isURL } from "@typebot.io/lib/isURL";
 import type { SessionStore } from "@typebot.io/runtime-session-store";
@@ -18,7 +19,6 @@ import { formatPhoneNumber } from "./blocks/inputs/phone/formatPhoneNumber";
 import { injectVariableValuesInPictureChoiceBlock } from "./blocks/inputs/pictureChoice/injectVariableValuesInPictureChoiceBlock";
 import { validateRatingReply } from "./blocks/inputs/rating/validateRatingReply";
 import { parseTime } from "./blocks/inputs/time/parseTime";
-import { normalizeLanguageCode } from "@typebot.io/i18n";
 import type { ParsedReply } from "./types";
 
 export const validateAndParseInputMessage = (

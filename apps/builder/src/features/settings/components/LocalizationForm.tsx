@@ -1,13 +1,13 @@
 ﻿import { useTranslate } from "@tolgee/react";
+import { commonLanguages } from "@typebot.io/lib/languages";
 import type { Settings } from "@typebot.io/settings/schemas";
 import { Button } from "@typebot.io/ui/components/Button";
 import { Field } from "@typebot.io/ui/components/Field";
 import { Switch } from "@typebot.io/ui/components/Switch";
 import { PlusSignIcon } from "@typebot.io/ui/icons/PlusSignIcon";
 import { TrashIcon } from "@typebot.io/ui/icons/TrashIcon";
-import { BasicAutocompleteInput } from "@/components/inputs/BasicAutocompleteInput";
-import { commonLanguages } from "@typebot.io/lib/languages";
 import { useState } from "react";
+import { BasicAutocompleteInput } from "@/components/inputs/BasicAutocompleteInput";
 import { DebouncedTextInput } from "@/components/inputs/DebouncedTextInput";
 
 type Props = {
@@ -28,7 +28,7 @@ export const LocalizationForm = ({
   const addLanguage = () => {
     if (!selectedLanguage) return;
     const supportedName = commonLanguages.find(
-      (l) => l.toLowerCase() === selectedLanguage.toLowerCase()
+      (l) => l.toLowerCase() === selectedLanguage.toLowerCase(),
     );
     if (!supportedName) return;
     onLocalizationChange({
@@ -84,7 +84,7 @@ export const LocalizationForm = ({
                   disabled={
                     !selectedLanguage ||
                     !commonLanguages.some(
-                      (l) => l.toLowerCase() === selectedLanguage.toLowerCase()
+                      (l) => l.toLowerCase() === selectedLanguage.toLowerCase(),
                     )
                   }
                 >
@@ -111,7 +111,8 @@ export const LocalizationForm = ({
                     </Button>
                   </div>
                 ))}
-                {(!localization.languages || localization.languages.length === 0) && (
+                {(!localization.languages ||
+                  localization.languages.length === 0) && (
                   <p className="text-sm text-gray-500 italic py-2">
                     No languages added yet.
                   </p>
