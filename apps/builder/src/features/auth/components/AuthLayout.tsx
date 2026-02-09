@@ -4,6 +4,7 @@ import { SunIcon } from "@typebot.io/ui/icons/SunIcon";
 import { useTheme } from "next-themes";
 import type { ReactNode } from "react";
 import { SecurityBadges } from "./SecurityBadges";
+import { BrandLogo } from "@/components/BrandLogo";
 
 type Props = {
   children: ReactNode;
@@ -26,14 +27,7 @@ export const AuthLayout = ({ children }: Props) => {
 
       {/* Header */}
       <header className="relative z-10 w-full p-8 flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <div className="bg-[#FFE600] text-black font-bold px-2 py-1 text-xl rounded-sm">
-            EY
-          </div>
-          <span className="font-bold text-xl tracking-wide uppercase text-gray-12">
-            Whatsapp Bot
-          </span>
-        </div>
+        <BrandLogo type="auth" />
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
