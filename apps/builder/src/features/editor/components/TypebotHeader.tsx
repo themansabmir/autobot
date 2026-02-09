@@ -19,6 +19,7 @@ import { useDebouncedCallback } from "use-debounce";
 import { ButtonLink } from "@/components/ButtonLink";
 import { EditableEmojiOrImageIcon } from "@/components/EditableEmojiOrImageIcon";
 import { SupportBubble } from "@/components/SupportBubble";
+import { BrandLogo } from "@/components/BrandLogo";
 import { PublishButton } from "@/features/publish/components/PublishButton";
 import { ShareTypebotButton } from "@/features/share/components/ShareTypebotButton";
 import { useWorkspace } from "@/features/workspace/WorkspaceProvider";
@@ -43,18 +44,24 @@ export const TypebotHeader = () => {
 
   if (currentUserMode === "guest") return <GuestTypebotHeader />;
   return (
-    <div className="flex w-full border-b justify-center items-center relative h-(--header-height) bg-gray-1 shrink-0">
+    <div className="flex w-full border-b items-center justify-between h-(--header-height) bg-gray-1 shrink-0 px-4 gap-4">
       {isOpen && <SupportBubble autoShowDelay={0} />}
-      <LeftElements className="absolute left-4" onHelpClick={handleHelpClick} />
-      <TypebotNav
-        className="absolute hidden xl:flex"
-        typebotId={typebot?.id}
-        isResultsDisplayed={isDefined(publishedTypebot)}
-      />
-      <RightElements
-        className="absolute right-10 hidden sm:flex"
-        isResultsDisplayed={isDefined(publishedTypebot)}
-      />
+      <div className="flex min-w-0 items-center mr-auto">
+        <LeftElements onHelpClick={handleHelpClick} />
+      </div>
+      <div className="flex-shrink-0">
+        <TypebotNav
+          className="hidden xl:flex"
+          typebotId={typebot?.id}
+          isResultsDisplayed={isDefined(publishedTypebot)}
+        />
+      </div>
+      <div className="flex min-w-0 justify-end ml-auto">
+        <RightElements
+          className="hidden sm:flex"
+          isResultsDisplayed={isDefined(publishedTypebot)}
+        />
+      </div>
     </div>
   );
 };
@@ -137,8 +144,9 @@ const LeftElements = ({
   });
 
   return (
-    <div className={cn("flex items-center justify-center gap-6", className)}>
-      <div className="flex items-center gap-3">
+    <div className={cn("flex items-center gap-6", className)}>
+      <div className="flex items-center gap-3 min-w-0">
+        <BrandLogo type="header" className="mr-2 shrink-0" />
         <ButtonLink
           aria-label="Navigate back"
           href={{
@@ -159,11 +167,11 @@ const LeftElements = ({
           }}
           size="icon"
           variant="secondary"
-          className="size-8"
+          className="size-8 shrink-0"
         >
           <ArrowLeft01Icon />
         </ButtonLink>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 min-w-0">
           {typebot && (
             <EditableEmojiOrImageIcon
               uploadFileProps={{
@@ -176,11 +184,13 @@ const LeftElements = ({
               defaultIcon={LayoutBottomIcon}
             />
           )}
-          <EditableTypebotName
-            key={`typebot-name-${typebot?.name ?? ""}`}
-            defaultName={typebot?.name ?? ""}
-            onNewName={handleNameSubmit}
-          />
+          <div className="truncate max-w-[150px] sm:max-w-[200px] md:max-w-[300px] lg:max-w-[400px]">
+            <EditableTypebotName
+              key={`typebot-name-${typebot?.name ?? ""}`}
+              defaultName={typebot?.name ?? ""}
+              onNewName={handleNameSubmit}
+            />
+          </div>
         </div>
 
         {currentUserMode === "write" && (

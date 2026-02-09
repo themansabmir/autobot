@@ -3,6 +3,7 @@ import { BellIcon } from "@typebot.io/ui/icons/BellIcon";
 import { MoonIcon } from "@typebot.io/ui/icons/MoonIcon";
 import { PlusSignIcon } from "@typebot.io/ui/icons/PlusSignIcon";
 import { SunIcon } from "@typebot.io/ui/icons/SunIcon";
+import { BrandLogo } from "@/components/BrandLogo";
 import { formatDistanceToNow } from "date-fns";
 import { useRouter } from "next/router";
 import { useTheme } from "next-themes";
@@ -29,7 +30,7 @@ const LastUpdated = () => {
   return <span>Last updated: {timeAgo}</span>;
 };
 
-export const DashboardHeader = () => {
+export const DashboardHeader = ({ showLogo }: { showLogo?: boolean }) => {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -46,9 +47,13 @@ export const DashboardHeader = () => {
     <header className="flex w-full h-20 bg-white dark:bg-[#1A1A1A] border-b border-gray-200 dark:border-gray-800 px-8 items-center justify-between shrink-0 transition-colors">
       {/* Left Action: Dashboard Title & Info */}
       <div className="flex items-center gap-4">
-        <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-          Dashboard
-        </h1>
+        {showLogo ? (
+          <BrandLogo type="header" />
+        ) : (
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+            Dashboard
+          </h1>
+        )}
         <div className="h-6 w-px bg-gray-300 dark:bg-gray-700 mx-2" />
         <span className="text-sm text-gray-500 flex items-center gap-1 whitespace-nowrap">
           <svg

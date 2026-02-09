@@ -11,6 +11,7 @@ import { useUser } from "@/features/user/hooks/useUser";
 import { WorkspaceDropdown } from "@/features/workspace/components/WorkspaceDropdown";
 import { WorkspaceSettingsDialog } from "@/features/workspace/components/WorkspaceSettingsDialog";
 import { useWorkspace } from "@/features/workspace/WorkspaceProvider";
+import { BrandLogo } from "./BrandLogo";
 
 type NavItem = {
   label: string;
@@ -43,11 +44,8 @@ export const Sidebar = () => {
   return (
     <aside className="flex flex-col w-72 bg-[#1A1A1A] border-r border-gray-800 text-white shrink-0">
       {/* Brand Header */}
-      <div className="flex items-center gap-3 p-6">
-        <div className="flex items-center justify-center w-8 h-8 bg-[#FFE600] rounded-sm text-black font-bold text-sm">
-          EY
-        </div>
-        <span className="font-bold text-lg tracking-tight">Whatsapp Bot</span>
+      <div className="p-6">
+        <BrandLogo type="sidebar" className="text-white" />
       </div>
 
       {/* Navigation */}
