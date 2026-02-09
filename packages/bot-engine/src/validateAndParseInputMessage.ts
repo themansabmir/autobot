@@ -177,6 +177,32 @@ export const validateAndParseInputMessage = (
         replyId: message.metadata?.replyId,
       });
     }
+    case InputBlockType.CTA_URL: {
+      if (!message || message.type !== "text") return { status: "fail" };
+      return { status: "success", content: message.text };
+    }
+    case InputBlockType.WHATSAPP_LIST:
+    case InputBlockType.WHATSAPP_CAROUSEL: {
+      if (!message || message.type !== "text") return { status: "fail" };
+      const displayedItems = injectVariableValuesInButtonsInputBlock(
+        block as any,
+        {
+          variables,
+          sessionStore,
+        },
+      ).items;
+      return parseSingleChoiceReply(message.text, {
+        replyId: message.metadata?.replyId,
+        items: displayedItems,
+      });
+    }
+    case InputBlockType.NPS: {
+      if (!message || message.type !== "text") return { status: "fail" };
+      const score = Number(message.text);
+      if (isNaN(score) || score < 0 || score > 10 || !Number.isInteger(score))
+        return { status: "fail" };
+      return { status: "success", content: message.text };
+    }
   }
   return { status: "fail" };
 };
