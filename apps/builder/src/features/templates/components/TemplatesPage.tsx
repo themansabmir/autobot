@@ -5,7 +5,7 @@ import { CreateNewTypebotButtons } from "./CreateNewTypebotButtons";
 export const TemplatesPage = () => (
   <div className="flex flex-col items-center gap-2 h-screen">
     <Seo title="Templates" />
-    <DashboardHeader />
+    <DashboardHeader showLogo />
     <CreateNewTypebotButtons />
   </div>
 );
