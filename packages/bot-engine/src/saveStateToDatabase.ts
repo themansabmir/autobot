@@ -107,13 +107,23 @@ export const saveStateToDatabase = async ({
     }),
   );
 
+  // Check if enhanced analytics is enabled
+  const isEnhancedAnalyticsEnabled =
+    env.ENABLE_ENHANCED_CAMPAIGN_ANALYTICS === true;
+
   if (
     isCompleted &&
     state.whatsApp?.contact?.phoneNumber &&
-    state.typebotsQueue[0]?.typebot?.id
+    state.typebotsQueue[0]?.typebot?.id &&
+    // Only run this logic if enhanced analytics is enabled OR if we want to default to this behavior
+    // User requested robust solution, so defaulting to enabled if flag is missing might be desired,
+    // but strict flag usage is safer.
+    isEnhancedAnalyticsEnabled 
   ) {
     const phoneNumber = state.whatsApp.contact.phoneNumber;
     const typebotId = state.typebotsQueue[0].typebot.id;
+    
+    // Find the latest recipient for this user & bot
     const recipient = await prisma.campaignRecipient.findFirst({
       where: {
         phoneNumber,

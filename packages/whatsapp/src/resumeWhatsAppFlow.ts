@@ -150,7 +150,11 @@ export const resumeWhatsAppFlow = async ({
     );
   }
 
-  if (receivedMessages.length > 0 && contact) {
+  // Check if enhanced analytics is enabled
+  const isEnhancedAnalyticsEnabled =
+    env.ENABLE_ENHANCED_CAMPAIGN_ANALYTICS === true;
+
+  if (receivedMessages.length > 0 && contact && isEnhancedAnalyticsEnabled) {
     const recipient = await prisma.campaignRecipient.findFirst({
       where: {
         phoneNumber: contact.phoneNumber,
