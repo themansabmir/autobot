@@ -3,12 +3,11 @@ import { BellIcon } from "@typebot.io/ui/icons/BellIcon";
 import { MoonIcon } from "@typebot.io/ui/icons/MoonIcon";
 import { PlusSignIcon } from "@typebot.io/ui/icons/PlusSignIcon";
 import { SunIcon } from "@typebot.io/ui/icons/SunIcon";
-import { BrandLogo } from "@/components/BrandLogo";
 import { formatDistanceToNow } from "date-fns";
 import { useRouter } from "next/router";
 import { useTheme } from "next-themes";
-
 import { useEffect, useState } from "react";
+import { BrandLogo } from "@/components/BrandLogo";
 
 const LastUpdated = () => {
   const [updatedAt] = useState(new Date());

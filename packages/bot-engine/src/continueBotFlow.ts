@@ -212,7 +212,6 @@ export const continueBotFlow = async (
       console.log(
         `[i18n] Language selected: ${formattedReply} -> normalized to: ${normalizedLanguage}`,
       );
-      newSessionState.language = normalizedLanguage;
 
       // Load translated journey for the selected language
       const defaultLanguage =
@@ -248,6 +247,8 @@ export const continueBotFlow = async (
           // Continue with default journey on error
         }
       }
+
+      newSessionState.language = normalizedLanguage;
     }
     continueReply = parsedReplyResult;
   }
