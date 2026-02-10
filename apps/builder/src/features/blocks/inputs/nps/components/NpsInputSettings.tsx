@@ -3,6 +3,8 @@ import { npsInputConstants } from "@typebot.io/blocks-inputs/nps/constants";
 import type { NpsInputBlock } from "@typebot.io/blocks-inputs/nps/schema";
 import { Field } from "@typebot.io/ui/components/Field";
 import type { Variable } from "@typebot.io/variables/schemas";
+import { BasicNumberInput } from "@/components/inputs/BasicNumberInput";
+import { BasicSelect } from "@/components/inputs/BasicSelect";
 import { DebouncedTextInputWithVariablesButton } from "@/components/inputs/DebouncedTextInput";
 import { VariablesCombobox } from "@/components/inputs/VariablesCombobox";
 
@@ -29,6 +31,15 @@ export const NpsInputSettings = ({ options, onOptionsChange }: Props) => {
   const handleVariableChange = (variable?: Variable) =>
     onOptionsChange({ ...options, variableId: variable?.id });
 
+  const handleLengthChange = (length: string | undefined) =>
+    onOptionsChange({
+      ...options,
+      length: length ? Number(length) : undefined,
+    });
+
+  const updateStartsAt = (startsAt: number | `{{${string}}}` | undefined) =>
+    onOptionsChange({ ...options, startsAt });
+
   return (
     <div className="flex flex-col gap-4">
       <Field.Root>
@@ -39,8 +50,28 @@ export const NpsInputSettings = ({ options, onOptionsChange }: Props) => {
           placeholder={npsInputConstants.defaultQuestion}
         />
       </Field.Root>
+      <div className="flex gap-4">
+        <Field.Root>
+          <Field.Label>Maximum score</Field.Label>
+          <BasicSelect
+            value={(
+              options?.length ??
+              (npsInputConstants.maxScore - npsInputConstants.minScore + 1)
+            ).toString()}
+            onChange={handleLengthChange}
+            items={["3", "4", "5", "6", "7", "8", "9", "10", "11"]}
+          />
+        </Field.Root>
+        <Field.Root>
+          <Field.Label>Starts at</Field.Label>
+          <BasicNumberInput
+            defaultValue={options?.startsAt ?? npsInputConstants.minScore}
+            onValueChange={updateStartsAt}
+          />
+        </Field.Root>
+      </div>
       <Field.Root>
-        <Field.Label>Low score label (0)</Field.Label>
+        <Field.Label>Start label</Field.Label>
         <DebouncedTextInputWithVariablesButton
           defaultValue={options?.labels?.lowLabel}
           onValueChange={handleLowLabelChange}
@@ -48,7 +79,7 @@ export const NpsInputSettings = ({ options, onOptionsChange }: Props) => {
         />
       </Field.Root>
       <Field.Root>
-        <Field.Label>High score label (10)</Field.Label>
+        <Field.Label>End label</Field.Label>
         <DebouncedTextInputWithVariablesButton
           defaultValue={options?.labels?.highLabel}
           onValueChange={handleHighLabelChange}

@@ -238,6 +238,28 @@ const Input = (props: {
           onSubmit={props.onSubmit}
         />
       </Match>
+      <Match when={props.block.type === InputBlockType.NPS}>
+        <RatingForm
+          block={
+            {
+              ...props.block,
+              options: {
+                ...(props.block as any).options,
+                length: (props.block as any).options?.length ?? 11,
+                startsAt: (props.block as any).options?.startsAt ?? 0,
+                buttonType: "Numbers",
+                labels: {
+                  ...(props.block as any).options?.labels,
+                  left: (props.block as any).options?.labels?.lowLabel,
+                  right: (props.block as any).options?.labels?.highLabel,
+                },
+              },
+            } as unknown as RatingInputBlock
+          }
+          defaultValue={getPrefilledValue()}
+          onSubmit={props.onSubmit}
+        />
+      </Match>
       <Match when={props.block.type === InputBlockType.FILE}>
         <FileUploadForm
           context={props.context}

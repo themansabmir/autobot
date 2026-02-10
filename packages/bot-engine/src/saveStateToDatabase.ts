@@ -1,3 +1,4 @@
+import { env } from "@typebot.io/env";
 import { RecipientStatus } from "@prisma/client";
 import type { ContinueChatResponse } from "@typebot.io/chat-api/schemas";
 import { updateSession } from "@typebot.io/chat-session/queries/updateSession";

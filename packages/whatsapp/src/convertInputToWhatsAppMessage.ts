@@ -49,7 +49,6 @@ export const convertInputToWhatsAppMessages = async ({
     case InputBlockType.PHONE:
     case InputBlockType.URL:
     case InputBlockType.PAYMENT:
-    case InputBlockType.RATING:
     case InputBlockType.TEXT:
       return [];
     case InputBlockType.PICTURE_CHOICE: {
@@ -649,9 +648,57 @@ export const convertInputToWhatsAppMessages = async ({
       );
       return [carouselMessage];
     }
-    case InputBlockType.NPS: {
-      // NPS is handled as a number input, no special WhatsApp UI
-      return [];
+    case InputBlockType.NPS:
+    case InputBlockType.RATING: {
+      const ratingInput = input as any;
+      const options = ratingInput.options;
+      const length = typeof options?.length === "number" ? options.length : 10;
+      const startsAt =
+        typeof options?.startsAt === "number" ? options.startsAt : 0;
+
+      // WhatsApp Lists limit is 10 rows total
+      const effectiveLength = Math.min(length, 10);
+      
+      const rows = [];
+      for (let i = 0; i < effectiveLength; i++) {
+        const value = startsAt + i;
+        const strValue = value.toString();
+        const row: any = {
+          id: strValue,
+          title: strValue,
+        };
+        
+        if (i === 0 && options?.labels?.left) {
+          row.description = options.labels.left.slice(0, 72);
+        } else if (i === effectiveLength - 1 && options?.labels?.right) {
+          row.description = options.labels.right.slice(0, 72);
+        }
+        
+        rows.push(row);
+      }
+
+      if (rows.length === 0) return [];
+
+      return [
+        {
+          type: "interactive",
+          interactive: {
+            type: "list",
+            body: {
+              text: lastMessageText || "Please select a score",
+            },
+            action: {
+              button: (options?.labels?.button || "Rate").slice(0, 20),
+              sections: [
+                {
+                  title: "Score",
+                  rows,
+                },
+              ],
+            },
+          },
+        },
+      ];
     }
     default: {
       return [];
