@@ -2,11 +2,14 @@ import {
   blockBaseSchema,
   optionBaseSchema,
 } from "@typebot.io/blocks-base/schemas";
+import { singleVariableOrNumberSchema } from "@typebot.io/variables/schemas";
 import { z } from "@typebot.io/zod";
 import { InputBlockType } from "../constants";
 
 export const npsInputOptionsSchema = optionBaseSchema.merge(
   z.object({
+    length: z.number().optional(),
+    startsAt: singleVariableOrNumberSchema.optional(),
     labels: z
       .object({
         question: z.string().optional(),
