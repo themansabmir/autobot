@@ -1,10 +1,10 @@
 /**
  * Journey Loader for Bot Engine
  *
- * Loads translated journey JSON based on session language.
+ * Loads translated journey JSON based on session language from database.
  *
- * NOTE: i18n features are DISABLED to prevent memory issues.
- * To enable, set I18N_ENABLED = true and ensure @typebot.io/i18n is properly configured.
+ * NOTE: i18n features are ENABLED.
+ * Translations are stored in PostgreSQL and cached in Redis/memory.
  */
 
 import type { TypebotInSession } from "@typebot.io/chat-session/schemas";

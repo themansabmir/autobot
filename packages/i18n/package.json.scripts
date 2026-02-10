@@ -1,0 +1,6 @@
+{
+  "scripts": {
+    "migrate:i18n": "tsx src/migration/migrateFromMinioToDatabase.ts",
+    "migrate:i18n:dry-run": "tsx src/migration/migrateFromMinioToDatabase.ts --dry-run"
+  }
+}
