@@ -387,6 +387,8 @@ const whatsAppEnv = {
     WHATSAPP_ENABLE_EXTENDED_TEMPLATES: boolean.optional().default("true"),
     // Dev proxy for local development
     DEV_PROXY_URLS: z.string().optional(),
+    // Campaign Analytics
+    ENABLE_ENHANCED_CAMPAIGN_ANALYTICS: boolean.optional().default("false"),
   },
 };
 
