@@ -1,18 +1,18 @@
 /**
  * Migration Script: MinIO to Database
- * 
+ *
  * Transfers all existing localization translations from MinIO to PostgreSQL database.
- * 
+ *
  * Usage:
  *   npm run migrate:i18n [--dry-run] [--delete-after]
- * 
+ *
  * Options:
  *   --dry-run: Preview changes without applying them
  *   --delete-after: Delete from MinIO after successful database insert
  */
 
-import prisma from "@typebot.io/prisma";
 import { env } from "@typebot.io/env";
+import prisma from "@typebot.io/prisma";
 import { Client as MinioClient } from "minio";
 import { normalizeLanguageCode } from "../extraction/extractTranslatableContent";
 
@@ -117,7 +117,10 @@ const migrateTranslation = async (
     });
 
     if (!typebotExists) {
-      return { success: false, error: `Typebot ${botId} not found in database` };
+      return {
+        success: false,
+        error: `Typebot ${botId} not found in database`,
+      };
     }
   }
 
@@ -194,7 +197,9 @@ export const migrateFromMinioToDatabase = async (
     // Check if bucket exists
     const bucketExists = await minioClient.bucketExists(I18N_BUCKET);
     if (!bucketExists) {
-      console.log(`⚠️  Bucket ${I18N_BUCKET} does not exist. Nothing to migrate.`);
+      console.log(
+        `⚠️  Bucket ${I18N_BUCKET} does not exist. Nothing to migrate.`,
+      );
       return stats;
     }
 

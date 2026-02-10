@@ -1,6 +1,6 @@
 /**
  * Database storage utilities for i18n translated journeys
- * 
+ *
  * Replaces MinIO storage with PostgreSQL JSONB storage
  */
 
@@ -17,7 +17,7 @@ export const uploadTranslatedJourney = async (
   journeyJson: object,
 ): Promise<string> => {
   const normalizedLanguage = normalizeLanguageCode(language);
-  
+
   console.log(
     `DEBUG: Upserting translated journey for bot ${botId}, language ${normalizedLanguage}...`,
   );
@@ -40,8 +40,10 @@ export const uploadTranslatedJourney = async (
     },
   });
 
-  console.log(`DEBUG: Successfully upserted translation for ${normalizedLanguage}`);
-  
+  console.log(
+    `DEBUG: Successfully upserted translation for ${normalizedLanguage}`,
+  );
+
   return `${botId}/${normalizedLanguage}`;
 };
 
@@ -54,7 +56,7 @@ export const getTranslatedJourney = async <T = object>(
 ): Promise<T | null> => {
   try {
     const normalizedLanguage = normalizeLanguageCode(language);
-    
+
     const translation = await prisma.localizationTranslation.findUnique({
       where: {
         typebotId_language: {
@@ -87,7 +89,7 @@ export const deleteTranslatedJourney = async (
 ): Promise<void> => {
   try {
     const normalizedLanguage = normalizeLanguageCode(language);
-    
+
     console.log(
       `DEBUG: Deleting translated journey for bot ${botId}, language ${normalizedLanguage}...`,
     );
@@ -118,13 +120,13 @@ export const deleteTranslatedJourney = async (
  */
 export const deleteAllTranslations = async (botId: string): Promise<void> => {
   console.log(`DEBUG: Deleting all translations for bot ${botId}...`);
-  
+
   await prisma.localizationTranslation.deleteMany({
     where: {
       typebotId: botId,
     },
   });
-  
+
   console.log(`DEBUG: Successfully deleted all translations for bot ${botId}`);
 };
 

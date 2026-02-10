@@ -3,8 +3,8 @@ import { MoonIcon } from "@typebot.io/ui/icons/MoonIcon";
 import { SunIcon } from "@typebot.io/ui/icons/SunIcon";
 import { useTheme } from "next-themes";
 import type { ReactNode } from "react";
-import { SecurityBadges } from "./SecurityBadges";
 import { BrandLogo } from "@/components/BrandLogo";
+import { SecurityBadges } from "./SecurityBadges";
 
 type Props = {
   children: ReactNode;
