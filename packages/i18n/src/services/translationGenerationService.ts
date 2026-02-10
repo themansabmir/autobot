@@ -5,7 +5,7 @@
  * 1. Extracts translatable content from base typebot
  * 2. Translates to each target language
  * 3. Creates cloned journey JSON per language
- * 4. Uploads to MinIO storage
+ * 4. Uploads to database storage
  */
 
 import type { Typebot } from "@typebot.io/typebot/schemas/typebot";
@@ -15,7 +15,7 @@ import {
   deleteTranslatedJourney,
   listTranslations,
   uploadTranslatedJourney,
-} from "../storage/i18nMinioClient";
+} from "../storage/i18nDatabaseClient";
 import { translateMap } from "../translation/googleTranslateClient";
 
 export interface LanguageTranslationResult {
@@ -108,7 +108,7 @@ export const generateTranslationForLanguage = async (
       `DEBUG: Applied translations. Bot size: ${Math.round(botSize / 1024)} KB`,
     );
 
-    // Upload to MinIO
+    // Upload to database
     await uploadTranslatedJourney(
       typebot.id,
       targetLanguage,

@@ -215,6 +215,7 @@ model Typebot {
   riskLevel               Int?
   bannedIps               BannedIp[]
   campaigns               Campaign[]
+  translations            LocalizationTranslation[]
 
   @@index([workspaceId])
   @@index([isArchived, createdAt(sort: Desc)])
@@ -530,4 +531,18 @@ model CampaignRecipient {
   @@index([campaignId, status])
   @@index([campaignId])
   @@index([messageId])
+}
+
+model LocalizationTranslation {
+  id             String   @id @default(cuid())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @default(now()) @updatedAt
+  typebotId      String
+  language       String
+  translatedData Json
+  typebot        Typebot  @relation(fields: [typebotId], references: [id], onDelete: Cascade)
+
+  @@unique([typebotId, language])
+  @@index([typebotId])
+  @@index([language])
 }
