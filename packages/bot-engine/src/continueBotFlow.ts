@@ -268,12 +268,19 @@ export const continueBotFlow = async (
 
   const groupHasMoreBlocks = blockIndex < group.blocks.length - 1;
 
-  if (
+  const isEndOfFlow =
     !nextEdge &&
     !groupHasMoreBlocks &&
     (newSessionState.typebotsQueue[0].queuedEdgeIds ?? []).length === 0 &&
-    newSessionState.typebotsQueue.length === 1
-  )
+    newSessionState.typebotsQueue.length === 1;
+
+  const isWaitingForInput = isInputBlock(block) && !reply;
+
+  if (isEndOfFlow && !isWaitingForInput) {
+    console.log(
+      "[continueBotFlow] End of flow reached. Clearing session.",
+      { blockId: block.id, isInputBlock: isInputBlock(block), hasReply: !!reply }
+    );
     return {
       messages: [],
       newSessionState: {
@@ -284,6 +291,7 @@ export const continueBotFlow = async (
       visitedEdges: [],
       setVariableHistory,
     };
+  }
 
   const walkStartingPoint =
     groupHasMoreBlocks && !nextEdge
