@@ -21,4 +21,5 @@ export {
   DbNull,
   PrismaClientKnownRequestError,
   ChatProvider,
+  RecipientStatus,
 };

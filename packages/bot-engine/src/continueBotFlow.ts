@@ -275,7 +275,10 @@ export const continueBotFlow = async (
   )
     return {
       messages: [],
-      newSessionState,
+      newSessionState: {
+        ...newSessionState,
+        currentBlockId: undefined,
+      },
       lastMessageNewFormat,
       visitedEdges: [],
       setVariableHistory,
