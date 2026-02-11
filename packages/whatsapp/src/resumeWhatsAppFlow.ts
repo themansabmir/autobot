@@ -180,13 +180,15 @@ export const resumeWhatsAppFlow = async ({
       
       // Update the NEW campaign status
       if (
-        [
-          RecipientStatus.SENT,
-          RecipientStatus.DELIVERED,
-          RecipientStatus.OPENED,
-          RecipientStatus.QUEUED,
-          RecipientStatus.PENDING,
-        ].includes(latestCampaignRecipient.status as RecipientStatus)
+        (
+          [
+            RecipientStatus.SENT,
+            RecipientStatus.DELIVERED,
+            RecipientStatus.OPENED,
+            RecipientStatus.QUEUED,
+            RecipientStatus.PENDING,
+          ] as RecipientStatus[]
+        ).includes(latestCampaignRecipient.status)
       ) {
         await prisma.campaignRecipient.update({
           where: { id: latestCampaignRecipient.id },
