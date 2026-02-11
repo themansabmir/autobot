@@ -173,13 +173,193 @@ const DonutChart = ({
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className="text-xs font-medium text-gray-11 uppercase tracking-wider">NPS</span>
         <span className={cn("text-4xl font-bold", 
-           score >= 50 ? "text-green-11" : score >= 0 ? "text-orange-11" : "text-red-11"
+           score >= 50 ? "text-green-11" : score >= 0 ? "text-[#f97316]" : "text-red-11"
         )}>
           {score}
         </span>
       </div>
     </div>
   );
+};
+
+// --- New Sub Components ---
+
+const NpsScoreCard = ({ nps }: { nps: any }) => {
+  const badgeColor = 
+    nps.score >= 50 ? "bg-green-3 text-green-11 border-green-5" :
+    nps.score >= 0 ? "bg-[#fff7ed] text-[#c2410c] border-[#ffedd5]" : // Orange-ish
+    "bg-red-3 text-red-11 border-red-5";
+
+  const badgeText = 
+    nps.score >= 50 ? "Excellent" :
+    nps.score >= 30 ? "Good" :
+    nps.score >= 0 ? "Fair" : "Poor";
+
+  return (
+    <div className="rounded-xl border border-gray-6 bg-gradient-to-br from-gray-1 to-gray-2 p-6 flex flex-col justify-between min-h-[300px]">
+      <div>
+        <h3 className="text-sm font-medium text-gray-11 uppercase tracking-wider mb-2">Net Promoter Score</h3>
+        <div className="flex items-baseline gap-2">
+            <span className={cn("text-5xl font-bold", 
+                nps.score >= 50 ? "text-green-9" : 
+                nps.score >= 0 ? "text-[#f97316]" : "text-red-9"
+            )}>
+              {nps.score}
+            </span>
+            <span className={cn("text-xs px-2 py-0.5 rounded-full border border-solid", badgeColor)}>
+                {badgeText}
+            </span>
+        </div>
+        <p className="text-sm text-gray-10 mt-2">
+          Based on {nps.totalResponses} responses
+        </p>
+      </div>
+
+      <div className="space-y-4">
+        <h4 className="text-sm font-semibold text-gray-12 border-b border-gray-6 pb-2">Key Metrics</h4>
+        <div className="flex justify-between text-sm">
+            <span className="text-gray-11">Response Rate</span>
+            <span className="font-medium text-gray-12">{nps.responseRate.toFixed(1)}%</span>
+        </div>
+         <div className="flex justify-between text-sm">
+            <span className="text-gray-11">Promoters</span>
+            <span className="font-medium text-green-11">{nps.promoters}</span>
+        </div>
+         <div className="flex justify-between text-sm">
+            <span className="text-gray-11">Passives</span>
+            <span className="font-medium text-[#c2410c]">{nps.passives}</span>
+        </div>
+         <div className="flex justify-between text-sm">
+            <span className="text-gray-11">Detractors</span>
+            <span className="font-medium text-red-11">{nps.detractors}</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const NpsDistributionChart = ({ 
+  distribution,
+  scale = { min: 0, max: 10 } 
+}: { 
+  distribution: Record<string, number>;
+  scale?: { min: number; max: number };
+}) => {
+  // Find max value for scaling
+  const maxVal = Math.max(...Object.values(distribution || {}), 0);
+  const keys = Array.from({ length: scale.max - scale.min + 1 }, (_, i) => i + scale.min);
+
+  return (
+     <div className="rounded-xl border border-gray-6 bg-gradient-to-br from-gray-1 to-gray-2 p-6">
+       <h3 className="text-sm font-medium text-gray-11 mb-6 uppercase tracking-wider">
+         Score Distribution ({scale.min}-{scale.max})
+       </h3>
+       <div className="h-40 flex items-end gap-2 sm:gap-4">
+         {keys.map((score) => {
+           const count = distribution?.[score] || 0;
+           const heightPercent = maxVal > 0 ? (count / maxVal) * 100 : 0;
+           
+           // Normalize score to 0-10 for coloring
+           const normalized = scale.max === scale.min 
+             ? 10 
+             : ((score - scale.min) / (scale.max - scale.min)) * 10;
+
+           const colorClass = normalized >= 9 ? "bg-green-9" : normalized >= 7 ? "bg-[#f97316]" : "bg-red-9";
+           
+           return (
+             <div key={score} className="flex-1 flex flex-col items-center gap-2 group">
+               <div className="w-full relative flex-1 flex items-end bg-gray-3/50 rounded-t-sm overflow-hidden">
+                 <div 
+                   className={cn("w-full transition-all duration-700 ease-out rounded-t-sm opacity-80 group-hover:opacity-100", colorClass)}
+                   style={{ height: `${Math.max(heightPercent, 2)}%` }} // Min height for visibility
+                 />
+                 {/* Tooltip on hover */}
+                 <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-gray-12 text-gray-1 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none">
+                    {count} votes
+                 </div>
+               </div>
+               <span className="text-xs font-medium text-gray-11">{score}</span>
+             </div>
+           );
+         })}
+       </div>
+     </div>
+  );
+};
+
+const NpsTrendChart = ({ trend }: { trend?: { date: string; score: number }[] }) => {
+    if (!trend || trend.length < 2) {
+        return (
+             <div className="rounded-xl border border-gray-6 bg-gradient-to-br from-gray-1 to-gray-2 p-6 flex flex-col items-center justify-center min-h-[300px] text-gray-10 text-sm">
+                 <span className="bg-gray-4 p-3 rounded-full mb-3 text-2xl">📉</span>
+                 <p>Not enough data for trend</p>
+             </div>
+        );
+    }
+
+    // Chart dimensions
+    const width = 300;
+    const height = 150;
+    const padding = 20;
+
+    // Scales
+    const minScore = -100;
+    const maxScore = 100;
+    const dates = trend.map(t => new Date(t.date).getTime());
+    const minDate = Math.min(...dates);
+    const maxDate = Math.max(...dates);
+
+    const getX = (dateStr: string) => {
+        const d = new Date(dateStr).getTime();
+        if (maxDate === minDate) return width / 2;
+        return padding + ((d - minDate) / (maxDate - minDate)) * (width - 2 * padding);
+    }
+
+    const getY = (score: number) => {
+        return height - padding - ((score - minScore) / (maxScore - minScore)) * (height - 2 * padding);
+    }
+
+    // Generate Path
+    const points = trend.map(t => `${getX(t.date)},${getY(t.score)}`).join(" ");
+
+    return (
+        <div className="rounded-xl border border-gray-6 bg-gradient-to-br from-gray-1 to-gray-2 p-6 flex flex-col min-h-[300px]">
+             <h3 className="text-sm font-medium text-gray-11 mb-6 uppercase tracking-wider">NPS Trend</h3>
+             
+             <div className="flex-1 flex items-center justify-center w-full">
+                 <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full overflow-visible">
+                     {/* Zero Line */}
+                     <line x1={padding} y1={getY(0)} x2={width - padding} y2={getY(0)} stroke="currentColor" className="text-gray-6" strokeDasharray="4 4" />
+                     
+                     {/* Data Line */}
+                     <polyline 
+                        fill="none" 
+                        stroke="currentColor" 
+                        strokeWidth="2" 
+                        points={points} 
+                        className="text-[#3b82f6]" 
+                     />
+
+                     {/* Data Points */}
+                     {trend.map((t, i) => (
+                         <circle 
+                            key={i} 
+                            cx={getX(t.date)} 
+                            cy={getY(t.score)} 
+                            r="3" 
+                            className={cn("fill-current transition-all hover:r-4", 
+                                t.score > 0 ? "text-[#3b82f6]" : "text-red-9"
+                            )} 
+                         />
+                     ))}
+                 </svg>
+             </div>
+             <div className="flex justify-between text-xs text-gray-10 mt-2">
+                 <span>{trend[0].date}</span>
+                 <span>{trend[trend.length - 1].date}</span>
+             </div>
+        </div>
+    );
 };
 
 export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
@@ -364,85 +544,44 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
         </div>
       </div>
 
-      {/* NPS Score Widget - Side by Side Layout */}
+      {/* NPS Analysis Section */}
       {analytics.nps && (
-        <div className="rounded-xl border border-gray-6 bg-gradient-to-br from-gray-1 to-gray-2 p-6">
-          <h2 className="text-lg font-bold text-gray-12 mb-6">
-            Net Promoter Score (NPS)
-          </h2>
+        <div className="space-y-6">
+          <h2 className="text-xl font-bold text-gray-12">NPS Analysis</h2>
           
-          <div className="flex flex-col md:flex-row gap-8 items-center">
-            {/* Left: Donut Chart */}
-            <div className="flex-shrink-0">
-               <DonutChart 
-                 total={analytics.nps.totalResponses}
-                 score={analytics.nps.score}
-                 data={[
-                   { value: analytics.nps.promoters, colorClass: "text-green-9" },
-                   { value: analytics.nps.passives, colorClass: "text-[#f97316]" },
-                   { value: analytics.nps.detractors, colorClass: "text-red-9" }
-                 ]}
-               />
-            </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* 1. Score Card */}
+            <NpsScoreCard nps={analytics.nps} />
 
-            {/* Right: Detailed Bars */}
-            <div className="flex-1 space-y-4 w-full">
-               <div className="flex items-center gap-4">
-                <span className="text-sm font-medium text-gray-12 min-w-[120px]">
-                  Promoters (9-10)
-                </span>
-                <div className="flex-1 h-3 bg-gray-4 rounded-full overflow-hidden relative">
-                  <div
-                    className="h-full bg-green-9 rounded-full transition-all duration-500"
-                    style={{
-                      width: `${analytics.nps.totalResponses > 0 ? (analytics.nps.promoters / analytics.nps.totalResponses) * 100 : 0}%`,
-                    }}
-                  />
-                </div>
-                <span className="text-sm font-bold text-gray-12 w-12 text-right">
-                    {analytics.nps.promoters}
-                </span>
-              </div>
-
-               <div className="flex items-center gap-4">
-                <span className="text-sm font-medium text-gray-12 min-w-[120px]">
-                  Passives (7-8)
-                </span>
-                <div className="flex-1 h-3 bg-gray-4 rounded-full overflow-hidden relative">
-                  <div
-                    className="h-full bg-[#f97316] rounded-full transition-all duration-500"
-                    style={{
-                      width: `${analytics.nps.totalResponses > 0 ? (analytics.nps.passives / analytics.nps.totalResponses) * 100 : 0}%`,
-                    }}
-                  />
-                </div>
-                <span className="text-sm font-bold text-gray-12 w-12 text-right">
-                    {analytics.nps.passives}
-                </span>
-              </div>
-
-               <div className="flex items-center gap-4">
-                <span className="text-sm font-medium text-gray-12 min-w-[120px]">
-                  Detractors (0-6)
-                </span>
-                <div className="flex-1 h-3 bg-gray-4 rounded-full overflow-hidden relative">
-                  <div
-                    className="h-full bg-red-9 rounded-full transition-all duration-500"
-                    style={{
-                      width: `${analytics.nps.totalResponses > 0 ? (analytics.nps.detractors / analytics.nps.totalResponses) * 100 : 0}%`,
-                    }}
-                  />
-                </div>
-                <span className="text-sm font-bold text-gray-12 w-12 text-right">
-                    {analytics.nps.detractors}
-                </span>
-              </div>
-
-              <div className="pt-2 text-sm text-gray-10 text-right">
-                Total Responses: {analytics.nps.totalResponses} ({analytics.nps.responseRate.toFixed(1)}% response rate)
+            {/* 2. Sentiment Donut */}
+            <div className="rounded-xl border border-gray-6 bg-gradient-to-br from-gray-1 to-gray-2 p-6 flex flex-col items-center justify-center min-h-[300px]">
+              <h3 className="text-sm font-medium text-gray-11 mb-6 uppercase tracking-wider">Sentiment</h3>
+              <DonutChart
+                total={analytics.nps.totalResponses}
+                score={analytics.nps.score}
+                data={[
+                  { value: analytics.nps.promoters, colorClass: "text-green-9" },
+                  { value: analytics.nps.passives, colorClass: "text-[#f97316]" },
+                  { value: analytics.nps.detractors, colorClass: "text-red-9" },
+                ]}
+              />
+              <div className="flex gap-4 mt-6 text-xs text-gray-11">
+                 <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-green-9"/>Promoters</div>
+                 <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-[#f97316]"/>Passives</div>
+                 <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-red-9"/>Detractors</div>
               </div>
             </div>
+
+            {/* 3. Trend Line */}
+            <NpsTrendChart trend={analytics.nps.trend} />
           </div>
+
+          {/* 4. Detailed Distribution */}
+          {/* 4. Detailed Distribution */}
+          <NpsDistributionChart 
+            distribution={analytics.nps.distribution} 
+            scale={analytics.nps.scale}
+          />
         </div>
       )}
 
