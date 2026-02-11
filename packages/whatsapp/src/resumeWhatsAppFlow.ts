@@ -28,7 +28,10 @@ import type {
   WhatsAppMessageReferral,
 } from "./schemas";
 import { sendChatReplyToWhatsApp } from "./sendChatReplyToWhatsApp";
-import { startWhatsAppSession } from "./startWhatsAppSession";
+import {
+  messageMatchStartCondition,
+  startWhatsAppSession,
+} from "./startWhatsAppSession";
 import { WhatsAppError } from "./WhatsAppError";
 
 const MESSAGE_TOO_OLD_ELAPSED_MS = 24 * 60 * 60 * 1000; // 24 hours (was 3 minutes - too short for campaigns)
@@ -157,15 +160,32 @@ export const resumeWhatsAppFlow = async ({
   let forcedTypebotId: string | undefined;
 
   if (receivedMessages.length > 0 && contact && isEnhancedAnalyticsEnabled) {
-    // Check for a newer campaign FIRST to determine if we need to switch
-    const latestCampaignRecipient = await prisma.campaignRecipient.findFirst({
-      where: {
-        phoneNumber: contact.phoneNumber,
-        createdAt: { gt: session?.updatedAt ?? new Date(0) },
-      },
-      orderBy: { createdAt: "desc" },
-      include: { campaign: true },
-    });
+    let latestCampaignRecipient;
+    
+    // Priority 1: Check if this is a reply to a specific Campaign Message (Context match)
+    // This is ROBUST because it links the reply directly to the campaign via Message ID.
+    const context = receivedMessages[0].context;
+    if (context?.id) {
+       console.log(`🔍 [DEBUG] distinct context found: ${context.id}, checking for campaign match.`);
+       latestCampaignRecipient = await prisma.campaignRecipient.findFirst({
+        where: {
+          messageId: context.id,
+        },
+        include: { campaign: true },
+      });
+    }
+
+    // Priority 2: Fallback to Timestamp heuristic (if no context match)
+    if (!latestCampaignRecipient) {
+       latestCampaignRecipient = await prisma.campaignRecipient.findFirst({
+        where: {
+          phoneNumber: contact.phoneNumber,
+          createdAt: { gt: session?.updatedAt ?? new Date(0) },
+        },
+        orderBy: { createdAt: "desc" },
+        include: { campaign: true },
+      });
+    }
 
     if (latestCampaignRecipient) {
       console.log(
@@ -201,42 +221,59 @@ export const resumeWhatsAppFlow = async ({
           `✅ [Campaign Analytics] Recipient ${latestCampaignRecipient.id} (${latestCampaignRecipient.phoneNumber}) status updated to STARTED`,
         );
       }
-    } else {
-        // Fallback to existing logic: check if the CURRENT session's bot has a pending campaign (Retaining legacy behavior)
-        const recipient = await prisma.campaignRecipient.findFirst({
-        where: {
-            phoneNumber: contact.phoneNumber,
-            campaign: {
-            typebotId: session?.state?.typebotsQueue[0]?.typebot?.id,
-            },
-        },
-        orderBy: { createdAt: "desc" },
-        });
-
-        if (
-        recipient &&
-        (
-            [
-            RecipientStatus.SENT,
-            RecipientStatus.DELIVERED,
-            RecipientStatus.OPENED,
-            RecipientStatus.QUEUED,
-            ] as RecipientStatus[]
-        ).includes(recipient.status as RecipientStatus)
-        ) {
-        await prisma.campaignRecipient.update({
-            where: { id: recipient.id },
-            data: {
-            status: RecipientStatus.STARTED,
-            startedAt: new Date(),
-            },
-        });
-        console.log(
-            `✅ [Campaign Analytics] Recipient ${recipient.id} (${recipient.phoneNumber}) status updated to STARTED`,
-        );
-        }
     }
   }
+
+  // If no campaign switch, Check for Start Condition Override (Individual Flow Switching)
+  // DISABLED for now as per user request (Feature Flag: INDIVIDUAL_BOT_SWITCHING)
+  /*
+  if (!forcedTypebotId && receivedMessages[0].type === "text") {
+    const message = receivedMessages[0];
+    // Find bots with start conditions that match the message
+    const publicTypebots = await prisma.publicTypebot.findMany({
+      where: {
+        typebot: { workspaceId },
+        settings: {
+          path: ["whatsApp", "isEnabled"],
+          equals: true,
+        },
+      },
+      select: {
+        settings: true,
+        typebot: {
+          select: {
+            publicId: true,
+            id: true,
+          },
+        },
+      },
+    });
+
+    const matchingBot = publicTypebots.find(
+      (bot) =>
+        (bot.settings.whatsApp?.startCondition?.comparisons.length ?? 0) > 0 &&
+        messageMatchStartCondition(
+          {
+            type: "text",
+            text: message.text?.body ?? "",
+          },
+          bot.settings.whatsApp?.startCondition,
+        ),
+    );
+
+    if (matchingBot) {
+      console.log(
+        "🔄 [DEBUG] Found Start Keyword Match. Switching session/Flushing old flow.",
+        {
+          oldTypebotId: session?.state?.typebotsQueue[0]?.typebot?.id,
+          newTypebotId: matchingBot.typebot.id,
+          trigger: message.text?.body,
+        },
+      );
+      forcedTypebotId = matchingBot.typebot.id;
+    }
+  }
+  */
 
   const currentTypebot = session?.state?.typebotsQueue[0].typebot;
   const { block } =

@@ -203,11 +203,12 @@ export const saveStateToDatabase = async ({
      }
 
      if (
-        isCompleted &&
+        (isCompleted || !state.currentBlockId) &&
         isEnhancedAnalyticsEnabled
       ) {
     
     // Find the latest recipient for this user & bot
+    console.log(`🔍 [Campaign Analytics] Checking for recipient to mark COMPLETED. Phone: ${phoneNumber}, BotId: ${typebotId}`);
     const recipient = await prisma.campaignRecipient.findFirst({
       where: {
         phoneNumber,

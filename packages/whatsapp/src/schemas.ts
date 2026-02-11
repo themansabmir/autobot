@@ -174,10 +174,19 @@ const incomingMessageReferral = z.object({
 });
 export type WhatsAppMessageReferral = z.infer<typeof incomingMessageReferral>;
 
+const incomingMessageContextSchema = z.object({
+  id: z.string(),
+  forwarded: z.boolean().optional(),
+});
+export type WhatsAppIncomingMessageContext = z.infer<
+  typeof incomingMessageContextSchema
+>;
+
 const sharedIncomingMessageFieldsSchema = z.object({
   from: z.string(),
   timestamp: z.string(),
   referral: incomingMessageReferral.optional(),
+  context: incomingMessageContextSchema.optional(),
 });
 
 const incomingButtonReplySchema = z.object({

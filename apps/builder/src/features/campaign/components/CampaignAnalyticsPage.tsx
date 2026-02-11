@@ -114,6 +114,74 @@ const FunnelStep = ({
   );
 };
 
+// Premium SVG Donut Chart Component
+const DonutChart = ({
+  data,
+  total,
+  score,
+}: {
+  data: { value: number; colorClass: string }[];
+  total: number;
+  score: number;
+}) => {
+  const size = 180;
+  const strokeWidth = 24;
+  const radius = (size - strokeWidth) / 2;
+  const center = size / 2;
+  const circumference = 2 * Math.PI * radius;
+
+  let currentOffset = 0;
+
+  return (
+    <div className="relative flex items-center justify-center size-[180px]">
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="rotate-[-90deg]">
+        <circle
+          cx={center}
+          cy={center}
+          r={radius}
+          fill="transparent"
+          stroke="currentColor"
+          strokeWidth={strokeWidth}
+          className="text-gray-4"
+        />
+        {data.map((item, index) => {
+          if (item.value === 0) return null;
+          const dashArray = (item.value / total) * circumference;
+          const offset = currentOffset;
+          // Add gap only if there is more than one segment
+          const gap = total > 0 && data.filter(d => d.value > 0).length > 1 ? 4 : 0; 
+          currentOffset -= dashArray;
+
+          return (
+            <circle
+              key={index}
+              cx={center}
+              cy={center}
+              r={radius}
+              fill="transparent"
+              stroke="currentColor"
+              strokeWidth={strokeWidth}
+              strokeDasharray={`${dashArray - gap} ${circumference}`}
+              strokeDashoffset={offset}
+              strokeLinecap="round"
+              className={cn("transition-all duration-1000 ease-out", item.colorClass)}
+            />
+          );
+        })}
+      </svg>
+      {/* Center Score */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="text-xs font-medium text-gray-11 uppercase tracking-wider">NPS</span>
+        <span className={cn("text-4xl font-bold", 
+           score >= 50 ? "text-green-11" : score >= 0 ? "text-orange-11" : "text-red-11"
+        )}>
+          {score}
+        </span>
+      </div>
+    </div>
+  );
+};
+
 export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
   const router = useRouter();
   const [isExporting, setIsExporting] = useState(false);
@@ -296,114 +364,82 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
         </div>
       </div>
 
-      {/* NPS Score Widget */}
+      {/* NPS Score Widget - Side by Side Layout */}
       {analytics.nps && (
         <div className="rounded-xl border border-gray-6 bg-gradient-to-br from-gray-1 to-gray-2 p-6">
-          <h2 className="text-lg font-bold text-gray-12 mb-4">
+          <h2 className="text-lg font-bold text-gray-12 mb-6">
             Net Promoter Score (NPS)
           </h2>
-
-          {/* Big NPS Score */}
-          <div className="text-center mb-6">
-            <div
-              className={cn(
-                "text-6xl font-bold",
-                analytics.nps.score >= 50
-                  ? "text-green-11"
-                  : analytics.nps.score >= 0
-                    ? "text-yellow-11"
-                    : "text-red-11",
-              )}
-            >
-              {analytics.nps.score}
+          
+          <div className="flex flex-col md:flex-row gap-8 items-center">
+            {/* Left: Donut Chart */}
+            <div className="flex-shrink-0">
+               <DonutChart 
+                 total={analytics.nps.totalResponses}
+                 score={analytics.nps.score}
+                 data={[
+                   { value: analytics.nps.promoters, colorClass: "text-green-9" },
+                   { value: analytics.nps.passives, colorClass: "text-orange-9" },
+                   { value: analytics.nps.detractors, colorClass: "text-red-9" }
+                 ]}
+               />
             </div>
-            <p className="text-sm text-gray-10 mt-2">
-              {analytics.nps.totalResponses} responses (
-              {analytics.nps.responseRate.toFixed(1)}%)
-            </p>
-          </div>
 
-          {/* Distribution Bars */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-4">
-              <span className="text-sm font-medium text-gray-12 min-w-[120px]">
-                Promoters (9-10)
-              </span>
-              <div className="flex-1 h-10 bg-gray-3 rounded-lg overflow-hidden relative">
-                <div
-                  className="h-full bg-green-9 flex items-center justify-between px-4 transition-all duration-500"
-                  style={{
-                    width: `${analytics.nps.totalResponses > 0 ? (analytics.nps.promoters / analytics.nps.totalResponses) * 100 : 0}%`,
-                  }}
-                >
-                  <span className="text-sm font-bold text-white">
+            {/* Right: Detailed Bars */}
+            <div className="flex-1 space-y-4 w-full">
+               <div className="flex items-center gap-4">
+                <span className="text-sm font-medium text-gray-12 min-w-[120px]">
+                  Promoters (9-10)
+                </span>
+                <div className="flex-1 h-3 bg-gray-4 rounded-full overflow-hidden relative">
+                  <div
+                    className="h-full bg-green-9 rounded-full transition-all duration-500"
+                    style={{
+                      width: `${analytics.nps.totalResponses > 0 ? (analytics.nps.promoters / analytics.nps.totalResponses) * 100 : 0}%`,
+                    }}
+                  />
+                </div>
+                <span className="text-sm font-bold text-gray-12 w-12 text-right">
                     {analytics.nps.promoters}
-                  </span>
-                  <span className="text-xs font-medium text-white/90">
-                    {analytics.nps.totalResponses > 0
-                      ? (
-                          (analytics.nps.promoters /
-                            analytics.nps.totalResponses) *
-                          100
-                        ).toFixed(1)
-                      : "0.0"}
-                    %
-                  </span>
-                </div>
+                </span>
               </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <span className="text-sm font-medium text-gray-12 min-w-[120px]">
-                Passives (7-8)
-              </span>
-              <div className="flex-1 h-10 bg-gray-3 rounded-lg overflow-hidden relative">
-                <div
-                  className="h-full bg-yellow-9 flex items-center justify-between px-4 transition-all duration-500"
-                  style={{
-                    width: `${analytics.nps.totalResponses > 0 ? (analytics.nps.passives / analytics.nps.totalResponses) * 100 : 0}%`,
-                  }}
-                >
-                  <span className="text-sm font-bold text-white">
+
+               <div className="flex items-center gap-4">
+                <span className="text-sm font-medium text-gray-12 min-w-[120px]">
+                  Passives (7-8)
+                </span>
+                <div className="flex-1 h-3 bg-gray-4 rounded-full overflow-hidden relative">
+                  <div
+                    className="h-full bg-orange-9 rounded-full transition-all duration-500"
+                    style={{
+                      width: `${analytics.nps.totalResponses > 0 ? (analytics.nps.passives / analytics.nps.totalResponses) * 100 : 0}%`,
+                    }}
+                  />
+                </div>
+                <span className="text-sm font-bold text-gray-12 w-12 text-right">
                     {analytics.nps.passives}
-                  </span>
-                  <span className="text-xs font-medium text-white/90">
-                    {analytics.nps.totalResponses > 0
-                      ? (
-                          (analytics.nps.passives /
-                            analytics.nps.totalResponses) *
-                          100
-                        ).toFixed(1)
-                      : "0.0"}
-                    %
-                  </span>
-                </div>
+                </span>
               </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <span className="text-sm font-medium text-gray-12 min-w-[120px]">
-                Detractors (0-6)
-              </span>
-              <div className="flex-1 h-10 bg-gray-3 rounded-lg overflow-hidden relative">
-                <div
-                  className="h-full bg-red-9 flex items-center justify-between px-4 transition-all duration-500"
-                  style={{
-                    width: `${analytics.nps.totalResponses > 0 ? (analytics.nps.detractors / analytics.nps.totalResponses) * 100 : 0}%`,
-                  }}
-                >
-                  <span className="text-sm font-bold text-white">
-                    {analytics.nps.detractors}
-                  </span>
-                  <span className="text-xs font-medium text-white/90">
-                    {analytics.nps.totalResponses > 0
-                      ? (
-                          (analytics.nps.detractors /
-                            analytics.nps.totalResponses) *
-                          100
-                        ).toFixed(1)
-                      : "0.0"}
-                    %
-                  </span>
+
+               <div className="flex items-center gap-4">
+                <span className="text-sm font-medium text-gray-12 min-w-[120px]">
+                  Detractors (0-6)
+                </span>
+                <div className="flex-1 h-3 bg-gray-4 rounded-full overflow-hidden relative">
+                  <div
+                    className="h-full bg-red-9 rounded-full transition-all duration-500"
+                    style={{
+                      width: `${analytics.nps.totalResponses > 0 ? (analytics.nps.detractors / analytics.nps.totalResponses) * 100 : 0}%`,
+                    }}
+                  />
                 </div>
+                <span className="text-sm font-bold text-gray-12 w-12 text-right">
+                    {analytics.nps.detractors}
+                </span>
+              </div>
+
+              <div className="pt-2 text-sm text-gray-10 text-right">
+                Total Responses: {analytics.nps.totalResponses} ({analytics.nps.responseRate.toFixed(1)}% response rate)
               </div>
             </div>
           </div>
@@ -452,7 +488,7 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
           title="Started Conversation"
           value={analytics.started}
           total={analytics.total}
-          color="bg-cyan-9"
+          color="bg-indigo-9"
           icon="💬"
           description="Users replied to bot"
         />
@@ -460,7 +496,7 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
           title="Completed Flow"
           value={analytics.completed}
           total={analytics.total}
-          color="bg-teal-9"
+          color="bg-pink-9"
           icon="🎯"
           description="Finished entire flow"
         />
@@ -508,13 +544,13 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
             label="Started"
             value={analytics.started}
             total={analytics.total}
-            color="bg-gradient-to-r from-cyan-9 to-cyan-10"
+            color="bg-gradient-to-r from-indigo-9 to-indigo-10"
           />
           <FunnelStep
             label="Completed"
             value={analytics.completed}
             total={analytics.total}
-            color="bg-gradient-to-r from-teal-9 to-teal-10"
+            color="bg-gradient-to-r from-pink-9 to-pink-10"
             isLast
           />
         </div>
@@ -616,11 +652,13 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
                 </td>
               </tr>
               <tr className="hover:bg-gray-2">
-                <td className="px-6 py-4 text-sm text-gray-12">Completed</td>
-                <td className="px-6 py-4 text-sm text-right text-gray-12 font-medium">
+                <td className="px-6 py-4 text-sm text-pink-11 font-medium">
+                  Completed
+                </td>
+                <td className="px-6 py-4 text-sm text-right text-pink-11 font-bold">
                   {analytics.completed}
                 </td>
-                <td className="px-6 py-4 text-sm text-right text-gray-11">
+                <td className="px-6 py-4 text-sm text-right text-pink-10">
                   {analytics.total > 0
                     ? ((analytics.completed / analytics.total) * 100).toFixed(1)
                     : "0.0"}
