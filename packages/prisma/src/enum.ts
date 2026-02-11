@@ -4,6 +4,7 @@ import {
   GraphNavigation,
   Plan,
   Prisma,
+  RecipientStatus,
   WorkspaceRole,
 } from "@prisma/client";
 
