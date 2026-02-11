@@ -202,6 +202,7 @@ export const saveStateToDatabase = async ({
        }
      }
 
+     let recipient;
      if (
         (isCompleted || !state.currentBlockId) &&
         isEnhancedAnalyticsEnabled
@@ -209,7 +210,7 @@ export const saveStateToDatabase = async ({
     
     // Find the latest recipient for this user & bot
     console.log(`🔍 [Campaign Analytics] Checking for recipient to mark COMPLETED. Phone: ${phoneNumber}, BotId: ${typebotId}`);
-    const recipient = await prisma.campaignRecipient.findFirst({
+    recipient = await prisma.campaignRecipient.findFirst({
       where: {
         phoneNumber,
         campaign: {
@@ -218,6 +219,14 @@ export const saveStateToDatabase = async ({
       },
       orderBy: { createdAt: "desc" },
     });
+    } else if (isEnhancedAnalyticsEnabled) {
+      console.log("ℹ️ [Campaign Analytics] Skipping completion check.", {
+        isCompleted,
+        currentBlockId: state.currentBlockId,
+        phoneNumber: state.whatsApp?.contact?.phoneNumber,
+        typebotId: state.typebotsQueue[0]?.typebot?.id
+      });
+    }
 
     if (
       recipient &&
@@ -244,13 +253,12 @@ export const saveStateToDatabase = async ({
       console.log(
         `✅ [Campaign Analytics] Recipient ${recipient.id} (${recipient.phoneNumber}) status updated to COMPLETED`,
       );
-    } else if (!recipient) {
+    } else if (recipient) {
+         console.log(`ℹ️ [Campaign Analytics] Session completed but recipient ${recipient.id} status is already ${recipient.status} (Not updating)`);
+    } else if (!recipient && (isCompleted || !state.currentBlockId)) {
         console.warn(`⚠️ [Campaign Analytics] Session completed but no recipient found for ${phoneNumber}`);
-    } else {
-        console.log(`ℹ️ [Campaign Analytics] Session completed but recipient ${recipient.id} status is already ${recipient.status} (Not updating)`);
     }
     }
-}
 
   await prisma.$transaction(queries);
 

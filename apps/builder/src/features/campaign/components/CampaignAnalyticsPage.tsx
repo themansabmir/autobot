@@ -379,7 +379,7 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
                  score={analytics.nps.score}
                  data={[
                    { value: analytics.nps.promoters, colorClass: "text-green-9" },
-                   { value: analytics.nps.passives, colorClass: "text-orange-9" },
+                   { value: analytics.nps.passives, colorClass: "text-[#f97316]" },
                    { value: analytics.nps.detractors, colorClass: "text-red-9" }
                  ]}
                />
@@ -410,7 +410,7 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
                 </span>
                 <div className="flex-1 h-3 bg-gray-4 rounded-full overflow-hidden relative">
                   <div
-                    className="h-full bg-orange-9 rounded-full transition-all duration-500"
+                    className="h-full bg-[#f97316] rounded-full transition-all duration-500"
                     style={{
                       width: `${analytics.nps.totalResponses > 0 ? (analytics.nps.passives / analytics.nps.totalResponses) * 100 : 0}%`,
                     }}
@@ -452,7 +452,7 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
           title="Total Recipients"
           value={analytics.total}
           total={analytics.total}
-          color="bg-blue-9"
+          color="bg-[#3b82f6]"
           icon="👥"
           description="Total contacts in campaign"
         />
@@ -468,7 +468,7 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
           title="Delivered"
           value={analytics.delivered}
           total={analytics.total}
-          color="bg-purple-9"
+          color="bg-[#a855f7]"
           icon="✓"
           description="Reached user devices"
         />
@@ -476,7 +476,7 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
           title="Opened"
           value={analytics.opened}
           total={analytics.total}
-          color="bg-orange-9"
+          color="bg-[#f97316]"
           icon="👁️"
           description="Users read the message"
         />
@@ -488,7 +488,7 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
           title="Started Conversation"
           value={analytics.started}
           total={analytics.total}
-          color="bg-indigo-9"
+          color="bg-[#6366f1]"
           icon="💬"
           description="Users replied to bot"
         />
@@ -496,7 +496,7 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
           title="Completed Flow"
           value={analytics.completed}
           total={analytics.total}
-          color="bg-pink-9"
+          color="bg-[#ec4899]"
           icon="🎯"
           description="Finished entire flow"
         />
@@ -520,7 +520,7 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
             label="Total"
             value={analytics.total}
             total={analytics.total}
-            color="bg-gradient-to-r from-blue-9 to-blue-10"
+            color="bg-gradient-to-r from-[#3b82f6] to-[#60a5fa]"
           />
           <FunnelStep
             label="Sent"
@@ -532,25 +532,25 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
             label="Delivered"
             value={analytics.delivered}
             total={analytics.total}
-            color="bg-gradient-to-r from-purple-9 to-purple-10"
+            color="bg-gradient-to-r from-[#a855f7] to-[#c084fc]"
           />
           <FunnelStep
             label="Opened"
             value={analytics.opened}
             total={analytics.total}
-            color="bg-gradient-to-r from-orange-9 to-orange-10"
+            color="bg-gradient-to-r from-[#f97316] to-[#fb923c]"
           />
           <FunnelStep
             label="Started"
             value={analytics.started}
             total={analytics.total}
-            color="bg-gradient-to-r from-indigo-9 to-indigo-10"
+            color="bg-gradient-to-r from-[#6366f1] to-[#818cf8]"
           />
           <FunnelStep
             label="Completed"
             value={analytics.completed}
             total={analytics.total}
-            color="bg-gradient-to-r from-pink-9 to-pink-10"
+            color="bg-gradient-to-r from-[#ec4899] to-[#f472b6]"
             isLast
           />
         </div>
@@ -652,13 +652,13 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
                 </td>
               </tr>
               <tr className="hover:bg-gray-2">
-                <td className="px-6 py-4 text-sm text-pink-11 font-medium">
+                <td className="px-6 py-4 text-sm text-[#ec4899] font-medium">
                   Completed
                 </td>
-                <td className="px-6 py-4 text-sm text-right text-pink-11 font-bold">
+                <td className="px-6 py-4 text-sm text-right text-[#ec4899] font-bold">
                   {analytics.completed}
                 </td>
-                <td className="px-6 py-4 text-sm text-right text-pink-10">
+                <td className="px-6 py-4 text-sm text-right text-[#f472b6]">
                   {analytics.total > 0
                     ? ((analytics.completed / analytics.total) * 100).toFixed(1)
                     : "0.0"}
