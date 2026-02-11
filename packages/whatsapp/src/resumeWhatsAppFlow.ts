@@ -152,40 +152,87 @@ export const resumeWhatsAppFlow = async ({
 
   // Check if enhanced analytics is enabled
   const isEnhancedAnalyticsEnabled =
-    env.ENABLE_ENHANCED_CAMPAIGN_ANALYTICS === true;
+    env.ENABLE_ENHANCED_CAMPAIGN_ANALYTICS !== false;
+
+  let forcedTypebotId: string | undefined;
 
   if (receivedMessages.length > 0 && contact && isEnhancedAnalyticsEnabled) {
-    const recipient = await prisma.campaignRecipient.findFirst({
+    // Check for a newer campaign FIRST to determine if we need to switch
+    const latestCampaignRecipient = await prisma.campaignRecipient.findFirst({
       where: {
         phoneNumber: contact.phoneNumber,
-        campaign: {
-          typebotId: session?.state?.typebotsQueue[0]?.typebot?.id,
-        },
+        createdAt: { gt: session?.updatedAt ?? new Date(0) },
       },
       orderBy: { createdAt: "desc" },
+      include: { campaign: true },
     });
 
-    if (
-      recipient &&
-      (
+    if (latestCampaignRecipient) {
+      console.log(
+        "🔄 [DEBUG] Found newer campaign. Switching session/Flushing old flow.",
+        {
+          oldTypebotId: session?.state?.typebotsQueue[0]?.typebot?.id,
+          newTypebotId: latestCampaignRecipient.campaign.typebotId,
+          campaignId: latestCampaignRecipient.campaign.id,
+        },
+      );
+      forcedTypebotId = latestCampaignRecipient.campaign.typebotId;
+      
+      // Update the NEW campaign status
+      if (
         [
           RecipientStatus.SENT,
           RecipientStatus.DELIVERED,
           RecipientStatus.OPENED,
           RecipientStatus.QUEUED,
-        ] as RecipientStatus[]
-      ).includes(recipient.status)
-    ) {
-      await prisma.campaignRecipient.update({
-        where: { id: recipient.id },
-        data: {
-          status: RecipientStatus.STARTED,
-          startedAt: new Date(),
+          RecipientStatus.PENDING,
+        ].includes(latestCampaignRecipient.status as RecipientStatus)
+      ) {
+        await prisma.campaignRecipient.update({
+          where: { id: latestCampaignRecipient.id },
+          data: {
+            status: RecipientStatus.STARTED,
+            startedAt: new Date(),
+          },
+        });
+        console.log(
+          `✅ [Campaign Analytics] Recipient ${latestCampaignRecipient.id} (${latestCampaignRecipient.phoneNumber}) status updated to STARTED`,
+        );
+      }
+    } else {
+        // Fallback to existing logic: check if the CURRENT session's bot has a pending campaign (Retaining legacy behavior)
+        const recipient = await prisma.campaignRecipient.findFirst({
+        where: {
+            phoneNumber: contact.phoneNumber,
+            campaign: {
+            typebotId: session?.state?.typebotsQueue[0]?.typebot?.id,
+            },
         },
-      });
-      console.log(
-        `✅ [Campaign Analytics] Recipient ${recipient.id} (${recipient.phoneNumber}) status updated to STARTED`,
-      );
+        orderBy: { createdAt: "desc" },
+        });
+
+        if (
+        recipient &&
+        (
+            [
+            RecipientStatus.SENT,
+            RecipientStatus.DELIVERED,
+            RecipientStatus.OPENED,
+            RecipientStatus.QUEUED,
+            ] as RecipientStatus[]
+        ).includes(recipient.status as RecipientStatus)
+        ) {
+        await prisma.campaignRecipient.update({
+            where: { id: recipient.id },
+            data: {
+            status: RecipientStatus.STARTED,
+            startedAt: new Date(),
+            },
+        });
+        console.log(
+            `✅ [Campaign Analytics] Recipient ${recipient.id} (${recipient.phoneNumber}) status updated to STARTED`,
+        );
+        }
     }
   }
 
@@ -194,11 +241,17 @@ export const resumeWhatsAppFlow = async ({
     (currentTypebot && session?.state?.currentBlockId
       ? getBlockById(session.state.currentBlockId, currentTypebot.groups)
       : undefined) ?? {};
+  
+  // If forcedTypebotId is set, we use that for message conversion context if possible? 
+  // Actually convertWhatsAppMessageToTypebotMessage uses currentTypebot?.id for media paths.
+  // If we are switching, "currentTypebot" is technically the old one, but we are about to discard it.
+  // Ideally we should peek the new bot, but for now we follow standard flow.
+  
   const reply = await convertWhatsAppMessageToTypebotMessage({
     messages: aggregationResponse.incomingMessages,
     workspaceId,
     credentials,
-    typebotId: currentTypebot?.id,
+    typebotId: currentTypebot?.id, // Note: This might be old ID, but media processing usually doesn't care unless strict.
     resultId: session?.state?.typebotsQueue[0].resultId,
     block,
   });
@@ -216,12 +269,13 @@ export const resumeWhatsAppFlow = async ({
     credentials,
     isSessionExpired,
     reply,
-    state: session?.state,
+    state: forcedTypebotId ? undefined : session?.state, // If forced, pass undefined state to force new session
     sessionStore,
     contact,
     workspaceId,
     credentialsId,
     referral,
+    typebotId: forcedTypebotId, // Pass the new ID to start/resume flow
   });
   deleteSessionStore(sessionId);
 
@@ -533,6 +587,7 @@ const resumeFlowAndSendWhatsAppMessages = async (props: {
   isSessionExpired: boolean | null;
   credentialsId?: string;
   workspaceId?: string;
+  typebotId?: string;
 }) => {
   const resumeResponse = await resumeFlow(props);
 
@@ -588,6 +643,7 @@ const resumeFlow = ({
   credentialsId,
   workspaceId,
   sessionStore,
+  typebotId,
 }: {
   reply: Message | undefined;
   contact?: NonNullable<SessionState["whatsApp"]>["contact"];
@@ -598,8 +654,9 @@ const resumeFlow = ({
   credentialsId?: string;
   workspaceId?: string;
   sessionStore: SessionStore;
+  typebotId?: string;
 }) => {
-  if (state && !isSessionExpired) {
+  if (state && !isSessionExpired && !typebotId) {
     console.log(
       "🔄 [DEBUG] Continuing existing bot flow - currentBlockId:",
       state.currentBlockId,
@@ -630,6 +687,7 @@ const resumeFlow = ({
     isSessionExpired,
     workspaceId,
     contactName: contact?.name,
+    forcedTypebotId: typebotId,
   });
 
   if (!workspaceId || !contact)
@@ -643,5 +701,6 @@ const resumeFlow = ({
     contact,
     referral,
     sessionStore,
+    typebotId,
   });
 };

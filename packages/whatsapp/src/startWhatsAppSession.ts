@@ -28,6 +28,7 @@ type Props = {
   contact: NonNullable<SessionState["whatsApp"]>["contact"];
   referral?: WhatsAppMessageReferral;
   sessionStore: SessionStore;
+  typebotId?: string;
 };
 
 export const startWhatsAppSession = async ({
@@ -37,6 +38,7 @@ export const startWhatsAppSession = async ({
   contact,
   referral,
   sessionStore,
+  typebotId,
 }: Props): Promise<
   ContinueChatResponse & {
     newSessionState: SessionState;
@@ -47,7 +49,11 @@ export const startWhatsAppSession = async ({
   const publicTypebotsWithWhatsAppEnabled =
     (await prisma.publicTypebot.findMany({
       where: {
-        typebot: { workspaceId, whatsAppCredentialsId: credentials.id },
+        typebot: {
+          workspaceId,
+          whatsAppCredentialsId: credentials.id,
+          id: typebotId,
+        },
       },
       select: {
         settings: true,
@@ -64,24 +70,23 @@ export const startWhatsAppSession = async ({
   const botsWithWhatsAppEnabled = publicTypebotsWithWhatsAppEnabled.filter(
     (publicTypebot) =>
       publicTypebot.typebot.publicId &&
-      publicTypebot.settings.whatsApp?.isEnabled,
+      (typebotId ? true : publicTypebot.settings.whatsApp?.isEnabled),
   );
 
-  const publicTypebotWithMatchedCondition = botsWithWhatsAppEnabled.find(
-    (publicTypebot) =>
-      (publicTypebot.settings.whatsApp?.startCondition?.comparisons.length ??
-        0) > 0 &&
-      messageMatchStartCondition(
-        incomingMessage ?? { type: "text", text: "" },
-        publicTypebot.settings.whatsApp?.startCondition,
-      ),
-  );
-
-  const publicTypebot =
-    publicTypebotWithMatchedCondition ??
-    botsWithWhatsAppEnabled.find(
-      (publicTypebot) => !publicTypebot.settings.whatsApp?.startCondition,
-    );
+  const publicTypebot = typebotId
+    ? botsWithWhatsAppEnabled[0]
+    : botsWithWhatsAppEnabled.find(
+        (publicTypebot) =>
+          (publicTypebot.settings.whatsApp?.startCondition?.comparisons
+            .length ?? 0) > 0 &&
+          messageMatchStartCondition(
+            incomingMessage ?? { type: "text", text: "" },
+            publicTypebot.settings.whatsApp?.startCondition,
+          ),
+      ) ??
+      botsWithWhatsAppEnabled.find(
+        (publicTypebot) => !publicTypebot.settings.whatsApp?.startCondition,
+      );
 
   if (isNotDefined(publicTypebot)) {
     if (botsWithWhatsAppEnabled.length > 0)
