@@ -238,6 +238,10 @@ const executeGroup = async (
         };
       }
 
+      newSessionState = {
+        ...newSessionState,
+        currentBlockId: block.id,
+      };
       lastBubbleBlockId = block.id;
       continue;
     }

@@ -111,8 +111,9 @@ export const saveStateToDatabase = async ({
   );
 
   // Check if enhanced analytics is enabled
+  // Check if enhanced analytics is enabled (Default to true for this user fix)
   const isEnhancedAnalyticsEnabled =
-    env.ENABLE_ENHANCED_CAMPAIGN_ANALYTICS === true;
+    env.ENABLE_ENHANCED_CAMPAIGN_ANALYTICS !== "false";
 
   if (state.whatsApp?.contact?.phoneNumber && state.typebotsQueue[0]?.typebot?.id) {
      const phoneNumber = state.whatsApp.contact.phoneNumber;
