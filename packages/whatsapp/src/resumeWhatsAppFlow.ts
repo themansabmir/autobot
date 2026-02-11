@@ -188,38 +188,49 @@ export const resumeWhatsAppFlow = async ({
     }
 
     if (latestCampaignRecipient) {
-      console.log(
-        "🔄 [DEBUG] Found newer campaign. Switching session/Flushing old flow.",
-        {
-          oldTypebotId: session?.state?.typebotsQueue[0]?.typebot?.id,
-          newTypebotId: latestCampaignRecipient.campaign.typebotId,
-          campaignId: latestCampaignRecipient.campaign.id,
-        },
-      );
-      forcedTypebotId = latestCampaignRecipient.campaign.typebotId;
-      
-      // Update the NEW campaign status
-      if (
-        (
-          [
-            RecipientStatus.SENT,
-            RecipientStatus.DELIVERED,
-            RecipientStatus.OPENED,
-            RecipientStatus.QUEUED,
-            RecipientStatus.PENDING,
-          ] as RecipientStatus[]
-        ).includes(latestCampaignRecipient.status)
-      ) {
-        await prisma.campaignRecipient.update({
-          where: { id: latestCampaignRecipient.id },
-          data: {
-            status: RecipientStatus.STARTED,
-            startedAt: new Date(),
-          },
-        });
-        console.log(
-          `✅ [Campaign Analytics] Recipient ${latestCampaignRecipient.id} (${latestCampaignRecipient.phoneNumber}) status updated to STARTED`,
-        );
+      // Check if we are already in this bot session to avoid a "Restart Loop" (Duplicate First Message Fix)
+      const currentBotId = session?.state?.typebotsQueue[0]?.typebot?.id;
+      const isAlreadyInSession = currentBotId === latestCampaignRecipient.campaign.typebotId;
+      const isStarted = latestCampaignRecipient.status === RecipientStatus.STARTED;
+
+      if (isAlreadyInSession && isStarted) {
+         console.log("ℹ️ [DEBUG] Already in campaign session. Skipping Force Switch/Restart.");
+         forcedTypebotId = undefined; // Proceed with normal flow resume
+      } else {
+          console.log(
+            "🔄 [DEBUG] Found newer campaign. Switching session/Flushing old flow.",
+            {
+              oldTypebotId: session?.state?.typebotsQueue[0]?.typebot?.id,
+              newTypebotId: latestCampaignRecipient.campaign.typebotId,
+              campaignId: latestCampaignRecipient.campaign.id,
+              reason: "New Campaign Detected",
+            },
+          );
+          forcedTypebotId = latestCampaignRecipient.campaign.typebotId;
+          
+          // Update the NEW campaign status
+          if (
+            (
+              [
+                RecipientStatus.SENT,
+                RecipientStatus.DELIVERED,
+                RecipientStatus.OPENED,
+                RecipientStatus.QUEUED,
+                RecipientStatus.PENDING,
+              ] as RecipientStatus[]
+            ).includes(latestCampaignRecipient.status)
+          ) {
+            await prisma.campaignRecipient.update({
+              where: { id: latestCampaignRecipient.id },
+              data: {
+                status: RecipientStatus.STARTED,
+                startedAt: new Date(),
+              },
+            });
+            console.log(
+              `✅ [Campaign Analytics] Recipient ${latestCampaignRecipient.id} (${latestCampaignRecipient.phoneNumber}) status updated to STARTED`,
+            );
+          }
       }
     }
   }
