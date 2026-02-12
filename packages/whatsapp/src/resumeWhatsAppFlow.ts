@@ -326,6 +326,7 @@ export const resumeWhatsAppFlow = async ({
     credentialsId,
     referral,
     typebotId: forcedTypebotId, // Pass the new ID to start/resume flow
+    isCampaignStart: !!forcedTypebotId,
   });
   deleteSessionStore(sessionId);
 
@@ -638,8 +639,30 @@ const resumeFlowAndSendWhatsAppMessages = async (props: {
   credentialsId?: string;
   workspaceId?: string;
   typebotId?: string;
+  isCampaignStart?: boolean;
 }) => {
-  const resumeResponse = await resumeFlow(props);
+  let resumeResponse = await resumeFlow(props);
+
+  if (props.isCampaignStart && resumeResponse.input && props.reply) {
+    console.log(
+      "⏩ [DEBUG] Campaign Start: Fast-Forwarding (Skipping initial messages, applying reply as input)",
+    );
+
+    const continueResponse = await continueBotFlow(props.reply, {
+      version: 2,
+      state: resumeResponse.newSessionState,
+      sessionStore: props.sessionStore,
+      textBubbleContentFormat: "richText",
+    });
+
+    resumeResponse = {
+      ...continueResponse,
+      newSessionState: continueResponse.newSessionState,
+      input: continueResponse.input,
+      messages: continueResponse.messages,
+      clientSideActions: continueResponse.clientSideActions,
+    };
+  }
 
   const {
     input,

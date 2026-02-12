@@ -256,7 +256,8 @@ const NpsDistributionChart = ({
        </h3>
        <div className="h-40 flex items-end gap-2 sm:gap-4">
          {keys.map((score) => {
-           const count = distribution?.[score] || 0;
+           // Coerce score to string for key lookup as distribution keys are strings
+           const count = distribution?.[score.toString()] || distribution?.[score] || 0;
            const heightPercent = maxVal > 0 ? (count / maxVal) * 100 : 0;
            
            // Normalize score to 0-10 for coloring
@@ -288,7 +289,7 @@ const NpsDistributionChart = ({
 };
 
 const NpsTrendChart = ({ trend }: { trend?: { date: string; score: number }[] }) => {
-    if (!trend || trend.length < 2) {
+    if (!trend || trend.length === 0) {
         return (
              <div className="rounded-xl border border-gray-6 bg-gradient-to-br from-gray-1 to-gray-2 p-6 flex flex-col items-center justify-center min-h-[300px] text-gray-10 text-sm">
                  <span className="bg-gray-4 p-3 rounded-full mb-3 text-2xl">📉</span>
@@ -320,7 +321,8 @@ const NpsTrendChart = ({ trend }: { trend?: { date: string; score: number }[] })
     }
 
     // Generate Path
-    const points = trend.map(t => `${getX(t.date)},${getY(t.score)}`).join(" ");
+    // If only 1 point, path is empty, logic handles points separately
+    const points = trend.length > 1 ? trend.map(t => `${getX(t.date)},${getY(t.score)}`).join(" ") : "";
 
     return (
         <div className="rounded-xl border border-gray-6 bg-gradient-to-br from-gray-1 to-gray-2 p-6 flex flex-col min-h-[300px]">
@@ -331,14 +333,16 @@ const NpsTrendChart = ({ trend }: { trend?: { date: string; score: number }[] })
                      {/* Zero Line */}
                      <line x1={padding} y1={getY(0)} x2={width - padding} y2={getY(0)} stroke="currentColor" className="text-gray-6" strokeDasharray="4 4" />
                      
-                     {/* Data Line */}
-                     <polyline 
-                        fill="none" 
-                        stroke="currentColor" 
-                        strokeWidth="2" 
-                        points={points} 
-                        className="text-[#3b82f6]" 
-                     />
+                     {/* Data Line (only if > 1 point) */}
+                     {trend.length > 1 && (
+                         <polyline 
+                            fill="none" 
+                            stroke="currentColor" 
+                            strokeWidth="2" 
+                            points={points} 
+                            className="text-[#3b82f6]" 
+                         />
+                     )}
 
                      {/* Data Points */}
                      {trend.map((t, i) => (
