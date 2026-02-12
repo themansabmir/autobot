@@ -1,4 +1,4 @@
-import { RecipientStatus } from "@prisma/client";
+import { upsertResult } from "@typebot.io/bot-engine/queries/upsertResult";
 import type { Block } from "@typebot.io/blocks-core/schemas/schema";
 import { InputBlockType } from "@typebot.io/blocks-inputs/constants";
 import { continueBotFlow } from "@typebot.io/bot-engine/continueBotFlow";
