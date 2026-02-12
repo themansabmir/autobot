@@ -644,10 +644,23 @@ const resumeFlowAndSendWhatsAppMessages = async (props: {
 }) => {
   let resumeResponse = await resumeFlow(props);
 
+  /* FAST-FORWARD DISABLED
   if (props.isCampaignStart && resumeResponse.input && props.reply) {
     console.log(
       "⏩ [DEBUG] Campaign Start: Fast-Forwarding (Skipping initial messages, applying reply as input)",
     );
+
+    const resultId = resumeResponse.newSessionState.typebotsQueue[0].resultId;
+    if (resultId) {
+       console.log(`💾 [DEBUG] Fast-Forward: Pre-creating Result ${resultId} to avoid FK violation.`);
+       await upsertResult({
+          resultId,
+          typebot: resumeResponse.newSessionState.typebotsQueue[0].typebot,
+          isCompleted: false,
+          hasStarted: true,
+          lastChatSessionId: props.state?.id, 
+       });
+    }
 
     const continueResponse = await continueBotFlow(props.reply, {
       version: 2,
@@ -664,6 +677,7 @@ const resumeFlowAndSendWhatsAppMessages = async (props: {
       clientSideActions: continueResponse.clientSideActions,
     };
   }
+  */
 
   const {
     input,
