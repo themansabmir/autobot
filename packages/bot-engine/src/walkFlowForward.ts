@@ -56,6 +56,8 @@ export const walkFlowForward = async (
     textBubbleContentFormat: "richText" | "markdown";
   },
 ) => {
+  const requestId = Math.random().toString(36).substring(7);
+  console.log(`🚶 [walkFlowForward] Request ${requestId} started.`);
   let timeoutStartTime = Date.now();
 
   const visitedEdges: Prisma.VisitedEdge[] = [];
@@ -112,6 +114,7 @@ export const walkFlowForward = async (
     if (executionResponse.updatedTimeoutStartTime)
       timeoutStartTime = executionResponse.updatedTimeoutStartTime;
     lastBubbleBlockId = executionResponse.lastBubbleBlockId;
+    console.log(`[walkFlowForward] Request ${requestId} finished group. NextEdge: ${executionResponse.nextEdge?.id}, Messages: ${executionResponse.messages?.length}`);
 
     nextEdge = executionResponse.nextEdge;
   } while (

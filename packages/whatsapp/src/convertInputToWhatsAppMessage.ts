@@ -551,13 +551,8 @@ export const convertInputToWhatsAppMessages = async ({
         };
 
         // Set card type based on button type (required by Meta API)
-        // According to latest docs/examples, card.type can be "cta_url" even for quick_reply buttons
-        if (item.buttonType === "cta_url") {
-          card.type = "cta_url";
-        } else if (item.buttonType === "quick_reply") {
-          // Strict compliance with user docs: type is "cta_url"
-          card.type = "cta_url";
-        }
+        card.type =
+          item.buttonType === "quick_reply" ? "quick_reply" : "cta_url";
 
         // Header (required)
         if (item.headerType && item.headerUrl) {

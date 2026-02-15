@@ -65,11 +65,13 @@ class LRUCache<T> {
 let redisClient: Redis | null = null;
 const memoryCache = new LRUCache<object>(MAX_MEMORY_CACHE_SIZE);
 
+import { normalizeLanguageCode } from "../extraction/extractTranslatableContent";
+
 /**
  * Get the cache key for a translated journey
  */
 export const getCacheKey = (botId: string, language: string): string => {
-  return `i18n:${botId}:${language}`;
+  return `i18n:${botId}:${normalizeLanguageCode(language)}`;
 };
 
 /**

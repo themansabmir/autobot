@@ -1,4 +1,3 @@
-import { env } from "@typebot.io/env";
 import * as Sentry from "@sentry/nextjs";
 import { getSession } from "@typebot.io/chat-session/queries/getSession";
 import { parseUnknownError } from "@typebot.io/lib/parseUnknownError";
@@ -40,7 +39,7 @@ export const handleProductionWebhookRequest = async (
   // Handle Status Updates from Meta Webhooks
   // Feature flag for enhanced analytics
   const useEnhancedAnalytics =
-    env.ENABLE_ENHANCED_CAMPAIGN_ANALYTICS === true;
+    process.env.ENABLE_ENHANCED_CAMPAIGN_ANALYTICS === "true";
 
   for (const { changes } of entry) {
     for (const change of changes) {

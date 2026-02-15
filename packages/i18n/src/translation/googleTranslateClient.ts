@@ -23,6 +23,47 @@ const delay = (ms: number): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
+ * Protects {{variables}} from being translated by replacing them with markers
+ */
+const protectVariables = (
+  text: string,
+): { protectedText: string; variables: string[] } => {
+  const variables: string[] = [];
+  const protectedText = text.replace(/\{\{[^}]+\}\}/g, (match) => {
+    variables.push(match);
+    return ` [#${variables.length - 1}] `; // Add spaces to help Google see it as a token
+  });
+  return { protectedText, variables };
+};
+
+/**
+ * Restores {{variables}} from markers after translation
+ * Handles potential mangling (lower casing, missing underscores, spaces)
+ */
+const restoreVariables = (text: string, variables: string[]): string => {
+  console.log(`DEBUG: Restoring variables in: "${text.substring(0, 50)}..."`);
+  
+  // 1. New marker format: [#0], [# 0]
+  let restored = text.replace(/\[\s*#\s*(\d+)\s*\]/g, (match, index) => {
+    const varIndex = parseInt(index, 10);
+    return variables[varIndex] || match;
+  });
+
+  // 2. Legacy/Mangled formats: __VAR_0__, _var_0, var_0, VAR0, etc.
+  // This regex is very greedy to catch Google Translate "optimizations"
+  restored = restored.replace(/(?:__?|\[\s*)?v[ar]*\s*[_\s-]*(\d+)\s*(?:__?|\])?/gi, (match, index) => {
+    const varIndex = parseInt(index, 10);
+    if (variables[varIndex]) {
+       console.log(`DEBUG: Matched mangled marker "${match}" -> ${variables[varIndex]}`);
+       return variables[varIndex];
+    }
+    return match;
+  });
+
+  return restored;
+};
+
+/**
  * Translate a single text to target language
  */
 export const translateText = async (
@@ -34,15 +75,17 @@ export const translateText = async (
     return text;
   }
 
+  const { protectedText, variables } = protectVariables(text);
+
   try {
     const target = normalizeLanguageCode(targetLang);
     const source = sourceLang ? normalizeLanguageCode(sourceLang) : "auto";
 
     console.log(
-      `DEBUG: Translating "${text.substring(0, 20)}..." to ${target} from ${source}`,
+      `DEBUG: Translating "${protectedText.substring(0, 20)}..." to ${target} from ${source}`,
     );
 
-    const result = (await translate(text, {
+    const result = (await translate(protectedText, {
       to: target,
       from: source,
       autoCorrect: true,
@@ -51,7 +94,9 @@ export const translateText = async (
     console.log(
       `DEBUG: Translation result: "${result.text.substring(0, 20)}..."`,
     );
-    return result.text;
+
+    const restoredText = restoreVariables(result.text, variables);
+    return restoredText;
   } catch (error) {
     console.error(
       `Translation error for text: ${text.substring(0, 50)}...`,
@@ -76,10 +121,16 @@ export const translateBatch = async (
   }
 
   // Filter out empty texts and track their positions
-  const nonEmptyTexts: { index: number; text: string }[] = [];
+  const nonEmptyTexts: {
+    index: number;
+    text: string;
+    variables: string[];
+    protectedText: string;
+  }[] = [];
   texts.forEach((text, index) => {
     if (text && text.trim().length > 0) {
-      nonEmptyTexts.push({ index, text });
+      const { protectedText, variables } = protectVariables(text);
+      nonEmptyTexts.push({ index, text, variables, protectedText });
     }
   });
 
@@ -96,7 +147,7 @@ export const translateBatch = async (
     );
 
     // google-translate-api-x supports batch translation natively
-    const textsToTranslate = nonEmptyTexts.map((t) => t.text);
+    const textsToTranslate = nonEmptyTexts.map((t) => t.protectedText);
     const results = (await translate(textsToTranslate, {
       to: target,
       from: source,
@@ -109,7 +160,10 @@ export const translateBatch = async (
 
     nonEmptyTexts.forEach((item, idx) => {
       if (resultsArray[idx]) {
-        translatedTexts[item.index] = resultsArray[idx].text;
+        translatedTexts[item.index] = restoreVariables(
+          resultsArray[idx].text,
+          item.variables,
+        );
       }
     });
 
@@ -180,3 +234,4 @@ export const translateMap = async (
 
   return result;
 };
+

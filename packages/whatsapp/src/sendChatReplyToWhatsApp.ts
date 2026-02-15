@@ -41,6 +41,15 @@ export const sendChatReplyToWhatsApp = async ({
   credentials,
   state,
 }: Props): Promise<ClientSideActionExecutionResult> => {
+  console.log("🔄 [sendChatReplyToWhatsApp] CALLED", {
+    to,
+    isFirstChatChunk,
+    messageCount: messages.length,
+    hasInput: !!input,
+    inputType: input?.type,
+    sessionId: state.sessionId,
+  });
+
   const messagesBeforeInput = isLastMessageIncludedInInput(
     input,
     messages.at(-1),
@@ -201,6 +210,7 @@ const isLastMessageIncludedInInput = (
   return (
     (input.type === InputBlockType.CHOICE ||
       input.type === InputBlockType.LANGUAGE ||
+      input.type === InputBlockType.CARDS ||
       input.type === InputBlockType.WHATSAPP_LIST) &&
     (!lastMessage || lastMessage.type === BubbleBlockType.TEXT)
   );

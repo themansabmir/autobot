@@ -33,10 +33,14 @@ export const triggerTranslationGeneration = (
     languages: localizationSettings?.languages,
   });
 
-  if (!I18N_ENABLED || !localizationSettings?.isEnabled) {
+  const hasLangBlock = hasLanguageBlock(typebot);
+
+  if (!I18N_ENABLED || (!localizationSettings?.isEnabled && !hasLangBlock)) {
     if (!I18N_ENABLED) console.log("DEBUG: i18n is disabled");
-    if (!localizationSettings?.isEnabled)
-      console.log("DEBUG: localization is not enabled in settings");
+    if (!localizationSettings?.isEnabled && !hasLangBlock)
+      console.log(
+        "DEBUG: localization is not enabled and no language block found",
+      );
     return;
   }
 
@@ -44,8 +48,8 @@ export const triggerTranslationGeneration = (
   console.log(`🔄 [i18n] Triggering sync for bot ${typebot.id}...`);
   syncTranslations(
     typebot,
-    localizationSettings.languages ?? [],
-    localizationSettings.defaultLanguage,
+    localizationSettings?.languages ?? [],
+    localizationSettings?.defaultLanguage,
   )
     .then((results) => {
       console.log(`✅ [i18n] Sync complete for ${typebot.id}`, results);
@@ -54,3 +58,10 @@ export const triggerTranslationGeneration = (
       console.error(`❌ [i18n] Sync failed for ${typebot.id}:`, error);
     });
 };
+
+const hasLanguageBlock = (typebot: Typebot): boolean => {
+  return typebot.groups.some((group) =>
+    group.blocks.some((block) => block.type === "language"),
+  );
+};
+

@@ -184,17 +184,43 @@ export const validateAndParseInputMessage = (
     case InputBlockType.WHATSAPP_LIST:
     case InputBlockType.WHATSAPP_CAROUSEL: {
       if (!message || message.type !== "text") return { status: "fail" };
-      const displayedItems = injectVariableValuesInButtonsInputBlock(
+      const displayedBlock = injectVariableValuesInButtonsInputBlock(
         block as any,
         {
           variables,
           sessionStore,
         },
-      ).items;
-      return parseSingleChoiceReply(message.text, {
-        replyId: message.metadata?.replyId,
-        items: displayedItems,
+      );
+      
+      let itemsToValidate = (displayedBlock as any).items;
+      
+      // Special handling for Carousel cards which have nested buttons
+      if (block.type === InputBlockType.WHATSAPP_CAROUSEL) {
+        itemsToValidate = (displayedBlock as any).items.flatMap((item: any) => 
+          (item.quickReplyButtons ?? []).map((btn: any) => ({
+            ...btn,
+            content: btn.title,
+            outgoingEdgeId: item.outgoingEdgeId
+          }))
+        );
+      }
+
+      console.log("🎠 [WhatsApp Carousel] Validating reply:", {
+        inputValue: message.text,
+        itemCount: itemsToValidate.length,
       });
+
+      const response = parseSingleChoiceReply(message.text, {
+        replyId: message.metadata?.replyId,
+        items: itemsToValidate,
+      });
+
+      console.log("🎠 [WhatsApp Carousel] Validation response:", {
+        status: response.status,
+        outgoingEdgeId: (response as any).outgoingEdgeId,
+      });
+
+      return response;
     }
     case InputBlockType.NPS: {
       if (!message || message.type !== "text") return { status: "fail" };

@@ -85,11 +85,18 @@ export const resumeWhatsAppFlow = async ({
 
   const isPreview = workspaceId === undefined || credentialsId === undefined;
 
+  console.log("🔍 [DEBUG] Getting WhatsApp credentials...");
   const credentials = await getWhatsAppCredentials({
     credentialsId,
     workspaceId,
     isPreview,
   });
+  console.log("🔍 [DEBUG] Credentials result:", { 
+    found: !!credentials, 
+    provider: credentials?.provider,
+    phoneNumberId: (credentials as any)?.phoneNumberId 
+  });
+  
   if (!credentials) throw new WhatsAppError("Could not find credentials");
 
   if (
@@ -104,20 +111,7 @@ export const resumeWhatsAppFlow = async ({
 
   console.log("🔍 [DEBUG] Fetching session with ID:", sessionId);
   const session = await getSession(sessionId);
-  console.log("🔍 [DEBUG] Session retrieved:", {
-    exists: !!session,
-    hasState: !!session?.state,
-    isReplying: session?.isReplying,
-    updatedAt: session?.updatedAt,
-    statePreview: session?.state
-      ? {
-          version: session.state.version,
-          currentBlockId: session.state.currentBlockId,
-          typebotsQueueLength: session.state.typebotsQueue?.length,
-          firstTypebotId: session.state.typebotsQueue?.[0]?.typebot?.id,
-        }
-      : null,
-  });
+  console.log("🔍 [DEBUG] Session retrieved successfully");
 
   if (session && !session.state) {
     console.log("❌ [DEBUG] Session exists but has no state - throwing error");
@@ -297,6 +291,7 @@ export const resumeWhatsAppFlow = async ({
   // If we are switching, "currentTypebot" is technically the old one, but we are about to discard it.
   // Ideally we should peek the new bot, but for now we follow standard flow.
   
+  console.log("🔍 [DEBUG] Converting WhatsApp messages to Typebot messages...");
   const reply = await convertWhatsAppMessageToTypebotMessage({
     messages: aggregationResponse.incomingMessages,
     workspaceId,
@@ -305,8 +300,10 @@ export const resumeWhatsAppFlow = async ({
     resultId: session?.state?.typebotsQueue[0].resultId,
     block,
   });
+  console.log("🔍 [DEBUG] Message conversion COMPLETE. Reply:", !!reply);
 
   const sessionStore = getSessionStore(sessionId);
+  console.log("🔍 [DEBUG] Resuming flow and sending WhatsApp messages...");
   const {
     input,
     logs,
@@ -521,28 +518,60 @@ const getWhatsAppCredentials = async ({
   workspaceId?: string;
   isPreview: boolean;
 }): Promise<WhatsAppCredentials["data"] | undefined> => {
+  console.log("🔍 [DEBUG credentials] Entering getWhatsAppCredentials", { isPreview, credentialsId, workspaceId });
   if (isPreview) {
-    if (
-      !env.META_SYSTEM_USER_TOKEN ||
-      !env.WHATSAPP_PREVIEW_FROM_PHONE_NUMBER_ID
-    )
-      return;
-    return {
-      provider: "meta",
-      systemUserAccessToken: env.META_SYSTEM_USER_TOKEN,
-      phoneNumberId: env.WHATSAPP_PREVIEW_FROM_PHONE_NUMBER_ID,
-    };
+    console.log("🔍 [DEBUG credentials] Preview mode detected. Checking env vars...");
+    try {
+      const token = env.META_SYSTEM_USER_TOKEN;
+      const phoneId = env.WHATSAPP_PREVIEW_FROM_PHONE_NUMBER_ID;
+      console.log("🔍 [DEBUG credentials] Env var access SUCCESS", { hasToken: !!token, hasPhoneId: !!phoneId });
+      
+      if (!token || !phoneId) {
+        console.log("🔍 [DEBUG credentials] Missing preview env vars");
+        return;
+      }
+      const creds = {
+        provider: "meta" as const,
+        systemUserAccessToken: token,
+        phoneNumberId: phoneId,
+      };
+      console.log("🔍 [DEBUG credentials] Returning preview credentials");
+      return creds;
+    } catch (e) {
+      console.error("❌ [DEBUG credentials] CRASH during preview env access!", e);
+      throw e;
+    }
   }
 
-  if (!credentialsId || !workspaceId) return;
+  if (!credentialsId || !workspaceId) {
+    console.log("🔍 [DEBUG credentials] Missing credentialsId or workspaceId for non-preview");
+    return;
+  }
 
-  const credentials = await getCredentials(credentialsId, workspaceId);
-  if (!credentials) return;
-  const data = (await decrypt(
-    credentials.data,
-    credentials.iv,
-  )) as WhatsAppCredentials["data"];
-  return data;
+  try {
+    console.log("🔍 [DEBUG credentials] Fetching production credentials...");
+    const credentials = await getCredentials(credentialsId, workspaceId);
+    console.log("🔍 [DEBUG credentials] Credentials fetched from DB:", !!credentials);
+    if (!credentials) return;
+    
+    console.log("🔍 [DEBUG credentials] Decrypting credentials...", {
+      ivLength: credentials.iv.length,
+      dataLength: credentials.data.length,
+      secretPrefix: env.ENCRYPTION_SECRET?.slice(0, 4) + "****",
+    });
+    const data = (await decrypt(
+      credentials.data,
+      credentials.iv,
+    )) as WhatsAppCredentials["data"];
+    console.log("🔍 [DEBUG credentials] Decryption SUCCESS", { 
+      provider: data?.provider,
+      phoneNumberId: (data as any)?.phoneNumberId 
+    });
+    return data;
+  } catch (e) {
+    console.error("❌ [DEBUG credentials] CRASH during production fetch/decrypt!", e);
+    throw e;
+  }
 };
 
 /**
@@ -611,12 +640,16 @@ const aggregateParallelMediaMessagesIfRedisEnabled = async ({
           JSON.parse(msgStr),
         ),
       };
-    } catch (error) {
-      console.error(
-        "Failed to process webhook event:",
-        error,
-        receivedMessages,
-      );
+    } catch (err) {
+      console.error("❌ [aggregateParallelMediaMessagesIfRedisEnabled] CRITICAL ERROR:", err);
+      if (err instanceof Error) {
+        console.error("Stack trace:", err.stack);
+      }
+      // Assuming sessionStore is available in this scope or can be passed.
+      // If not, this line would cause a reference error.
+      // For now, commenting out as sessionStore is not in the provided context for this function.
+      // await sessionStore.cleanup();
+      throw err;
     }
   }
 
