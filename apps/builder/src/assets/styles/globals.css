@@ -7,6 +7,92 @@
   --header-height: 56px;
 }
 
+@font-face {
+  font-family: "EYInterstate";
+  src: url("../EY_fonts/EYINTERSTATE-REGULAR.TTF") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "EYInterstate";
+  src: url("../EY_fonts/EYINTERSTATE-ITALIC.TTF") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "EYInterstate";
+  src: url("../EY_fonts/EYINTERSTATE-LIGHT.TTF") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "EYInterstate";
+  src: url("../EY_fonts/EYINTERSTATE-LIGHTITALIC.TTF") format("truetype");
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Mapping LightBold to SemiBold (600) based on typical naming conventions in absence of 'Medium' */
+@font-face {
+  font-family: "EYInterstate";
+  src: url("../EY_fonts/EYINTERSTATE-LIGHTBOLD.TTF") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "EYInterstate";
+  src: url("../EY_fonts/EYINTERSTATE-LIGHTBOLDIT.TTF") format("truetype");
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "EYInterstate";
+  src: url("../EY_fonts/EYINTERSTATE-LIGHTBOLD.TTF") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "EYInterstate";
+  src: url("../EY_fonts/EYINTERSTATE-LIGHTBOLDIT.TTF") format("truetype");
+  font-weight: 600;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "EYInterstate";
+  src: url("../EY_fonts/EYINTERSTATE-BOLD.TTF") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "EYInterstate";
+  src: url("../EY_fonts/EYINTERSTATE-BOLDITALIC.TTF") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+@theme {
+  --font-sans: "EYInterstate", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-display: "EYInterstate", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
 @layer base {
   h1 {
     @apply text-3xl;
