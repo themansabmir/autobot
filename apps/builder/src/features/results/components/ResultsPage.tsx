@@ -77,7 +77,7 @@ export const ResultsPage = () => {
               variant={!isAnalytics ? "outline" : "ghost"}
               size="sm"
               href={{
-                pathname: "/typebots/[typebotId]/results",
+                pathname: "/buildthebot/[typebotId]/results",
                 query: {
                   typebotId: publishedTypebot?.typebotId,
                   timeFilter:
@@ -97,7 +97,7 @@ export const ResultsPage = () => {
             <ButtonLink
               variant={isAnalytics ? "outline" : "ghost"}
               href={{
-                pathname: "/typebots/[typebotId]/results/analytics",
+                pathname: "/buildthebot/[typebotId]/results/analytics",
                 query: {
                   typebotId: publishedTypebot?.typebotId,
                   timeFilter:

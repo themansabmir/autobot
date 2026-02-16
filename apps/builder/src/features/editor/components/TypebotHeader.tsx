@@ -151,10 +151,10 @@ const LeftElements = ({
           aria-label="Navigate back"
           href={{
             pathname: router.query.parentId
-              ? "/typebots/[typebotId]/edit"
+              ? "/buildthebot/[typebotId]/edit"
               : typebot?.folderId
-                ? "/typebots/folders/[id]"
-                : "/typebots",
+                ? "/buildthebot/folders/[id]"
+                : "/buildthebot",
             query: {
               id: typebot?.folderId ?? [],
               parentId: Array.isArray(router.query.parentId)
@@ -295,7 +295,7 @@ const RightElements = ({
       )}
       {currentUserMode === "guest" && (
         <ButtonLink
-          href={`/typebots/${typebot?.id}/duplicate`}
+          href={`/buildthebot/${typebot?.id}/duplicate`}
           disabled={isNotDefined(typebot)}
           variant="secondary"
           size="sm"
@@ -332,7 +332,7 @@ const TypebotNav = ({
       )}
     >
       <ButtonLink
-        href={`/typebots/${typebotId}/edit`}
+        href={`/buildthebot/${typebotId}/edit`}
         variant={router.pathname.includes("/edit") ? "secondary" : "ghost"}
         size="sm"
         className={cn(
@@ -344,7 +344,7 @@ const TypebotNav = ({
         {t("editor.header.flowButton.label")}
       </ButtonLink>
       <ButtonLink
-        href={`/typebots/${typebotId}/theme`}
+        href={`/buildthebot/${typebotId}/theme`}
         variant={getVariant("theme")}
         size="sm"
         className={cn(
@@ -356,7 +356,7 @@ const TypebotNav = ({
         {t("editor.header.themeButton.label")}
       </ButtonLink>
       <ButtonLink
-        href={`/typebots/${typebotId}/settings`}
+        href={`/buildthebot/${typebotId}/settings`}
         variant={getVariant("settings")}
         size="sm"
         className={cn(
@@ -368,7 +368,7 @@ const TypebotNav = ({
         {t("editor.header.settingsButton.label")}
       </ButtonLink>
       <ButtonLink
-        href={`/typebots/${typebotId}/share`}
+        href={`/buildthebot/${typebotId}/share`}
         variant={getVariant("share")}
         size="sm"
         className={cn(
@@ -381,7 +381,7 @@ const TypebotNav = ({
       </ButtonLink>
       {isResultsDisplayed && (
         <ButtonLink
-          href={`/typebots/${typebotId}/results`}
+          href={`/buildthebot/${typebotId}/results`}
           variant={router.pathname.includes("results") ? "secondary" : "ghost"}
           size="sm"
           className={cn(

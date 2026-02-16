@@ -92,7 +92,7 @@ export const PublishButton = ({
             setTrademarkPotentialInfringement(data.warnings[0].trademark);
             onTrademarkInfringementOpen();
           } else if (!publishedTypebot && !pathname.endsWith("share"))
-            push(`/typebots/${query.typebotId}/share`);
+            push(`/buildthebot/${query.typebotId}/share`);
         },
       }),
     );

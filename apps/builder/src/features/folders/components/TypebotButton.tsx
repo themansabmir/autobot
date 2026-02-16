@@ -55,7 +55,7 @@ const TypebotButton = ({
   const { mutate: importTypebot } = useMutation(
     trpc.typebot.importTypebot.mutationOptions({
       onSuccess: ({ typebot }) => {
-        router.push(`/typebots/${typebot.id}/edit`);
+        router.push(`/buildthebot/${typebot.id}/edit`);
       },
     }),
   );
@@ -80,8 +80,8 @@ const TypebotButton = ({
     if (draggedTypebotDebounced) return;
     router.push(
       isMobile
-        ? `/typebots/${typebot.id}/results`
-        : `/typebots/${typebot.id}/edit`,
+        ? `/buildthebot/${typebot.id}/results`
+        : `/buildthebot/${typebot.id}/edit`,
     );
   };
 

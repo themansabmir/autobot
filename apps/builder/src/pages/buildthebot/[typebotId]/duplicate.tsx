@@ -19,7 +19,7 @@ const Page = () => {
   const { mutate, status } = useMutation(
     trpc.typebot.importTypebot.mutationOptions({
       onSuccess: (data) => {
-        push(`/typebots/${data.typebot.id}/edit`);
+        push(`/buildthebot/${data.typebot.id}/edit`);
       },
     }),
   );

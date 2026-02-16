@@ -14,7 +14,7 @@ export const CreateBotButton = ({
 
   const handleClick = () =>
     router.push(
-      `/typebots/create?${stringify({
+      `/buildthebot/create?${stringify({
         folderId,
       })}`,
     );
