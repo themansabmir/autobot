@@ -9,7 +9,10 @@ export async function POST(
   ctx: { params: Promise<{ workspaceId: string; credentialsId: string }> },
 ) {
   // Broadcast to all dev proxies (fire-and-forget)
-  console.log("Webhook Request 👉 ", JSON.stringify(await request.clone().text()))
+  console.log(
+    "Webhook Request 👉 ",
+    JSON.stringify(await request.clone().text()),
+  );
   if (env.DEV_PROXY_URLS) {
     await devProxyBroadcast(request.clone());
   }

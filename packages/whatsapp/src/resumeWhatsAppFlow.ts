@@ -3,6 +3,7 @@ import type { Block } from "@typebot.io/blocks-core/schemas/schema";
 import { InputBlockType } from "@typebot.io/blocks-inputs/constants";
 import { continueBotFlow } from "@typebot.io/bot-engine/continueBotFlow";
 import { saveStateToDatabase } from "@typebot.io/bot-engine/saveStateToDatabase";
+import type { ContinueBotFlowResponse } from "@typebot.io/bot-engine/types";
 import type { Message } from "@typebot.io/chat-api/schemas";
 import { getSession } from "@typebot.io/chat-session/queries/getSession";
 import { upsertSession } from "@typebot.io/chat-session/queries/upsertSession";
@@ -22,16 +23,14 @@ import {
   getSessionStore,
   type SessionStore,
 } from "@typebot.io/runtime-session-store";
+
 import { downloadMedia } from "./downloadMedia";
 import type {
   WhatsAppIncomingMessage,
   WhatsAppMessageReferral,
 } from "./schemas";
 import { sendChatReplyToWhatsApp } from "./sendChatReplyToWhatsApp";
-import {
-  messageMatchStartCondition,
-  startWhatsAppSession,
-} from "./startWhatsAppSession";
+import { startWhatsAppSession } from "./startWhatsAppSession";
 import { WhatsAppError } from "./WhatsAppError";
 
 const MESSAGE_TOO_OLD_ELAPSED_MS = 24 * 60 * 60 * 1000; // 24 hours (was 3 minutes - too short for campaigns)
@@ -161,13 +160,15 @@ export const resumeWhatsAppFlow = async ({
 
   if (receivedMessages.length > 0 && contact && isEnhancedAnalyticsEnabled) {
     let latestCampaignRecipient;
-    
+
     // Priority 1: Check if this is a reply to a specific Campaign Message (Context match)
     // This is ROBUST because it links the reply directly to the campaign via Message ID.
     const context = receivedMessages[0].context;
     if (context?.id) {
-       console.log(`🔍 [DEBUG] distinct context found: ${context.id}, checking for campaign match.`);
-       latestCampaignRecipient = await prisma.campaignRecipient.findFirst({
+      console.log(
+        `🔍 [DEBUG] distinct context found: ${context.id}, checking for campaign match.`,
+      );
+      latestCampaignRecipient = await prisma.campaignRecipient.findFirst({
         where: {
           messageId: context.id,
         },
@@ -177,7 +178,7 @@ export const resumeWhatsAppFlow = async ({
 
     // Priority 2: Fallback to Timestamp heuristic (if no context match)
     if (!latestCampaignRecipient) {
-       latestCampaignRecipient = await prisma.campaignRecipient.findFirst({
+      latestCampaignRecipient = await prisma.campaignRecipient.findFirst({
         where: {
           phoneNumber: contact.phoneNumber,
           createdAt: { gt: session?.updatedAt ?? new Date(0) },
@@ -190,47 +191,68 @@ export const resumeWhatsAppFlow = async ({
     if (latestCampaignRecipient) {
       // Check if we are already in this bot session to avoid a "Restart Loop" (Duplicate First Message Fix)
       const currentBotId = session?.state?.typebotsQueue[0]?.typebot?.id;
-      const isAlreadyInSession = currentBotId === latestCampaignRecipient.campaign.typebotId;
-      const isStarted = latestCampaignRecipient.status === RecipientStatus.STARTED;
+      const isAlreadyInSession =
+        currentBotId === latestCampaignRecipient.campaign.typebotId;
+      const isStarted =
+        latestCampaignRecipient.status === RecipientStatus.STARTED;
 
-      if (isAlreadyInSession && isStarted) {
-         console.log("ℹ️ [DEBUG] Already in campaign session. Skipping Force Switch/Restart.");
-         forcedTypebotId = undefined; // Proceed with normal flow resume
-      } else {
-          console.log(
-            "🔄 [DEBUG] Found newer campaign. Switching session/Flushing old flow.",
-            {
-              oldTypebotId: session?.state?.typebotsQueue[0]?.typebot?.id,
-              newTypebotId: latestCampaignRecipient.campaign.typebotId,
-              campaignId: latestCampaignRecipient.campaign.id,
-              reason: "New Campaign Detected",
+      if (
+        isAlreadyInSession &&
+        (isStarted || latestCampaignRecipient.status === RecipientStatus.SENT)
+      ) {
+        console.log(
+          "ℹ️ [DEBUG] Already in campaign session. Skipping Force Switch/Restart.",
+        );
+        forcedTypebotId = undefined; // Proceed with normal flow resume
+
+        // If the user replies to a SENT campaign, we mark it as STARTED here (since we skipped the switch logic)
+        if (latestCampaignRecipient.status === RecipientStatus.SENT) {
+          await prisma.campaignRecipient.update({
+            where: { id: latestCampaignRecipient.id },
+            data: {
+              status: RecipientStatus.STARTED,
+              startedAt: new Date(),
             },
+          });
+          console.log(
+            `✅ [Campaign Analytics] Recipient ${latestCampaignRecipient.id} (${latestCampaignRecipient.phoneNumber}) status updated to STARTED (Resume Path)`,
           );
-          forcedTypebotId = latestCampaignRecipient.campaign.typebotId;
-          
-          // Update the NEW campaign status
-          if (
-            (
-              [
-                RecipientStatus.SENT,
-                RecipientStatus.DELIVERED,
-                RecipientStatus.OPENED,
-                RecipientStatus.QUEUED,
-                RecipientStatus.PENDING,
-              ] as RecipientStatus[]
-            ).includes(latestCampaignRecipient.status)
-          ) {
-            await prisma.campaignRecipient.update({
-              where: { id: latestCampaignRecipient.id },
-              data: {
-                status: RecipientStatus.STARTED,
-                startedAt: new Date(),
-              },
-            });
-            console.log(
-              `✅ [Campaign Analytics] Recipient ${latestCampaignRecipient.id} (${latestCampaignRecipient.phoneNumber}) status updated to STARTED`,
-            );
-          }
+        }
+      } else {
+        console.log(
+          "🔄 [DEBUG] Found newer campaign. Switching session/Flushing old flow.",
+          {
+            oldTypebotId: session?.state?.typebotsQueue[0]?.typebot?.id,
+            newTypebotId: latestCampaignRecipient.campaign.typebotId,
+            campaignId: latestCampaignRecipient.campaign.id,
+            reason: "New Campaign Detected",
+          },
+        );
+        forcedTypebotId = latestCampaignRecipient.campaign.typebotId;
+
+        // Update the NEW campaign status
+        if (
+          (
+            [
+              RecipientStatus.SENT,
+              RecipientStatus.DELIVERED,
+              RecipientStatus.OPENED,
+              RecipientStatus.QUEUED,
+              RecipientStatus.PENDING,
+            ] as RecipientStatus[]
+          ).includes(latestCampaignRecipient.status)
+        ) {
+          await prisma.campaignRecipient.update({
+            where: { id: latestCampaignRecipient.id },
+            data: {
+              status: RecipientStatus.STARTED,
+              startedAt: new Date(),
+            },
+          });
+          console.log(
+            `✅ [Campaign Analytics] Recipient ${latestCampaignRecipient.id} (${latestCampaignRecipient.phoneNumber}) status updated to STARTED`,
+          );
+        }
       }
     }
   }
@@ -291,12 +313,12 @@ export const resumeWhatsAppFlow = async ({
     (currentTypebot && session?.state?.currentBlockId
       ? getBlockById(session.state.currentBlockId, currentTypebot.groups)
       : undefined) ?? {};
-  
-  // If forcedTypebotId is set, we use that for message conversion context if possible? 
+
+  // If forcedTypebotId is set, we use that for message conversion context if possible?
   // Actually convertWhatsAppMessageToTypebotMessage uses currentTypebot?.id for media paths.
   // If we are switching, "currentTypebot" is technically the old one, but we are about to discard it.
   // Ideally we should peek the new bot, but for now we follow standard flow.
-  
+
   const reply = await convertWhatsAppMessageToTypebotMessage({
     messages: aggregationResponse.incomingMessages,
     workspaceId,
@@ -307,14 +329,7 @@ export const resumeWhatsAppFlow = async ({
   });
 
   const sessionStore = getSessionStore(sessionId);
-  const {
-    input,
-    logs,
-    visitedEdges,
-    setVariableHistory,
-    newSessionState,
-    isWaitingForWebhook,
-  } = await resumeFlowAndSendWhatsAppMessages({
+  const response = await resumeFlowAndSendWhatsAppMessages({
     to: receivedMessages[0].from,
     credentials,
     isSessionExpired,
@@ -329,6 +344,17 @@ export const resumeWhatsAppFlow = async ({
     isCampaignStart: !!forcedTypebotId,
   });
   deleteSessionStore(sessionId);
+
+  if (!response) return;
+
+  const {
+    input,
+    logs,
+    visitedEdges,
+    setVariableHistory,
+    newSessionState,
+    isWaitingForWebhook,
+  } = response;
 
   console.log("💾 [DEBUG] Saving state to database - sessionId:", sessionId, {
     hasInput: !!input,
@@ -627,6 +653,15 @@ const aggregateParallelMediaMessagesIfRedisEnabled = async ({
   };
 };
 
+type ResumeFlowResponse = {
+  input: ContinueBotFlowResponse["input"];
+  logs: ContinueBotFlowResponse["logs"];
+  visitedEdges: ContinueBotFlowResponse["visitedEdges"];
+  setVariableHistory: ContinueBotFlowResponse["setVariableHistory"];
+  newSessionState: ContinueBotFlowResponse["newSessionState"];
+  isWaitingForWebhook: boolean;
+};
+
 const resumeFlowAndSendWhatsAppMessages = async (props: {
   to: string;
   state: SessionState | null | undefined;
@@ -640,8 +675,9 @@ const resumeFlowAndSendWhatsAppMessages = async (props: {
   workspaceId?: string;
   typebotId?: string;
   isCampaignStart?: boolean;
-}) => {
-  let resumeResponse = await resumeFlow(props);
+}): Promise<ResumeFlowResponse | undefined> => {
+  const resumeResponse = await resumeFlow(props);
+  if (!resumeResponse) return;
 
   /* FAST-FORWARD DISABLED
   if (props.isCampaignStart && resumeResponse.input && props.reply) {
@@ -678,6 +714,8 @@ const resumeFlowAndSendWhatsAppMessages = async (props: {
   }
   */
 
+  if (!resumeResponse) return;
+
   const {
     input,
     logs,
@@ -689,6 +727,7 @@ const resumeFlowAndSendWhatsAppMessages = async (props: {
   } = resumeResponse;
 
   const isFirstChatChunk = (!props.state || props.isSessionExpired) ?? false;
+
   const result = await sendChatReplyToWhatsApp({
     to: props.to,
     messages,
@@ -744,6 +783,12 @@ const resumeFlow = ({
   typebotId?: string;
 }) => {
   if (state && !isSessionExpired && !typebotId) {
+    if (!state.currentBlockId) {
+      console.log(
+        "ℹ️ [DEBUG] Session reached end of flow and is not expired. Ignoring message.",
+      );
+      return;
+    }
     console.log(
       "🔄 [DEBUG] Continuing existing bot flow - currentBlockId:",
       state.currentBlockId,
