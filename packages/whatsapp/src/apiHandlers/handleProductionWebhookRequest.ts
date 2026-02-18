@@ -1,19 +1,19 @@
-import { env } from "@typebot.io/env";
+import { RecipientStatus } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import { getSession } from "@typebot.io/chat-session/queries/getSession";
+import { env } from "@typebot.io/env";
 import { parseUnknownError } from "@typebot.io/lib/parseUnknownError";
+import prisma from "@typebot.io/prisma";
 import { after, type NextRequest } from "next/server";
+import {
+  WHATSAPP_PREVIEW_SESSION_ID_PREFIX,
+  WHATSAPP_SESSION_ID_PREFIX,
+} from "../constants";
 import { extractErrorsFromEntry } from "../extractErrorsFromEntry";
 import { groupIncomingWebhookEntriesPerUser } from "../groupIncomingWebhookEntriesPerUser";
 import { parseWhatsAppWebhookBody } from "../parseWhatsAppWebhookBody";
 import { resumeWhatsAppFlow } from "../resumeWhatsAppFlow";
 import { WhatsAppError } from "../WhatsAppError";
-
-const WHATSAPP_SESSION_ID_PREFIX = "wa-";
-const WHATSAPP_PREVIEW_SESSION_ID_PREFIX = "wa-preview-";
-
-import { RecipientStatus } from "@prisma/client";
-import prisma from "@typebot.io/prisma";
 
 export const handleProductionWebhookRequest = async (
   request: NextRequest,
@@ -39,8 +39,7 @@ export const handleProductionWebhookRequest = async (
 
   // Handle Status Updates from Meta Webhooks
   // Feature flag for enhanced analytics
-  const useEnhancedAnalytics =
-    env.ENABLE_ENHANCED_CAMPAIGN_ANALYTICS === true;
+  const useEnhancedAnalytics = env.ENABLE_ENHANCED_CAMPAIGN_ANALYTICS === true;
 
   for (const { changes } of entry) {
     for (const change of changes) {

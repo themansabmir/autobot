@@ -134,7 +134,9 @@ export const getCampaignAnalytics = authenticatedProcedure
       .filter((r) => r.npsScore !== null)
       .map((r) => ({
         score: r.npsScore!,
-        date: r.npsRespondedAt ? r.npsRespondedAt.toISOString().split("T")[0] : null,
+        date: r.npsRespondedAt
+          ? r.npsRespondedAt.toISOString().split("T")[0]
+          : null,
       }));
 
     // Extract NPS configuration from Typebot
@@ -227,11 +229,15 @@ function calculateNPS(
 
   scores.forEach(({ score, date }) => {
     if (!date) return;
-    
+
     // Normalize individual score for trend bucket
     const s = ((score - scale.min) / (scale.max - scale.min)) * 10;
 
-    const current = trendMap.get(date) || { promoters: 0, detractors: 0, total: 0 };
+    const current = trendMap.get(date) || {
+      promoters: 0,
+      detractors: 0,
+      total: 0,
+    };
     if (s >= 9) current.promoters++;
     else if (s < 7) current.detractors++;
     current.total++;
@@ -243,7 +249,9 @@ function calculateNPS(
     .sort((a, b) => a[0].localeCompare(b[0]))
     .map(([date, data]) => ({
       date,
-      score: Math.round(((data.promoters - data.detractors) / data.total) * 100),
+      score: Math.round(
+        ((data.promoters - data.detractors) / data.total) * 100,
+      ),
       responses: data.total,
     }));
 

@@ -56,7 +56,7 @@ export const NpsInputSettings = ({ options, onOptionsChange }: Props) => {
           <BasicSelect
             value={(
               options?.length ??
-              (npsInputConstants.maxScore - npsInputConstants.minScore + 1)
+              npsInputConstants.maxScore - npsInputConstants.minScore + 1
             ).toString()}
             onChange={handleLengthChange}
             items={["3", "4", "5", "6", "7", "8", "9", "10", "11"]}

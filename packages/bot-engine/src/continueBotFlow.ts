@@ -277,10 +277,11 @@ export const continueBotFlow = async (
   const isWaitingForInput = isInputBlock(block) && !reply;
 
   if (isEndOfFlow && !isWaitingForInput) {
-    console.log(
-      "[continueBotFlow] End of flow reached. Clearing session.",
-      { blockId: block.id, isInputBlock: isInputBlock(block), hasReply: !!reply }
-    );
+    console.log("[continueBotFlow] End of flow reached. Clearing session.", {
+      blockId: block.id,
+      isInputBlock: isInputBlock(block),
+      hasReply: !!reply,
+    });
     return {
       messages: [],
       newSessionState: {
