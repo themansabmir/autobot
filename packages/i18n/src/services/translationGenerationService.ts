@@ -24,15 +24,17 @@ export interface LanguageTranslationResult {
   error?: string;
 }
 
-/**
- * Apply translations to a typebot by setting values at the specified paths
- */
 const applyTranslations = (
   typebot: Typebot,
   translations: Record<string, string>,
 ): Typebot => {
   // Deep clone the typebot
   const translated = JSON.parse(JSON.stringify(typebot)) as Typebot;
+
+  // Preserve original values in logic fields before they get translated
+  // This ensures that when a user selects a translated option, the variable
+  // receives the original (logic) value, keeping conditional paths stable.
+  preserveOriginalValuesForLogic(translated);
 
   let successCount = 0;
   let failCount = 0;
@@ -54,6 +56,67 @@ const applyTranslations = (
   validateTranslatedStructure(typebot, translated);
 
   return translated;
+};
+
+/**
+ * Ensures that blocks with items (choice, cards, picture choice) have their 
+ * original text content preserved in their 'value' or 'internalValue' fields.
+ * This should be called on the base typebot clone BEFORE applying translations.
+ */
+const preserveOriginalValuesForLogic = (typebot: any): void => {
+  typebot.groups.forEach((group: any) => {
+    group.blocks.forEach((block: any) => {
+      // Choice Input
+      if (block.type === "choice input" && Array.isArray(block.items)) {
+        block.items.forEach((item: any) => {
+          if (!item.value && typeof item.content === "string") {
+            item.value = item.content;
+          }
+        });
+      }
+
+      // Picture Choice
+      if (block.type === "picture choice input" && Array.isArray(block.items)) {
+        block.items.forEach((item: any) => {
+          if (!item.value && typeof item.title === "string") {
+            item.value = item.title;
+          }
+        });
+      }
+
+      // Cards
+      if (block.type === "cards" && Array.isArray(block.items)) {
+        block.items.forEach((item: any) => {
+          if (!item.options) item.options = {};
+          if (!item.options.internalValue && typeof item.title === "string") {
+            item.options.internalValue = item.title;
+          }
+        });
+      }
+
+      // WhatsApp Carousel
+      if (block.type === "whatsapp-carousel" && Array.isArray(block.items)) {
+        block.items.forEach((item: any) => {
+          if (Array.isArray(item.quickReplyButtons)) {
+            item.quickReplyButtons.forEach((btn: any) => {
+              if (!btn.value && typeof btn.title === "string") {
+                btn.value = btn.title;
+              }
+            });
+          }
+        });
+      }
+
+      // WhatsApp List
+      if (block.type === "whatsapp-list" && Array.isArray(block.items)) {
+        block.items.forEach((item: any) => {
+          if (!item.value && typeof item.content === "string") {
+            item.value = item.content;
+          }
+        });
+      }
+    });
+  });
 };
 
 /**

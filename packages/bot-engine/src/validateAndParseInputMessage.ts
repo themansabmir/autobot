@@ -169,20 +169,33 @@ export const validateAndParseInputMessage = (
       });
     }
     case InputBlockType.CARDS: {
+      console.log("🎴 [Cards] Validating reply:", { text: message?.text });
       if (!message || message.type !== "text") return { status: "fail" };
-      return parseCardsReply(message.text, {
+      const response = parseCardsReply(message.text, {
         block,
         variables,
         sessionStore,
         replyId: message.metadata?.replyId,
       });
+      if (response.status === "fail") {
+        console.log("🎴 [Cards] Validation failed, falling back to success for WhatsApp compatibility");
+        return { status: "success", content: message.text };
+      }
+      return response;
     }
     case InputBlockType.CTA_URL: {
       if (!message || message.type !== "text") return { status: "fail" };
       return { status: "success", content: message.text };
     }
-    case InputBlockType.WHATSAPP_LIST:
-    case InputBlockType.WHATSAPP_CAROUSEL: {
+    case "whatsapp list":
+    case "whatsapp-list":
+    case "whatsapp carousel":
+    case "whatsapp-carousel": {
+      console.log("🎡 [WhatsApp Interactive] Validating reply:", { 
+        type: block.type, 
+        text: message?.text,
+        replyId: message?.metadata?.replyId
+      });
       if (!message || message.type !== "text") return { status: "fail" };
       const displayedBlock = injectVariableValuesInButtonsInputBlock(
         block as any,
@@ -195,7 +208,7 @@ export const validateAndParseInputMessage = (
       let itemsToValidate = (displayedBlock as any).items;
       
       // Special handling for Carousel cards which have nested buttons
-      if (block.type === InputBlockType.WHATSAPP_CAROUSEL) {
+      if (block.type === InputBlockType.WHATSAPP_CAROUSEL || block.type === "whatsapp-carousel") {
         itemsToValidate = (displayedBlock as any).items.flatMap((item: any) => 
           (item.quickReplyButtons ?? []).map((btn: any) => ({
             ...btn,
@@ -205,19 +218,22 @@ export const validateAndParseInputMessage = (
         );
       }
 
-      console.log("🎠 [WhatsApp Carousel] Validating reply:", {
-        inputValue: message.text,
-        itemCount: itemsToValidate.length,
-      });
-
       const response = parseSingleChoiceReply(message.text, {
         replyId: message.metadata?.replyId,
         items: itemsToValidate,
       });
 
-      console.log("🎠 [WhatsApp Carousel] Validation response:", {
-        status: response.status,
-        outgoingEdgeId: (response as any).outgoingEdgeId,
+      if (response.status === "fail") {
+        console.log("🎡 [WhatsApp Interactive] Validation failed, falling back to success");
+        return {
+          status: "success",
+          content: message.text,
+        };
+      }
+
+      console.log("🎡 [WhatsApp Interactive] Validation success:", {
+        content: response.content,
+        outgoingEdgeId: response.outgoingEdgeId,
       });
 
       return response;
@@ -230,5 +246,6 @@ export const validateAndParseInputMessage = (
       return { status: "success", content: message.text };
     }
   }
+  console.log("❌ [validateAndParseInputMessage] No case matched for block type:", block.type);
   return { status: "fail" };
 };

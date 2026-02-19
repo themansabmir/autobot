@@ -31,7 +31,7 @@ const protectVariables = (
   const variables: string[] = [];
   const protectedText = text.replace(/\{\{[^}]+\}\}/g, (match) => {
     variables.push(match);
-    return ` [#${variables.length - 1}] `; // Add spaces to help Google see it as a token
+    return `[#${variables.length - 1}]`; // No extra spaces to preserve tight formatting (e.g. for WhatsApp bolding)
   });
   return { protectedText, variables };
 };

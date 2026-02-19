@@ -211,7 +211,8 @@ const isLastMessageIncludedInInput = (
     (input.type === InputBlockType.CHOICE ||
       input.type === InputBlockType.LANGUAGE ||
       input.type === InputBlockType.CARDS ||
-      input.type === InputBlockType.WHATSAPP_LIST) &&
+      input.type === InputBlockType.WHATSAPP_LIST ||
+      input.type === InputBlockType.WHATSAPP_CAROUSEL) &&
     (!lastMessage || lastMessage.type === BubbleBlockType.TEXT)
   );
 };

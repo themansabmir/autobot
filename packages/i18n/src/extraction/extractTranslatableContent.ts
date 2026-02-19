@@ -171,12 +171,29 @@ const extractFromButtonItems = (
 
   items.forEach((item, itemIndex) => {
     const itemObj = item as Record<string, unknown>;
-    const content = itemObj.content;
-
-    if (typeof content === "string" && content.trim()) {
+    
+    // Choice items
+    if (typeof itemObj.content === "string" && itemObj.content.trim()) {
       translatableItems.push({
         path: `groups.${groupIndex}.blocks.${blockIndex}.items.${itemIndex}.content`,
-        text: content,
+        text: itemObj.content,
+        type: "button",
+      });
+    }
+
+    // Picture choice / Card items (if falling through)
+    if (typeof itemObj.title === "string" && itemObj.title.trim()) {
+      translatableItems.push({
+        path: `groups.${groupIndex}.blocks.${blockIndex}.items.${itemIndex}.title`,
+        text: itemObj.title,
+        type: "button",
+      });
+    }
+
+    if (typeof itemObj.description === "string" && itemObj.description.trim()) {
+      translatableItems.push({
+        path: `groups.${groupIndex}.blocks.${blockIndex}.items.${itemIndex}.description`,
+        text: itemObj.description,
         type: "button",
       });
     }
@@ -382,7 +399,7 @@ const extractFromRatingBlock = (
     });
   }
   
-  // Labels object (leftLabel, rightLabel, etc.)
+  // Labels object (left, right, button, etc.)
   const labels = options.labels as Record<string, unknown> | undefined;
   if (labels && typeof labels === "object") {
     Object.entries(labels).forEach(([key, value]) => {
@@ -396,6 +413,34 @@ const extractFromRatingBlock = (
     });
   }
   
+  return items;
+};
+
+/**
+ * Extract translatable content from CTA URL blocks
+ */
+const extractFromCtaUrlBlock = (
+  block: Record<string, unknown>,
+  groupIndex: number,
+  blockIndex: number,
+): TranslatableItem[] => {
+  const items: TranslatableItem[] = [];
+  const basePath = `groups.${groupIndex}.blocks.${blockIndex}.options`;
+  const options = block.options as Record<string, unknown> | undefined;
+  
+  if (!options) return items;
+
+  const fields = ["headerText", "bodyText", "footerText", "displayText"];
+  fields.forEach(field => {
+    if (typeof options[field] === "string" && (options[field] as string).trim()) {
+      items.push({
+        path: `${basePath}.${field}`,
+        text: options[field] as string,
+        type: field === "displayText" ? "button" : "bubble",
+      });
+    }
+  });
+
   return items;
 };
 
@@ -522,6 +567,12 @@ export const extractTranslatableContent = (
       // NPS/Rating blocks
       if (matchesBlockType(blockType, "rating") || matchesBlockType(blockType, "nps")) {
         const extracted = extractFromRatingBlock(blockObj, groupIndex, blockIndex);
+        items.push(...extracted);
+      }
+
+      // CTA URL block
+      if (matchesBlockType(blockType, "cta-url")) {
+        const extracted = extractFromCtaUrlBlock(blockObj, groupIndex, blockIndex);
         items.push(...extracted);
       }
 
