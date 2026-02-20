@@ -150,11 +150,15 @@ export const resumeWhatsAppFlow = async ({
 
   if (!isSessionExpired && session?.isReplying) {
     const placeholderAgeMs = Date.now() - (session.updatedAt?.getTime() ?? 0);
-    const STUCK_PLACEHOLDER_TTL_MS = 60_000; // 1 minute
-    if (placeholderAgeMs < STUCK_PLACEHOLDER_TTL_MS)
+    // Sessions with state are waiting for a webhook — give them a longer TTL
+    // before allowing the user to break through (5 min vs 60s for stateless placeholders)
+    const STUCK_TTL_MS = session?.state ? 5 * 60_000 : 60_000;
+    if (placeholderAgeMs < STUCK_TTL_MS)
       throw new WhatsAppError("Is in reply state");
     console.log(
-      "⚠️ [DEBUG] isReplying=true but placeholder is stale. Proceeding.",
+      "⚠️ [DEBUG] isReplying=true but session is stale (>",
+      Math.round(placeholderAgeMs / 1000),
+      "s). Proceeding.",
     );
   } else if (aggregationResponse.status === "treat as unique message") {
     console.log(
@@ -346,20 +350,33 @@ export const resumeWhatsAppFlow = async ({
   });
 
   const sessionStore = getSessionStore(sessionId);
-  const response = await resumeFlowAndSendWhatsAppMessages({
-    to: receivedMessages[0].from,
-    credentials,
-    isSessionExpired,
-    reply: forcedTypebotId ? undefined : reply, // If switching bot, don't feed user reply as first input
-    state: forcedTypebotId ? undefined : session?.state, // If forced, pass undefined state to force new session
-    sessionStore,
-    contact,
-    workspaceId,
-    credentialsId,
-    referral,
-    typebotId: forcedTypebotId, // Pass the new ID to start/resume flow
-    isCampaignStart: !!forcedTypebotId,
-  });
+  let response: ResumeFlowResponse | undefined;
+  try {
+    response = await resumeFlowAndSendWhatsAppMessages({
+      to: receivedMessages[0].from,
+      credentials,
+      isSessionExpired,
+      reply: forcedTypebotId ? undefined : reply, // If switching bot, don't feed user reply as first input
+      state: forcedTypebotId ? undefined : session?.state, // If forced, pass undefined state to force new session
+      sessionStore,
+      contact,
+      workspaceId,
+      credentialsId,
+      referral,
+      typebotId: forcedTypebotId, // Pass the new ID to start/resume flow
+      isCampaignStart: !!forcedTypebotId,
+    });
+  } catch (err) {
+    // Clear isReplying so the user is not permanently stuck after a mid-flow crash
+    // (e.g. HTTP request block timeout, code block error, etc.)
+    console.error(
+      "❌ [DEBUG] Flow crashed mid-execution. Clearing isReplying to unblock user.",
+      err,
+    );
+    await upsertSession(sessionId, { isReplying: false });
+    deleteSessionStore(sessionId);
+    throw err;
+  }
 
   if (!response) {
     deleteSessionStore(sessionId);
