@@ -164,6 +164,7 @@ export const startWhatsAppPreview = authenticatedProcedure
 
     const sessionId = await getWhatsAppSessionId({
       phoneNumber: to,
+      phoneNumberId: env.WHATSAPP_PREVIEW_FROM_PHONE_NUMBER_ID,
     });
 
     const existingSession = await prisma.chatSession.findFirst({
