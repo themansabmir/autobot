@@ -163,7 +163,7 @@ export const sendChatReplyToWhatsApp = async ({
     }
   }
 
-  return { type: "shouldWaitForWebhook", lastMessageId };
+  return undefined;
 };
 
 const getTypingDuration = ({
