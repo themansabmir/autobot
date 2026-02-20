@@ -44,6 +44,7 @@ export const getBubbleBlockLabel = (
   [BubbleBlockType.EMBED]: t("editor.sidebarBlock.embed.label"),
   [BubbleBlockType.AUDIO]: t("editor.sidebarBlock.audio.label"),
   [BubbleBlockType.STICKER]: "Sticker",
+  [BubbleBlockType.WHATSAPP_TEMPLATE]: "WhatsApp Template",
 });
 
 export const getInputBlockLabel = (

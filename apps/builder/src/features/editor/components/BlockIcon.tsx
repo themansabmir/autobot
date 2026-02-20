@@ -14,6 +14,7 @@ import { ImageBubbleIcon } from "@/features/blocks/bubbles/image/components/Imag
 import { StickerBubbleIcon } from "@/features/blocks/bubbles/sticker/components/StickerBubbleIcon";
 import { TextBubbleIcon } from "@/features/blocks/bubbles/textBubble/components/TextBubbleIcon";
 import { VideoBubbleIcon } from "@/features/blocks/bubbles/video/components/VideoBubbleIcon";
+import { WhatsAppTemplateIcon } from "@/features/blocks/bubbles/whatsappTemplate/components/WhatsAppTemplateIcon";
 import { ButtonsInputIcon } from "@/features/blocks/inputs/buttons/components/ButtonsIcon";
 import { CtaUrlIcon } from "@/features/blocks/inputs/ctaUrl/components/CtaUrlIcon";
 import { DateInputIcon } from "@/features/blocks/inputs/date/components/DateInputIcon";
@@ -80,6 +81,12 @@ export const BlockIcon = ({ type, className }: BlockIconProps): JSX.Element => {
     case BubbleBlockType.STICKER:
       return (
         <StickerBubbleIcon className={cn("text-gray-12 stroke-2", className)} />
+      );
+    case BubbleBlockType.WHATSAPP_TEMPLATE:
+      return (
+        <WhatsAppTemplateIcon
+          className={cn("text-gray-12 stroke-2", className)}
+        />
       );
     case InputBlockType.TEXT:
       return (

@@ -11,6 +11,7 @@ import { EmbedBubbleSettings } from "@/features/blocks/bubbles/embed/components/
 import { ImageBubbleSettings } from "@/features/blocks/bubbles/image/components/ImageBubbleSettings";
 import { StickerBubbleSettings } from "@/features/blocks/bubbles/sticker/components/StickerBubbleSettings";
 import { VideoUploadContent } from "@/features/blocks/bubbles/video/components/VideoUploadContent";
+import { WhatsAppTemplateSettings } from "@/features/blocks/bubbles/whatsappTemplate/components/WhatsAppTemplateSettings";
 import type { FilePathUploadProps } from "@/features/upload/api/generateUploadUrl";
 
 type Props = {
@@ -78,6 +79,14 @@ export const MediaBubbleContent = ({
       return (
         <StickerBubbleSettings
           uploadFileProps={uploadFileProps}
+          block={block}
+          onContentChange={onContentChange}
+        />
+      );
+    }
+    case BubbleBlockType.WHATSAPP_TEMPLATE: {
+      return (
+        <WhatsAppTemplateSettings
           block={block}
           onContentChange={onContentChange}
         />

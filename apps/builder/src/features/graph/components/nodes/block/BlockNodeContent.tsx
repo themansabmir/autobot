@@ -12,6 +12,7 @@ import { ImageBubbleContent } from "@/features/blocks/bubbles/image/components/I
 import { StickerBubbleContent } from "@/features/blocks/bubbles/sticker/components/StickerBubbleContent";
 import { TextBubbleContent } from "@/features/blocks/bubbles/textBubble/components/TextBubbleContent";
 import { VideoBubbleContent } from "@/features/blocks/bubbles/video/components/VideoBubbleContent";
+import { WhatsAppTemplateContent } from "@/features/blocks/bubbles/whatsappTemplate/components/WhatsAppTemplateContent";
 import { ButtonsBlockNode } from "@/features/blocks/inputs/buttons/components/ButtonsBlockNode";
 import { CardsBlockNode } from "@/features/blocks/inputs/cards/components/CardsBlockNode";
 import { CtaUrlNodeContent } from "@/features/blocks/inputs/ctaUrl/components/CtaUrlNodeContent";
@@ -80,6 +81,9 @@ export const BlockNodeContent = ({
     }
     case BubbleBlockType.STICKER: {
       return <StickerBubbleContent block={block} />;
+    }
+    case BubbleBlockType.WHATSAPP_TEMPLATE: {
+      return <WhatsAppTemplateContent block={block} />;
     }
     case InputBlockType.TEXT: {
       return <TextInputNodeContent options={block.options} />;

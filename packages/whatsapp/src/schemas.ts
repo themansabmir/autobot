@@ -74,6 +74,7 @@ const templateSchema = z.object({
   language: z.object({
     code: z.string(),
   }),
+  components: z.array(z.any()).optional(),
 });
 
 const interactiveButtonSchema = z.object({

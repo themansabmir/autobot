@@ -371,6 +371,7 @@ const whatsAppEnv = {
       .min(1)
       .optional()
       .default("en_US"),
+    WHATSAPP_BUSINESS_ACCOUNT_ID: z.string().min(1).optional(),
     WHATSAPP_CLOUD_API_URL: z
       .string()
       .url()
