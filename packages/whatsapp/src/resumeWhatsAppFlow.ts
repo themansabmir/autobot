@@ -119,8 +119,19 @@ export const resumeWhatsAppFlow = async ({
   });
 
   if (session && !session.state) {
-    console.log("❌ [DEBUG] Session exists but has no state - throwing error");
-    throw new WhatsAppError("Session is empty. Most likely in reply state.");
+    const placeholderAgeMs = Date.now() - session.updatedAt.getTime();
+    const STUCK_PLACEHOLDER_TTL_MS = 60_000; // 1 minute
+    if (placeholderAgeMs < STUCK_PLACEHOLDER_TTL_MS) {
+      console.log(
+        "❌ [DEBUG] Session exists but has no state and is fresh - throwing error",
+      );
+      throw new WhatsAppError("Session is empty. Most likely in reply state.");
+    }
+    console.log(
+      "⚠️ [DEBUG] Session placeholder is stale (>",
+      Math.round(placeholderAgeMs / 1000),
+      "s old). Treating as expired and restarting.",
+    );
   }
 
   const aggregationResponse =
@@ -137,9 +148,15 @@ export const resumeWhatsAppFlow = async ({
     isDefined(session.state.expiryTimeout) &&
     session?.updatedAt.getTime() + session.state.expiryTimeout < Date.now();
 
-  if (!isSessionExpired && session?.isReplying && callFrom !== "webhook")
-    throw new WhatsAppError("Is in reply state");
-  else if (aggregationResponse.status === "treat as unique message") {
+  if (!isSessionExpired && session?.isReplying) {
+    const placeholderAgeMs = Date.now() - (session.updatedAt?.getTime() ?? 0);
+    const STUCK_PLACEHOLDER_TTL_MS = 60_000; // 1 minute
+    if (placeholderAgeMs < STUCK_PLACEHOLDER_TTL_MS)
+      throw new WhatsAppError("Is in reply state");
+    console.log(
+      "⚠️ [DEBUG] isReplying=true but placeholder is stale. Proceeding.",
+    );
+  } else if (aggregationResponse.status === "treat as unique message") {
     console.log(
       "🔄 [DEBUG] Creating placeholder session (treat as unique message) - sessionId:",
       sessionId,
@@ -177,11 +194,11 @@ export const resumeWhatsAppFlow = async ({
     }
 
     // Priority 2: Fallback to Timestamp heuristic (if no context match)
-    if (!latestCampaignRecipient) {
+    if (!latestCampaignRecipient && session?.updatedAt) {
       latestCampaignRecipient = await prisma.campaignRecipient.findFirst({
         where: {
           phoneNumber: contact.phoneNumber,
-          createdAt: { gt: session?.updatedAt ?? new Date(0) },
+          createdAt: { gt: session.updatedAt },
         },
         orderBy: { createdAt: "desc" },
         include: { campaign: true },
@@ -333,7 +350,7 @@ export const resumeWhatsAppFlow = async ({
     to: receivedMessages[0].from,
     credentials,
     isSessionExpired,
-    reply,
+    reply: forcedTypebotId ? undefined : reply, // If switching bot, don't feed user reply as first input
     state: forcedTypebotId ? undefined : session?.state, // If forced, pass undefined state to force new session
     sessionStore,
     contact,
@@ -343,9 +360,11 @@ export const resumeWhatsAppFlow = async ({
     typebotId: forcedTypebotId, // Pass the new ID to start/resume flow
     isCampaignStart: !!forcedTypebotId,
   });
-  deleteSessionStore(sessionId);
 
-  if (!response) return;
+  if (!response) {
+    deleteSessionStore(sessionId);
+    return;
+  }
 
   const {
     input,
@@ -355,6 +374,8 @@ export const resumeWhatsAppFlow = async ({
     newSessionState,
     isWaitingForWebhook,
   } = response;
+
+  deleteSessionStore(sessionId);
 
   console.log("💾 [DEBUG] Saving state to database - sessionId:", sessionId, {
     hasInput: !!input,
