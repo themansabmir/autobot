@@ -126,12 +126,19 @@ export const WorkspaceProvider = ({
       (typebotId && !typebot?.workspaceId)
     )
       return;
+    // Prefer an Enterprise workspace over other plans
+    const getPreferredWorkspace = () => {
+      const enterpriseWorkspace = workspaces.find((w) => w.plan === "ENTERPRISE");
+      return enterpriseWorkspace ?? workspaces[0];
+    };
+
     if (workspaceId) {
       const currentWorkspace = workspaces.find(byId(workspaceId));
-      // Workspace was just deleted
+      // Workspace was just deleted — fall back to preferred (Enterprise) workspace
       if (!currentWorkspace) {
-        setWorkspaceIdInLocalStorage(workspaces[0].id);
-        setWorkspaceId(workspaces[0].id);
+        const preferred = getPreferredWorkspace();
+        setWorkspaceIdInLocalStorage(preferred.id);
+        setWorkspaceId(preferred.id);
       }
       return;
     }
@@ -142,9 +149,9 @@ export const WorkspaceProvider = ({
 
     const defaultWorkspaceId = lastWorspaceId
       ? workspaces.find(byId(lastWorspaceId))?.id
-      : workspaces[0].id;
+      : getPreferredWorkspace().id;
 
-    const newWorkspaceId = defaultWorkspaceId ?? workspaces[0].id;
+    const newWorkspaceId = defaultWorkspaceId ?? getPreferredWorkspace().id;
     setWorkspaceIdInLocalStorage(newWorkspaceId);
     setWorkspaceId(newWorkspaceId);
   }, [
