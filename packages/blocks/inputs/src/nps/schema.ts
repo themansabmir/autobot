@@ -13,8 +13,9 @@ export const npsInputOptionsSchema = optionBaseSchema.merge(
     labels: z
       .object({
         question: z.string().optional(),
-        lowLabel: z.string().optional(),
-        highLabel: z.string().optional(),
+        // Legacy: text labels removed — NPS uses startsAt/endsAt range only
+        // lowLabel: z.string().optional(),
+        // highLabel: z.string().optional(),
         button: z.string().optional(),
       })
       .optional(),
