@@ -148,7 +148,7 @@ export const SharePage = () => {
               {t("sharePage.embed.heading")}
             </h1>
             <div className="flex flex-wrap gap-4">
-              {integrationsList.map((IntegrationButton, idx) => (
+              {integrationsList.slice(0, 1).map((IntegrationButton, idx) => (
                 <IntegrationButton
                   key={idx}
                   publicId={publicId}
