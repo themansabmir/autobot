@@ -51,7 +51,7 @@ export const sendWhatsAppMessage = async ({
       console.log("✅ [WhatsApp API] 360dialog response:", responseData);
       return responseData.messages[0]?.id;
     } else {
-      const apiUrl = `${env.WHATSAPP_CLOUD_API_URL}/v21.0/${credentials.phoneNumberId}/messages`;
+      const apiUrl = `${env.WHATSAPP_CLOUD_API_URL}/v23.0/${credentials.phoneNumberId}/messages`;
       console.log("🔗 [WhatsApp API] Meta API URL:", apiUrl);
 
       console.log("DEBUG WHATSAPP MESSAGE BODY", JSON.stringify(json, null, 2));

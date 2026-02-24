@@ -7,7 +7,7 @@ import { z } from "@typebot.io/zod";
 import ky from "ky";
 import { authenticatedProcedure } from "@/helpers/server/trpc";
 import { ClientToastError } from "@/lib/ClientToastError";
-import { parseWhatsAppTemplate } from "@typebot.io/whatsapp/parseWhatsAppTemplate";
+import { parseMetaTemplate } from "@typebot.io/whatsapp/parseMetaTemplate";
 
 const inputSchema = z.object({
   credentialsId: z.string(),
@@ -43,7 +43,7 @@ export const getTemplates = authenticatedProcedure
         credentials.data,
         credentials.iv,
       )) as WhatsAppCredentials["data"];
-      
+
       if (decryptedData.provider === "360dialog") return [];
 
       accessToken = decryptedData.systemUserAccessToken;
@@ -51,13 +51,13 @@ export const getTemplates = authenticatedProcedure
     } catch (err: any) {
       console.error('   Decryption FAILED:', err.message);
       if (env.META_SYSTEM_USER_TOKEN) {
-          console.log('   Falling back to META_SYSTEM_USER_TOKEN from env');
-          accessToken = env.META_SYSTEM_USER_TOKEN;
+        console.log('   Falling back to META_SYSTEM_USER_TOKEN from env');
+        accessToken = env.META_SYSTEM_USER_TOKEN;
       } else {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: `Fail to decrypt credentials and no fallback token found: ${err.message}`,
-          });
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: `Fail to decrypt credentials and no fallback token found: ${err.message}`,
+        });
       }
     }
 
@@ -65,7 +65,7 @@ export const getTemplates = authenticatedProcedure
       console.log('3. Configuration:');
       console.log('   Using API URL:', env.WHATSAPP_CLOUD_API_URL);
       console.log('   WABA ID Fallback:', env.WHATSAPP_BUSINESS_ACCOUNT_ID);
-      
+
       let wabaId: string | undefined;
 
       if (phoneNumberId && accessToken) {
@@ -73,18 +73,18 @@ export const getTemplates = authenticatedProcedure
           const url = `${env.WHATSAPP_CLOUD_API_URL}/v18.0/${phoneNumberId}`;
           console.log('1. Fetching WABA ID from:', url);
           const phoneData = await ky
-              .get(
+            .get(
               url,
               {
-                  headers: {
+                headers: {
                   Authorization: `Bearer ${accessToken}`,
-                  },
-                  searchParams: {
-                      fields: 'whatsapp_business_account'
-                  }
+                },
+                searchParams: {
+                  fields: 'whatsapp_business_account'
+                }
               }
-              )
-              .json<{ whatsapp_business_account: { id: string } }>();
+            )
+            .json<{ whatsapp_business_account: { id: string } }>();
           wabaId = phoneData.whatsapp_business_account?.id;
           console.log('Found WABA ID from API:', wabaId);
         } catch (err: any) {
@@ -93,13 +93,13 @@ export const getTemplates = authenticatedProcedure
       }
 
       if (!wabaId) {
-          wabaId = env.WHATSAPP_BUSINESS_ACCOUNT_ID;
-          console.log('Using fallback WABA ID from env:', wabaId);
+        wabaId = env.WHATSAPP_BUSINESS_ACCOUNT_ID;
+        console.log('Using fallback WABA ID from env:', wabaId);
       }
 
       if (!wabaId) {
-          console.error('CRITICAL: No WABA ID available (API lookup failed and no fallback in env)');
-          throw new Error('WABA ID not found and no fallback provided');
+        console.error('CRITICAL: No WABA ID available (API lookup failed and no fallback in env)');
+        throw new Error('WABA ID not found and no fallback provided');
       }
 
       // 2. Get Templates
@@ -113,36 +113,35 @@ export const getTemplates = authenticatedProcedure
               Authorization: `Bearer ${accessToken}`,
             },
             searchParams: {
-                limit: 100,
-                ...(input.templateName ? { name: input.templateName } : {})
+              limit: 100,
+              ...(input.templateName ? { name: input.templateName } : {})
             }
           }
         )
         .json<{ data: any[] }>().catch(async (err) => {
-            const errorBody = err.response ? await err.response.text() : 'No response body';
-            console.error('Error fetching templates:', err.message, 'Body:', errorBody);
-            throw err;
+          const errorBody = err.response ? await err.response.text() : 'No response body';
+          console.error('Error fetching templates:', err.message, 'Body:', errorBody);
+          throw err;
         });
 
       console.log('Fetched raw templates count:', templatesData.data.length);
       if (templatesData.data.length > 0) {
-          console.log('First template status:', templatesData.data[0].status);
+        console.log('First template status:', templatesData.data[0].status);
       }
-      
+
       console.log('--- WhatsApp Template Fetch Success ---');
 
-      // 3. Parse and Return
       return templatesData.data
         .filter((t: any) => t.status === "APPROVED")
-        .map((t: any) => parseWhatsAppTemplate(t));
+        .map((t: any) => parseMetaTemplate(t));
     } catch (err: any) {
-        console.error('--- WhatsApp Template Fetch Failed ---');
-        console.error('getTemplates error:', err);
-        const error = await ClientToastError.fromUnkownError(err);
-        throw new TRPCError({
-            code: 'INTERNAL_SERVER_ERROR',
-            message: error.message,
-            cause: err
-        });
+      console.error('--- WhatsApp Template Fetch Failed ---');
+      console.error('getTemplates error:', err);
+      const error = await ClientToastError.fromUnkownError(err);
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: error.message,
+        cause: err
+      });
     }
   });

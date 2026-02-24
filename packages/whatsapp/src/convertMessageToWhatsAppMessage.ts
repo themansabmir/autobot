@@ -224,9 +224,9 @@ export const convertMessageToWhatsAppMessage = async ({
 
       const components = content.parsedTemplate
         ? encodeTemplateParameters(
-            content.parsedTemplate,
-            content.variableMappings ?? {}
-          )
+          content.parsedTemplate,
+          content.variableMappings ?? {}
+        )
         : undefined;
 
       return {
