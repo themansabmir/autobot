@@ -43,8 +43,13 @@ const applyTranslations = (
     const success = setValueAtPath(translated, path, value);
     if (success) {
       successCount++;
+      // Log samples of successful sets
+      if (successCount % 5 === 0) {
+        console.log(`[i18n] Set translated value at ${path}: "${(value as string).substring(0, 20)}..."`);
+      }
     } else {
       failCount++;
+      console.error(`[i18n] FAILED to set value at path: ${path}`);
     }
   }
 
@@ -64,22 +69,23 @@ const applyTranslations = (
  * This should be called on the base typebot clone BEFORE applying translations.
  */
 const preserveOriginalValuesForLogic = (typebot: any): void => {
-  typebot.groups.forEach((group: any) => {
-    group.blocks.forEach((block: any) => {
-      // Choice Input
-      if (block.type === "choice input" && Array.isArray(block.items)) {
-        block.items.forEach((item: any) => {
-          if (!item.value && typeof item.content === "string") {
-            item.value = item.content;
-          }
-        });
-      }
+  if (!typebot.groups) return;
 
-      // Picture Choice
-      if (block.type === "picture choice input" && Array.isArray(block.items)) {
+  typebot.groups.forEach((group: any) => {
+    if (!group.blocks) return;
+
+    group.blocks.forEach((block: any) => {
+      // Choice / Picture Choice blocks
+      if (
+        Array.isArray(block.items) &&
+        (block.type === "choice input" || block.type === "picture choice input")
+      ) {
         block.items.forEach((item: any) => {
-          if (!item.value && typeof item.title === "string") {
-            item.value = item.title;
+          if (!item.options) item.options = {};
+          // If internalValue is not set, set it to the current title/content
+          const originalText = item.content || item.title;
+          if (!item.options.internalValue && typeof originalText === "string") {
+            item.options.internalValue = originalText;
           }
         });
       }
@@ -88,6 +94,7 @@ const preserveOriginalValuesForLogic = (typebot: any): void => {
       if (block.type === "cards" && Array.isArray(block.items)) {
         block.items.forEach((item: any) => {
           if (!item.options) item.options = {};
+          // Preserve title in internalValue for logic if not already set
           if (!item.options.internalValue && typeof item.title === "string") {
             item.options.internalValue = item.title;
           }
@@ -95,10 +102,16 @@ const preserveOriginalValuesForLogic = (typebot: any): void => {
       }
 
       // WhatsApp Carousel
-      if (block.type === "whatsapp-carousel" && Array.isArray(block.items)) {
+      if (
+        (block.type === "whatsapp-carousel" ||
+          block.type === "whatsapp carousel") &&
+        Array.isArray(block.items)
+      ) {
         block.items.forEach((item: any) => {
           if (Array.isArray(item.quickReplyButtons)) {
             item.quickReplyButtons.forEach((btn: any) => {
+              // WhatsApp carousel buttons use 'id' for logic, but we should make sure
+              // 'value' is ALSO set if the engine expects it (fallback)
               if (!btn.value && typeof btn.title === "string") {
                 btn.value = btn.title;
               }
@@ -108,10 +121,14 @@ const preserveOriginalValuesForLogic = (typebot: any): void => {
       }
 
       // WhatsApp List
-      if (block.type === "whatsapp-list" && Array.isArray(block.items)) {
+      if (
+        (block.type === "whatsapp-list" || block.type === "whatsapp list") &&
+        Array.isArray(block.items)
+      ) {
         block.items.forEach((item: any) => {
-          if (!item.value && typeof item.content === "string") {
-            item.value = item.content;
+          // List items use 'id' for logic, but we can preserve title in 'value'
+          if (!item.value && typeof item.title === "string") {
+            item.value = item.title;
           }
         });
       }
@@ -251,6 +268,12 @@ export const generateTranslationForLanguage = async (
       sourceLanguage,
     );
 
+    console.log(`[i18n] Translation result for ${targetLanguage}:`, {
+      itemsTranslated: Object.keys(translatedMap).length,
+      sampleOriginal: Object.values(contentMap)[0]?.substring(0, 30),
+      sampleTranslated: Object.values(translatedMap)[0]?.substring(0, 30),
+    });
+
     // SAMPLE LOG
     const samples = Object.entries(translatedMap).slice(0, 3);
     // console.log(`[i18n] Translation SUCCESS for ${targetLanguage}. Samples:`, JSON.stringify(samples, null, 2));
@@ -339,6 +362,10 @@ export const syncTranslations = async (
   enabledLanguages: string[],
   defaultLanguage?: string,
 ): Promise<LanguageTranslationResult[]> => {
+  console.log(`[i18n] syncTranslations ENTRY for bot ${typebot.id}`, {
+    enabledLanguages,
+    defaultLanguage,
+  });
   if (!typebot.id) return [];
 
   /*

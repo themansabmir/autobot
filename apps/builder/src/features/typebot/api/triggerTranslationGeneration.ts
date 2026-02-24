@@ -19,6 +19,8 @@ type LocalizationSettings = {
 // Feature flag - set to true to enable i18n (requires proper memory configuration)
 const I18N_ENABLED = true;
 
+console.log("[i18n] triggerTranslationGeneration module LOADING...");
+
 /**
  * Trigger translation generation for a typebot
  * Currently a no-op (i18n disabled).
@@ -27,10 +29,11 @@ export const triggerTranslationGeneration = (
   typebot: Typebot,
   localizationSettings: LocalizationSettings | undefined,
 ): void => {
-  console.log("DEBUG: triggerTranslationGeneration called", {
-    typebotId: typebot.id,
+  console.log(`[i18n] triggerTranslationGeneration CALLED for ${typebot.id}`, {
+    I18N_ENABLED,
     isEnabled: localizationSettings?.isEnabled,
     languages: localizationSettings?.languages,
+    groups: typebot.groups.length,
   });
 
   const hasLangBlock = hasLanguageBlock(typebot);

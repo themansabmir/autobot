@@ -528,15 +528,24 @@ export const extractTranslatableContent = (
 ): TranslatableItem[] => {
   const items: TranslatableItem[] = [];
 
-  console.log(`[i18n] Starting extraction for typebot with ${typebot.groups.length} groups`);
+  if (!typebot.groups) return items;
+
+  console.log(
+    `[i18n] Starting extraction for typebot ${typebot.id} with ${typebot.groups.length} groups`,
+  );
 
   // Process all groups
   typebot.groups.forEach((group, groupIndex) => {
-    
+    if (!group.blocks) return;
+
     // Process all blocks in the group
     group.blocks.forEach((block, blockIndex) => {
-      const blockType = block.type as string;
+      const blockType = (block.type as string) || "";
       const blockObj = block as Record<string, unknown>;
+
+      console.log(
+        `[i18n] Processing block [${groupIndex}.${blockIndex}] type: "${blockType}"`,
+      );
 
       // Text bubble blocks
       if (matchesBlockType(blockType, "text")) {
@@ -583,8 +592,20 @@ export const extractTranslatableContent = (
         !matchesBlockType(blockType, "whatsapp-carousel") &&
         !matchesBlockType(blockType, "whatsapp-list")
       ) {
-        const extracted = extractFromButtonItems(blockObj.items, groupIndex, blockIndex);
+        console.log(
+          `[i18n] Extracting from button items for block ${blockType}`,
+        );
+        const extracted = extractFromButtonItems(
+          blockObj.items,
+          groupIndex,
+          blockIndex,
+        );
         items.push(...extracted);
+      }
+
+      // Sticker block (no text to translate, but we track it for consistency)
+      if (matchesBlockType(blockType, "sticker")) {
+        console.log("[i18n] Found sticker block, skipping text extraction");
       }
 
       // Blocks with options
@@ -601,7 +622,7 @@ export const extractTranslatableContent = (
     });
   });
 
-  console.log(`[i18n] Extraction complete: ${items.length} total items`);
+  console.log(`[i18n] Extraction complete: ${items.length} total items found`);
   return items;
 };
 
