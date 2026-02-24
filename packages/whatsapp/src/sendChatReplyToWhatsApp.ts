@@ -30,6 +30,7 @@ type ClientSideActionExecutionResult =
       lastMessageId?: string;
     }
   | { type: "shouldWaitForWebhook"; lastMessageId?: string }
+  | { type: "messagesSent"; lastMessageId?: string }
   | undefined;
 
 export const sendChatReplyToWhatsApp = async ({
@@ -163,7 +164,9 @@ export const sendChatReplyToWhatsApp = async ({
     }
   }
 
-  return undefined;
+  // Return the lastMessageId so callers (like campaign worker) can
+  // save it for webhook-based delivery tracking (sent/delivered/read/failed).
+  return { type: "messagesSent", lastMessageId };
 };
 
 const getTypingDuration = ({

@@ -10,6 +10,7 @@ import { initiateWhatsAppFlow } from "@typebot.io/whatsapp/initiateWhatsAppFlow"
 import type { ConsumeMessage } from "amqplib";
 import { config } from "./config";
 import { closeRabbitMQ, connectRabbitMQ, type RecipientJob } from "./rabbitmq";
+import { runAnalyticsTracker } from "./analyticsTracker";
 
 // Rate limiting tracking
 let messagesSentLastMinute = 0;
@@ -94,7 +95,7 @@ const sendWhatsAppMessage = async (
   if (skipWhatsAppSending) {
     console.log(`🧪 TEST MODE: Skipping WhatsApp API call for ${phoneNumber}`);
   } else {
-    await initiateWhatsAppFlow({
+    const { startResponse, result } = await initiateWhatsAppFlow({
       to: phoneNumber,
       sessionId,
       typebot: campaign.typebot,
@@ -113,6 +114,29 @@ const sendWhatsAppMessage = async (
         expiryTimeout: 24 * 60 * 60 * 1000,
       },
     });
+
+    // --- Phase 2: Decoupled Campaign Analytics ---
+    // Grab resultId directly from startSession()'s return value (via initiateWhatsAppFlow).
+    // We intentionally do NOT query the ChatSession table here because it is ephemeral
+    // and may be deleted at any time. The Result table is permanent and safe.
+    const resultId = startResponse.resultId ?? startResponse.newSessionState.typebotsQueue[0]?.resultId;
+
+    // Grab the WhatsApp message ID from the sendChatReplyToWhatsApp result.
+    // This is needed so the Meta webhook handler can look up the CampaignRecipient
+    // by messageId to update delivered/opened/failed statuses.
+    const whatsAppMessageId = result?.lastMessageId;
+
+    // Save both resultId and messageId to CampaignRecipient in a single update
+    if (resultId || whatsAppMessageId) {
+      await prisma.campaignRecipient.update({
+        where: { id: recipientId },
+        data: {
+          ...(resultId ? { resultId } : {}),
+          ...(whatsAppMessageId ? { messageId: whatsAppMessageId } : {}),
+        },
+      });
+      console.log(`🔗 CampaignRecipient ${recipientId} linked → resultId: ${resultId}, messageId: ${whatsAppMessageId}`);
+    }
 
     console.log(
       `✅ [Campaign Analytics] WhatsApp message triggered for recipient ${recipientId} (${phoneNumber})`,
@@ -263,6 +287,11 @@ const processRecipientJob = async (job: RecipientJob): Promise<void> => {
 const runWhatsAppWorker = async (): Promise<void> => {
   console.log("📱 WhatsApp Worker starting...");
   const channel = await connectRabbitMQ();
+
+  // Start the decoupled analytics tracker alongside the WhatsApp worker.
+  // This polls Result and AnswerV2 tables to populate CampaignRecipient
+  // (startedAt, completedAt, npsScore) without touching core engine files.
+  runAnalyticsTracker();
 
   await channel.prefetch(config.worker.prefetchCount);
 

@@ -61,16 +61,6 @@ export const resumeWhatsAppFlow = async ({
   contact,
   callFrom,
 }: Props) => {
-  console.log("📨 [DEBUG] resumeWhatsAppFlow called", {
-    sessionId,
-    messageCount: receivedMessages.length,
-    messageTypes: receivedMessages.map((m) => m.type),
-    workspaceId,
-    credentialsId,
-    contactName: contact?.name,
-    callFrom,
-  });
-
   if (receivedMessages.length === 0)
     throw new WhatsAppError("Received messages is empty");
   if (areMessagesTooOld(receivedMessages))
@@ -97,37 +87,10 @@ export const resumeWhatsAppFlow = async ({
       receivedPhoneNumberId: phoneNumberId,
     });
 
-  console.log("🔍 [DEBUG] Fetching session with ID:", sessionId);
   const session = await getSession(sessionId);
-  console.log("🔍 [DEBUG] Session retrieved:", {
-    exists: !!session,
-    hasState: !!session?.state,
-    isReplying: session?.isReplying,
-    updatedAt: session?.updatedAt,
-    statePreview: session?.state
-      ? {
-          version: session.state.version,
-          currentBlockId: session.state.currentBlockId,
-          typebotsQueueLength: session.state.typebotsQueue?.length,
-          firstTypebotId: session.state.typebotsQueue?.[0]?.typebot?.id,
-        }
-      : null,
-  });
 
   if (session && !session.state) {
-    const placeholderAgeMs = Date.now() - session.updatedAt.getTime();
-    const STUCK_PLACEHOLDER_TTL_MS = 60_000; // 1 minute
-    if (placeholderAgeMs < STUCK_PLACEHOLDER_TTL_MS) {
-      console.log(
-        "❌ [DEBUG] Session exists but has no state and is fresh - throwing error",
-      );
-      throw new WhatsAppError("Session is empty. Most likely in reply state.");
-    }
-    console.log(
-      "⚠️ [DEBUG] Session placeholder is stale (>",
-      Math.round(placeholderAgeMs / 1000),
-      "s old). Treating as expired and restarting.",
-    );
+    throw new WhatsAppError("Session is empty. Most likely in reply state.");
   }
 
   const aggregationResponse =
@@ -139,38 +102,17 @@ export const resumeWhatsAppFlow = async ({
   if (aggregationResponse.status === "found newer message")
     throw new WhatsAppError("Found newer message, skipping this one");
 
-  // If a session has no currentBlockId, it means the flow is completely finished.
-  // We treat it as expired so Start Conditions (keywords) work instantly,
-  // without needing to delete the ChatSession (which our Campaign Worker needs).
   const isSessionExpired =
     isDefined(session?.state) &&
-    (!session.state.currentBlockId || 
-      (isDefined(session.state.expiryTimeout) && session?.updatedAt.getTime() + session.state.expiryTimeout < Date.now())
-    );
+    isDefined(session.state.expiryTimeout) &&
+    session?.updatedAt.getTime() + session.state.expiryTimeout < Date.now();
 
-  if (!isSessionExpired && session?.isReplying) {
-    const placeholderAgeMs = Date.now() - (session.updatedAt?.getTime() ?? 0);
-    // Sessions with state are waiting for a webhook — give them a longer TTL
-    // before allowing the user to break through (5 min vs 60s for stateless placeholders)
-    const STUCK_TTL_MS = session?.state ? 5 * 60_000 : 60_000;
-    if (placeholderAgeMs < STUCK_TTL_MS)
-      throw new WhatsAppError("Is in reply state");
-    console.log(
-      "⚠️ [DEBUG] isReplying=true but session is stale (>",
-      Math.round(placeholderAgeMs / 1000),
-      "s). Proceeding.",
-    );
-  } else if (aggregationResponse.status === "treat as unique message") {
-    console.log(
-      "🔄 [DEBUG] Creating placeholder session (treat as unique message) - sessionId:",
-      sessionId,
-    );
+  if (!isSessionExpired && session?.isReplying && callFrom !== "webhook")
+    throw new WhatsAppError("Is in reply state");
+  else if (aggregationResponse.status === "treat as unique message") {
     await upsertSession(sessionId, {
       isReplying: true,
     });
-    console.log(
-      "✅ [DEBUG] Placeholder session created with isReplying=true, state=null",
-    );
   }
 
   const currentTypebot = session?.state?.typebotsQueue[0].typebot;
@@ -209,13 +151,6 @@ export const resumeWhatsAppFlow = async ({
   });
   deleteSessionStore(sessionId);
 
-  console.log("💾 [DEBUG] Saving state to database - sessionId:", sessionId, {
-    hasInput: !!input,
-    isWaitingForWebhook,
-    currentBlockId: newSessionState.currentBlockId,
-    typebotId: newSessionState.typebotsQueue?.[0]?.typebot?.id,
-  });
-
   await saveStateToDatabase({
     clientSideActions: [],
     input,
@@ -237,8 +172,6 @@ export const resumeWhatsAppFlow = async ({
     visitedEdges,
     setVariableHistory,
   });
-
-  console.log("✅ [DEBUG] State saved to database successfully");
 };
 
 const convertWhatsAppMessageToTypebotMessage = async ({
@@ -584,10 +517,6 @@ const resumeFlow = ({
   sessionStore: SessionStore;
 }) => {
   if (state && !isSessionExpired) {
-    console.log(
-      "🔄 [DEBUG] Continuing existing bot flow - currentBlockId:",
-      state.currentBlockId,
-    );
     return continueBotFlow(reply, {
       version: 2,
       sessionStore,
@@ -608,13 +537,6 @@ const resumeFlow = ({
       textBubbleContentFormat: "richText",
     });
   }
-
-  console.log("🆕 [DEBUG] Starting new WhatsApp session", {
-    hasState: !!state,
-    isSessionExpired,
-    workspaceId,
-    contactName: contact?.name,
-  });
 
   if (!workspaceId || !contact)
     throw new WhatsAppError(

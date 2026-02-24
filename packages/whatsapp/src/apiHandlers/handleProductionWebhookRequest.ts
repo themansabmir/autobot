@@ -177,16 +177,6 @@ export const handleProductionWebhookRequest = async (
             ? previewSessionId
             : productionSessionId;
 
-          console.log("🔍 [DEBUG] Session ID selection:", {
-            from,
-            phoneNumberId,
-            previewSessionId,
-            productionSessionId,
-            hasPreviewSession: !!previewSession,
-            hasPreviewState: !!previewSession?.state,
-            selectedSessionId: sessionId,
-          });
-
           await resumeWhatsAppFlow({
             receivedMessages: parsedEntries.map(
               (parsedEntry) => parsedEntry.receivedMessages,
