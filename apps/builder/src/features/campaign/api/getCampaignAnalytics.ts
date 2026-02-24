@@ -172,7 +172,7 @@ const extractNpsConfig = (typebot: any) => {
 
   for (const group of groups) {
     for (const block of group.blocks) {
-      if (block.type === "nps" || block.type === "rating") {
+      if (block.type === "nps input" || block.type === "rating input") {
         const startsAt =
           typeof block.options?.startsAt === "number"
             ? block.options.startsAt
