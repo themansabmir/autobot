@@ -38,7 +38,10 @@ export const handleProductionWebhookRequest = async (
   }
 
   // Handle Status Updates from Meta Webhooks
-  // Feature flag for enhanced analytics
+  // Feature flag for enhanced analytics (Restored per user request as a fallback)
+  // When TRUE, we track sent, delivered, opened (read), and failed statuses directly
+  // from Meta's webhooks. This is completely separate from the Typebot engine and
+  // does not interfere with the user's conversational flow.
   const useEnhancedAnalytics = env.ENABLE_ENHANCED_CAMPAIGN_ANALYTICS === true;
 
   for (const { changes } of entry) {
