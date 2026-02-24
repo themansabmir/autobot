@@ -633,62 +633,61 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
         </div>
       </div>
 
-      {/* NPS Analysis Section */}
+      {/* NPS Analysis Section — only rendered for bots with NPS/rating blocks */}
       {analytics.nps && (
-        <div className="space-y-6">
-          <h2 className="text-xl font-bold text-gray-12">NPS Analysis</h2>
+      <div className="space-y-6">
+        <h2 className="text-xl font-bold text-gray-12">NPS Analysis</h2>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* 1. Score Card */}
-            <NpsScoreCard nps={analytics.nps} />
-
-            {/* 2. Sentiment Donut */}
-            <div className="rounded-xl border border-gray-6 bg-gradient-to-br from-gray-1 to-gray-2 p-6 flex flex-col items-center justify-center min-h-[300px]">
-              <h3 className="text-sm font-medium text-gray-11 mb-6 uppercase tracking-wider">
-                Sentiment
-              </h3>
-              <DonutChart
-                total={analytics.nps.totalResponses}
-                score={analytics.nps.score}
-                data={[
-                  {
-                    value: analytics.nps.promoters,
-                    colorClass: "text-green-9",
-                  },
-                  {
-                    value: analytics.nps.passives,
-                    colorClass: "text-[#f97316]",
-                  },
-                  { value: analytics.nps.detractors, colorClass: "text-red-9" },
-                ]}
-              />
-              <div className="flex gap-4 mt-6 text-xs text-gray-11">
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 rounded-full bg-green-9" />
-                  Promoters
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 rounded-full bg-[#f97316]" />
-                  Passives
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 rounded-full bg-red-9" />
-                  Detractors
+        {analytics.nps.totalResponses === 0 ? (
+          <div className="rounded-xl border border-dashed border-gray-6 bg-gradient-to-br from-gray-1 to-gray-2 p-12 flex flex-col items-center justify-center text-center">
+            <span className="text-5xl mb-4">📊</span>
+            <h3 className="text-lg font-semibold text-gray-12 mb-2">
+              No NPS Responses Yet
+            </h3>
+            <p className="text-sm text-gray-10 max-w-md">
+              NPS data will appear here as recipients complete the survey.
+              The score, distribution, and trend charts will populate
+              automatically.
+            </p>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <NpsScoreCard nps={analytics.nps} />
+              <div className="rounded-xl border border-gray-6 bg-gradient-to-br from-gray-1 to-gray-2 p-6 flex flex-col items-center justify-center min-h-[300px]">
+                <h3 className="text-sm font-medium text-gray-11 mb-6 uppercase tracking-wider">
+                  Sentiment
+                </h3>
+                <DonutChart
+                  total={analytics.nps.totalResponses}
+                  score={analytics.nps.score}
+                  data={[
+                    { value: analytics.nps.promoters, colorClass: "text-green-9" },
+                    { value: analytics.nps.passives, colorClass: "text-[#f97316]" },
+                    { value: analytics.nps.detractors, colorClass: "text-red-9" },
+                  ]}
+                />
+                <div className="flex gap-4 mt-6 text-xs text-gray-11">
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 rounded-full bg-green-9" /> Promoters
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 rounded-full bg-[#f97316]" /> Passives
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 rounded-full bg-red-9" /> Detractors
+                  </div>
                 </div>
               </div>
+              <NpsTrendChart trend={analytics.nps.trend} />
             </div>
-
-            {/* 3. Trend Line */}
-            <NpsTrendChart trend={analytics.nps.trend} />
-          </div>
-
-          {/* 4. Detailed Distribution */}
-          {/* 4. Detailed Distribution */}
-          <NpsDistributionChart
-            distribution={analytics.nps.distribution}
-            scale={analytics.nps.scale}
-          />
-        </div>
+            <NpsDistributionChart
+              distribution={analytics.nps.distribution}
+              scale={analytics.nps.scale}
+            />
+          </>
+        )}
+      </div>
       )}
 
       {/* Key Metrics */}

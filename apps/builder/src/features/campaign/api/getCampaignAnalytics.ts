@@ -139,10 +139,13 @@ export const getCampaignAnalytics = authenticatedProcedure
           : null,
       }));
 
-    // Extract NPS configuration from Typebot
+    // Extract NPS configuration from Typebot — returns null if bot has no NPS/rating block
     const npsConfig = extractNpsConfig(campaign.typebot);
 
-    const npsAnalytics = calculateNPS(npsScoresWithDate, total, npsConfig);
+    // Only calculate NPS if the bot actually has an NPS/rating block
+    const npsAnalytics = npsConfig
+      ? calculateNPS(npsScoresWithDate, total, npsConfig)
+      : null;
 
     return {
       analytics: {
@@ -182,7 +185,7 @@ const extractNpsConfig = (typebot: any) => {
       }
     }
   }
-  return { min: 1, max: 10 }; // Default fallback
+  return null; // No NPS/rating block found in this bot
 };
 
 function calculateNPS(
@@ -190,7 +193,25 @@ function calculateNPS(
   totalRecipients: number,
   scale: { min: number; max: number },
 ) {
-  if (scores.length === 0) return null;
+  // Always return a full NPS object so the frontend renders the widget
+  // even with no data — empty state is better UX than hiding the entire section.
+  if (scores.length === 0)
+    return {
+      score: 0,
+      promoters: 0,
+      passives: 0,
+      detractors: 0,
+      totalResponses: 0,
+      responseRate: 0,
+      distribution: Object.fromEntries(
+        Array.from({ length: scale.max - scale.min + 1 }, (_, i) => [
+          scale.min + i,
+          0,
+        ]),
+      ),
+      trend: [],
+      scale,
+    };
 
   const scoreValues = scores.map((s) => s.score);
   const totalResponses = scores.length;
