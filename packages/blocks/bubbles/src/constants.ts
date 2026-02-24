@@ -5,4 +5,5 @@ export enum BubbleBlockType {
   EMBED = "embed",
   AUDIO = "audio",
   STICKER = "sticker",
+  WHATSAPP_TEMPLATE = "whatsapp-template",
 }

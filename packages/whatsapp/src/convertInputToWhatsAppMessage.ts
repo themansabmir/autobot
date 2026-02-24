@@ -35,10 +35,10 @@ export const convertInputToWhatsAppMessages = async ({
 
   const lastMessageText =
     lastMessage?.type === BubbleBlockType.TEXT &&
-    lastMessage.content.type === "richText"
+      lastMessage.content.type === "richText"
       ? convertRichTextToMarkdown(lastMessage.content.richText ?? [], {
-          flavour: "whatsapp",
-        })
+        flavour: "whatsapp",
+      })
       : undefined;
   switch (input.type) {
     case InputBlockType.DATE:
@@ -241,16 +241,16 @@ export const convertInputToWhatsAppMessages = async ({
             text: {
               body: lastMessageText
                 ? `${lastMessageText}\n\n` +
-                  choiceInput.items
-                    .map(
-                      (item: any, idx: number) => `${idx + 1}. ${item.content}`,
-                    )
-                    .join("\n")
+                choiceInput.items
+                  .map(
+                    (item: any, idx: number) => `${idx + 1}. ${item.content}`,
+                  )
+                  .join("\n")
                 : choiceInput.items
-                    .map(
-                      (item: any, idx: number) => `${idx + 1}. ${item.content}`,
-                    )
-                    .join("\n"),
+                  .map(
+                    (item: any, idx: number) => `${idx + 1}. ${item.content}`,
+                  )
+                  .join("\n"),
             },
           },
         ];
@@ -494,17 +494,17 @@ export const convertInputToWhatsAppMessages = async ({
             type: "list",
             header: options?.listHeader
               ? {
-                  type: "text",
-                  text: options.listHeader.slice(0, 60),
-                }
+                type: "text",
+                text: options.listHeader.slice(0, 60),
+              }
               : undefined,
             body: {
               text: lastMessageText || "Please select an option",
             },
             footer: options?.listFooter
               ? {
-                  text: options.listFooter.slice(0, 60),
-                }
+                text: options.listFooter.slice(0, 60),
+              }
               : undefined,
             action: {
               button: (options?.buttonLabel || "Options").slice(0, 20),
@@ -538,84 +538,80 @@ export const convertInputToWhatsAppMessages = async ({
         optionsData: options,
       });
 
-      const cards = items.map((item, index) => {
-        console.log(`🔍 [WhatsApp Carousel] Processing card ${index}:`, {
-          headerType: item.headerType,
-          headerUrl: item.headerUrl,
-          hasHeader: !!(item.headerType && item.headerUrl),
-          buttonType: item.buttonType,
-        });
-
-        const card: any = {
-          card_index: index,
-        };
-
-        // Set card type based on button type (required by Meta API)
-        // According to latest docs/examples, card.type can be "cta_url" even for quick_reply buttons
-        if (item.buttonType === "cta_url") {
-          card.type = "cta_url";
-        } else if (item.buttonType === "quick_reply") {
-          // Strict compliance with user docs: type is "cta_url"
-          card.type = "cta_url";
-        }
-
-        // Header (required)
-        if (item.headerType && item.headerUrl) {
-          // Note: Interactive Carousels documentation specificially shows "link" usage.
-          // "id" support is unconfirmed for this specific beta feature.
-          card.header = {
-            type: item.headerType,
-            [item.headerType]: {
-              link: item.headerUrl,
-            },
+      const cards = await Promise.all(
+        items.map(async (item, index) => {
+          const card: any = {
+            card_index: index,
           };
-        }
 
-        // Body text (optional)
-        if (item.bodyText) {
-          card.body = {
-            text: item.bodyText.slice(0, 160),
-          };
-        }
+          // Set card type based on button type
+          if (item.buttonType === "cta_url") {
+            card.type = "cta_url";
+          } else if (item.buttonType === "quick_reply") {
+            card.type = "cta_url"; // According to previous implementation's "strict compliance"
+          }
 
-        // Action (buttons)
-        if (item.buttonType === "cta_url" && item.ctaUrlButton) {
-          card.action = {
-            name: "cta_url",
-            parameters: {
-              display_text:
-                item.ctaUrlButton.displayText?.slice(0, 20) || "Visit",
-              url: item.ctaUrlButton.url,
-            },
-          };
-        } else if (
-          item.buttonType === "quick_reply" &&
-          item.quickReplyButtons
-        ) {
-          card.action = {
-            buttons: item.quickReplyButtons.slice(0, 2).map((btn: any) => ({
-              type: "quick_reply",
-              quick_reply: {
-                id: btn.id,
-                title: btn.title.slice(0, 20),
+          // Header (required)
+          if (item.headerType && item.headerUrl) {
+            card.header = {
+              type: item.headerType,
+              [item.headerType]: {
+                link: item.headerUrl,
               },
-            })),
-          };
-        }
+            };
+          }
 
-        return card;
-      });
+          // Body text (optional)
+          if (item.bodyText) {
+            card.body = {
+              text: item.bodyText.slice(0, 160),
+            };
+          }
+
+          // Action (buttons or cta_url)
+          if (item.buttonType === "cta_url" && item.ctaUrlButton) {
+            card.action = {
+              name: "cta_url",
+              parameters: {
+                display_text:
+                  item.ctaUrlButton.displayText?.slice(0, 20) || "Visit",
+                url: item.ctaUrlButton.url,
+              },
+            };
+          } else if (
+            item.buttonType === "quick_reply" &&
+            item.quickReplyButtons
+          ) {
+            card.action = {
+              buttons: item.quickReplyButtons.slice(0, 2).map((btn: any) => ({
+                type: "quick_reply",
+                quick_reply: {
+                  id: btn.id,
+                  title: btn.title.slice(0, 20),
+                },
+              })),
+            };
+          }
+
+          return card;
+        })
+      );
 
       // Filter out cards without required headers (Meta API requirement)
-      const validCards = cards.filter((card, index) => {
-        if (!card.header) {
-          console.log(
-            `⚠️ [WhatsApp Carousel] Card ${index} skipped: missing required header`,
-          );
-          return false;
-        }
-        return true;
-      });
+      const validCards = cards
+        .filter((card, index) => {
+          if (!card.header) {
+            console.log(
+              `⚠️ [WhatsApp Carousel] Card ${index} skipped: missing required header`,
+            );
+            return false;
+          }
+          return true;
+        })
+        .map((card, index) => ({
+          ...card,
+          card_index: index,
+        }));
 
       if (validCards.length < 2) {
         console.log(

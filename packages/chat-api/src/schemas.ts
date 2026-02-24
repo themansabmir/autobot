@@ -4,6 +4,7 @@ import { embedBubbleContentSchema } from "@typebot.io/blocks-bubbles/embed/schem
 import { imageBubbleContentSchema } from "@typebot.io/blocks-bubbles/image/schema";
 import { stickerBubbleContentSchema } from "@typebot.io/blocks-bubbles/sticker/schema";
 import { videoBubbleContentSchema } from "@typebot.io/blocks-bubbles/video/schema";
+import { whatsAppTemplateBubbleContentSchema } from "@typebot.io/blocks-bubbles/whatsappTemplate/schema";
 import { cardsBlockSchema } from "@typebot.io/blocks-inputs/cards/schema";
 import { buttonsInputSchemas } from "@typebot.io/blocks-inputs/choice/schema";
 import { ctaUrlInputSchema } from "@typebot.io/blocks-inputs/ctaUrl/schema";
@@ -159,6 +160,16 @@ const stickerBubbleSchema = z
     ref: "stickerBubble",
   });
 
+const whatsAppTemplateBubbleSchema = z
+  .object({
+    type: z.enum([BubbleBlockType.WHATSAPP_TEMPLATE]),
+    content: whatsAppTemplateBubbleContentSchema,
+  })
+  .openapi({
+    title: "WhatsApp template",
+    ref: "whatsAppTemplateBubble",
+  });
+
 const displayEmbedBubbleSchema = z.object({
   url: z.string().optional(),
   waitForEventFunction: z
@@ -193,6 +204,7 @@ export const chatBubbleSchema = z
       audioBubbleSchema,
       embedBubbleSchema,
       stickerBubbleSchema,
+      whatsAppTemplateBubbleSchema,
       customBubbleSchema,
     ]),
   );

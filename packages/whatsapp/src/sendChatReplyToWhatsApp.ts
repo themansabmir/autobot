@@ -12,6 +12,7 @@ import { convertInputToWhatsAppMessages } from "./convertInputToWhatsAppMessage"
 import { convertMessageToWhatsAppMessage } from "./convertMessageToWhatsAppMessage";
 import type { WhatsAppSendingMessage } from "./schemas";
 import { sendWhatsAppMessage } from "./sendWhatsAppMessage";
+import { sendWhatsAppTemplate } from "./sendWhatsAppTemplate";
 
 // If not using mediaId, it can take some time to be delivered. This make sure we don't send a message before the media is delivered.
 const messageAfterMediaTimeout = 5000;
@@ -25,10 +26,10 @@ type Props = {
 
 type ClientSideActionExecutionResult =
   | {
-      type: "replyToSend";
-      replyToSend: string | undefined;
-      lastMessageId?: string;
-    }
+    type: "replyToSend";
+    replyToSend: string | undefined;
+    lastMessageId?: string;
+  }
   | { type: "shouldWaitForWebhook"; lastMessageId?: string }
   | { type: "messagesSent"; lastMessageId?: string }
   | undefined;
@@ -81,11 +82,11 @@ export const sendChatReplyToWhatsApp = async ({
       mediaCache:
         state.publicTypebotId || state.typebotsQueue[0]?.typebot?.id
           ? {
-              publicTypebotId:
-                state.publicTypebotId ?? state.typebotsQueue[0].typebot.id,
-              credentials,
-              skipCache: !state.publicTypebotId,
-            }
+            publicTypebotId:
+              state.publicTypebotId ?? state.typebotsQueue[0].typebot.id,
+            credentials,
+            skipCache: !state.publicTypebotId,
+          }
           : undefined,
     });
     if (isNotDefined(whatsAppMessage)) continue;
@@ -103,16 +104,23 @@ export const sendChatReplyToWhatsApp = async ({
         : isFirstChatChunk && i === 0 && isTypingEmulationDisabled
           ? 0
           : getTypingDuration({
-              message: whatsAppMessage,
-              typingEmulation: state.typingEmulation,
-            });
+            message: whatsAppMessage,
+            typingEmulation: state.typingEmulation,
+          });
     if ((typingDuration ?? 0) > 0)
       await new Promise((resolve) => setTimeout(resolve, typingDuration));
-    const responseId = await sendWhatsAppMessage({
-      to,
-      message: whatsAppMessage,
-      credentials,
-    });
+    const responseId =
+      whatsAppMessage.type === "template"
+        ? await sendWhatsAppTemplate({
+          to,
+          template: whatsAppMessage.template,
+          credentials,
+        })
+        : await sendWhatsAppMessage({
+          to,
+          message: whatsAppMessage,
+          credentials,
+        });
     if (responseId) lastMessageId = responseId;
     sentMessages.push(whatsAppMessage);
     const clientSideActionsAfterMessage =
@@ -135,11 +143,11 @@ export const sendChatReplyToWhatsApp = async ({
       mediaCache:
         state.publicTypebotId || state.typebotsQueue[0]?.typebot?.id
           ? {
-              publicTypebotId:
-                state.publicTypebotId ?? state.typebotsQueue[0].typebot.id,
-              credentials,
-              skipCache: !state.publicTypebotId,
-            }
+            publicTypebotId:
+              state.publicTypebotId ?? state.typebotsQueue[0].typebot.id,
+            credentials,
+            skipCache: !state.publicTypebotId,
+          }
           : undefined,
     });
     for (const message of inputWhatsAppMessages) {
@@ -150,9 +158,9 @@ export const sendChatReplyToWhatsApp = async ({
         lastSentMessageIsMedia && !state.publicTypebotId
           ? messageAfterMediaTimeout
           : getTypingDuration({
-              message,
-              typingEmulation: state.typingEmulation,
-            });
+            message,
+            typingEmulation: state.typingEmulation,
+          });
       if (typingDuration)
         await new Promise((resolve) => setTimeout(resolve, typingDuration));
       const responseId = await sendWhatsAppMessage({
@@ -228,40 +236,40 @@ const executeClientSideActions = async ({
 
 const executeClientSideAction =
   (context: { to: string; credentials: WhatsAppCredentials["data"] }) =>
-  async (
-    clientSideAction: NonNullable<
-      ContinueChatResponse["clientSideActions"]
-    >[number],
-  ): Promise<ClientSideActionExecutionResult> => {
-    if ("wait" in clientSideAction) {
-      await new Promise((resolve) =>
-        setTimeout(
-          resolve,
-          Math.min(clientSideAction.wait.secondsToWaitFor, 10) * 1000,
-        ),
-      );
-      if (!clientSideAction.expectsDedicatedReply) return;
-      return {
-        type: "replyToSend",
-        replyToSend: undefined,
-      };
-    }
-    if ("redirect" in clientSideAction && clientSideAction.redirect.url) {
-      const message = {
-        type: "text",
-        text: {
-          body: clientSideAction.redirect.url,
-          preview_url: true,
-        },
-      } satisfies WhatsAppSendingMessage;
-      await sendWhatsAppMessage({
-        to: context.to,
-        message,
-        credentials: context.credentials,
-      });
-    }
-    if (clientSideAction.type === "listenForWebhook")
-      return {
-        type: "shouldWaitForWebhook",
-      };
-  };
+    async (
+      clientSideAction: NonNullable<
+        ContinueChatResponse["clientSideActions"]
+      >[number],
+    ): Promise<ClientSideActionExecutionResult> => {
+      if ("wait" in clientSideAction) {
+        await new Promise((resolve) =>
+          setTimeout(
+            resolve,
+            Math.min(clientSideAction.wait.secondsToWaitFor, 10) * 1000,
+          ),
+        );
+        if (!clientSideAction.expectsDedicatedReply) return;
+        return {
+          type: "replyToSend",
+          replyToSend: undefined,
+        };
+      }
+      if ("redirect" in clientSideAction && clientSideAction.redirect.url) {
+        const message = {
+          type: "text",
+          text: {
+            body: clientSideAction.redirect.url,
+            preview_url: true,
+          },
+        } satisfies WhatsAppSendingMessage;
+        await sendWhatsAppMessage({
+          to: context.to,
+          message,
+          credentials: context.credentials,
+        });
+      }
+      if (clientSideAction.type === "listenForWebhook")
+        return {
+          type: "shouldWaitForWebhook",
+        };
+    };

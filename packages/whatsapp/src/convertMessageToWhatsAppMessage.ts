@@ -11,6 +11,8 @@ import { isSvgSrc } from "@typebot.io/lib/utils";
 import { convertRichTextToMarkdown } from "@typebot.io/rich-text/convertRichTextToMarkdown";
 import { getOrUploadMedia, type UploadMediaCache } from "./getOrUploadMedia";
 import type { WhatsAppSendingMessage } from "./schemas";
+import { encodeTemplateParameters } from "./parseWhatsAppTemplate";
+import type { WhatsAppTemplateBlock } from "@typebot.io/blocks-bubbles/whatsappTemplate/schema";
 
 type Props = {
   message: ContinueChatResponse["messages"][number];
@@ -213,6 +215,28 @@ export const convertMessageToWhatsAppMessage = async ({
         type: "sticker",
         sticker: {
           link: message.content.url,
+        },
+      };
+    }
+    case BubbleBlockType.WHATSAPP_TEMPLATE: {
+      const content = message.content as WhatsAppTemplateBlock["content"];
+      if (!content?.templateName || !content?.languageCode) return null;
+
+      const components = content.parsedTemplate
+        ? encodeTemplateParameters(
+          content.parsedTemplate,
+          content.variableMappings ?? {}
+        )
+        : undefined;
+
+      return {
+        type: "template",
+        template: {
+          name: content.templateName,
+          language: {
+            code: content.languageCode,
+          },
+          components,
         },
       };
     }

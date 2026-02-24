@@ -5,6 +5,7 @@ import { imageBubbleBlockSchema } from "./image/schema";
 import { stickerBubbleBlockSchema } from "./sticker/schema";
 import { textBubbleBlockSchema } from "./text/schema";
 import { videoBubbleBlockSchema } from "./video/schema";
+import { whatsAppTemplateBlockSchema } from "./whatsappTemplate/schema";
 
 export const bubbleBlockSchema = z.discriminatedUnion("type", [
   textBubbleBlockSchema,
@@ -13,6 +14,7 @@ export const bubbleBlockSchema = z.discriminatedUnion("type", [
   embedBubbleBlockSchema,
   audioBubbleBlockSchema,
   stickerBubbleBlockSchema,
+  whatsAppTemplateBlockSchema,
 ]);
 export type BubbleBlock = z.infer<typeof bubbleBlockSchema>;
 

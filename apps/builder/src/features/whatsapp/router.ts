@@ -6,6 +6,7 @@ import { startWhatsAppPreview } from "./startWhatsAppPreview";
 import { subscribePreviewWebhook } from "./subscribePreviewWebhook";
 import { uploadStickerMedia } from "./uploadStickerMedia";
 import { verifyIfPhoneNumberAvailable } from "./verifyIfPhoneNumberAvailable";
+import { getTemplates } from "./getTemplates";
 
 export const internalWhatsAppRouter = router({
   getPhoneNumber,
@@ -13,6 +14,7 @@ export const internalWhatsAppRouter = router({
   verifyIfPhoneNumberAvailable,
   generateVerificationToken,
   uploadStickerMedia,
+  getTemplates,
 });
 
 export const publicWhatsAppRouter = router({
