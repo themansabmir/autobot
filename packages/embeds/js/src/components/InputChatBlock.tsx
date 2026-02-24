@@ -250,8 +250,9 @@ const Input = (props: {
                 buttonType: "Numbers",
                 labels: {
                   ...(props.block as any).options?.labels,
-                  left: (props.block as any).options?.labels?.lowLabel,
-                  right: (props.block as any).options?.labels?.highLabel,
+                  // Legacy lowLabel/highLabel removed — NPS now uses startsAt/endsAt range only
+                  // left: (props.block as any).options?.labels?.lowLabel,
+                  // right: (props.block as any).options?.labels?.highLabel,
                 },
               },
             } as unknown as RatingInputBlock
