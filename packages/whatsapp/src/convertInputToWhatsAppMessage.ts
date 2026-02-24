@@ -653,7 +653,7 @@ export const convertInputToWhatsAppMessages = async ({
 
       // WhatsApp Lists limit is 10 rows total
       const effectiveLength = Math.min(length, 10);
-      
+
       const rows = [];
       for (let i = 0; i < effectiveLength; i++) {
         const value = startsAt + i;
@@ -662,13 +662,13 @@ export const convertInputToWhatsAppMessages = async ({
           id: strValue,
           title: strValue,
         };
-        
+
         if (i === 0 && options?.labels?.left) {
           row.description = options.labels.left.slice(0, 72);
         } else if (i === effectiveLength - 1 && options?.labels?.right) {
           row.description = options.labels.right.slice(0, 72);
         }
-        
+
         rows.push(row);
       }
 

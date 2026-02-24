@@ -30,7 +30,7 @@ export const CreateNewTypebotButtons = () => {
       },
       onSuccess: (data) => {
         router.push({
-          pathname: `/typebots/${data.typebot.id}/edit`,
+          pathname: `/buildthebot/${data.typebot.id}/edit`,
         });
       },
       onSettled: () => {
@@ -46,7 +46,7 @@ export const CreateNewTypebotButtons = () => {
       },
       onSuccess: (data) => {
         router.push({
-          pathname: `/typebots/${data.typebot.id}/edit`,
+          pathname: `/buildthebot/${data.typebot.id}/edit`,
         });
       },
       onSettled: () => {

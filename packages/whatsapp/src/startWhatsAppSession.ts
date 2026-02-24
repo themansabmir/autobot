@@ -75,7 +75,7 @@ export const startWhatsAppSession = async ({
 
   const publicTypebot = typebotId
     ? botsWithWhatsAppEnabled[0]
-    : botsWithWhatsAppEnabled.find(
+    : (botsWithWhatsAppEnabled.find(
         (publicTypebot) =>
           (publicTypebot.settings.whatsApp?.startCondition?.comparisons
             .length ?? 0) > 0 &&
@@ -86,7 +86,7 @@ export const startWhatsAppSession = async ({
       ) ??
       botsWithWhatsAppEnabled.find(
         (publicTypebot) => !publicTypebot.settings.whatsApp?.startCondition,
-      );
+      ));
 
   if (isNotDefined(publicTypebot)) {
     if (botsWithWhatsAppEnabled.length > 0)

@@ -21,7 +21,7 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
-  { label: "Typebots", href: "/typebots", icon: HardDriveIcon },
+  { label: "Bots", href: "/buildthebot", icon: HardDriveIcon },
   { label: "Campaigns", href: "/campaigns", icon: MegaphoneIcon },
   { label: "Users", href: "/users", icon: UsersIcon },
 ];
@@ -51,10 +51,20 @@ export const Sidebar = () => {
       {/* Navigation */}
       <nav className="flex flex-col flex-1 px-4 gap-1 mt-4">
         {navItems.map((item) => {
+          const isCampaignAnalyticsPage =
+            router.asPath.includes("/campaigns/") &&
+            router.asPath.includes("/buildthebot/");
+
           const isActive =
-            router.pathname === item.href ||
-            (item.href !== "/dashboard" &&
-              router.pathname.startsWith(`${item.href}/`));
+            // Campaign analytics pages are nested under /buildthebot but belong to Campaigns
+            item.href === "/campaigns"
+              ? router.pathname.startsWith("/campaigns") ||
+                isCampaignAnalyticsPage
+              : // Exclude /buildthebot match when on a campaign analytics page
+                (router.pathname === item.href ||
+                  (item.href !== "/dashboard" &&
+                    router.pathname.startsWith(`${item.href}/`))) &&
+                !(item.href === "/buildthebot" && isCampaignAnalyticsPage);
 
           return (
             <Link

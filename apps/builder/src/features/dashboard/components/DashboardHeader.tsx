@@ -39,7 +39,7 @@ export const DashboardHeader = ({ showLogo }: { showLogo?: boolean }) => {
   }, []);
 
   const handleCreateNewBot = () => {
-    router.push("/typebots/new");
+    router.push("/buildthebot/new");
   };
 
   return (

@@ -4,11 +4,13 @@ export const config = {
     queues: {
       campaign: "campaign.execute",
       whatsapp: "whatsapp.send",
+      ocr: process.env.OCR_QUEUE_NAME || "ocr-jobs",
     },
     exchanges: {
       campaign: "campaign.exchange",
     },
   },
+  enableOcrWorker: process.env.ENABLE_OCR_WORKER === "true",
   scheduler: {
     pollIntervalMs: parseInt(
       process.env.SCHEDULER_POLL_INTERVAL_MS || "5000",
@@ -40,6 +42,12 @@ export const config = {
   completionChecker: {
     pollIntervalMs: parseInt(
       process.env.COMPLETION_CHECKER_POLL_INTERVAL_MS || "10000",
+      10,
+    ),
+  },
+  analyticsTracker: {
+    pollIntervalMs: parseInt(
+      process.env.ANALYTICS_TRACKER_POLL_INTERVAL_MS || "15000",
       10,
     ),
   },

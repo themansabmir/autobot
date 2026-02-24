@@ -3,14 +3,15 @@ import { deleteSession } from "@typebot.io/chat-session/queries/deleteSession";
 import { env } from "@typebot.io/env";
 import { parseUnknownError } from "@typebot.io/lib/parseUnknownError";
 import { after, type NextRequest } from "next/server";
-import { incomingWebhookErrorCodes } from "../constants";
+import {
+  incomingWebhookErrorCodes,
+  WHATSAPP_PREVIEW_SESSION_ID_PREFIX,
+} from "../constants";
 import { extractErrorsFromEntry } from "../extractErrorsFromEntry";
 import { groupIncomingWebhookEntriesPerUser } from "../groupIncomingWebhookEntriesPerUser";
 import { parseWhatsAppWebhookBody } from "../parseWhatsAppWebhookBody";
 import { resumeWhatsAppFlow } from "../resumeWhatsAppFlow";
 import { WhatsAppError } from "../WhatsAppError";
-
-const whatsAppPreviewSessionIdPrefix = "wa-preview-";
 
 export const handlePreviewWebhookRequest = async (
   request: NextRequest,
@@ -42,7 +43,7 @@ export const handlePreviewWebhookRequest = async (
         unengagedUserError.details,
       );
       await deleteSession(
-        `${whatsAppPreviewSessionIdPrefix}${unengagedUserError.details}`,
+        `${WHATSAPP_PREVIEW_SESSION_ID_PREFIX}${unengagedUserError.details}`,
       );
     } else {
       console.warn("Incoming WhatsApp errors", errors);
@@ -69,7 +70,7 @@ export const handlePreviewWebhookRequest = async (
             receivedMessages: parsedEntries.map(
               (parsedEntry) => parsedEntry.receivedMessages,
             ),
-            sessionId: `${whatsAppPreviewSessionIdPrefix}${from}`,
+            sessionId: `${WHATSAPP_PREVIEW_SESSION_ID_PREFIX}${from}`,
             contact: {
               name: parsedEntries[0].contactName,
               phoneNumber: parsedEntries[0].contactPhoneNumber,

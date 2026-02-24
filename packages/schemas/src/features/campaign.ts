@@ -50,6 +50,7 @@ export const campaignRecipientSchema = z.object({
   campaignId: z.string(),
   phoneNumber: z.string(),
   messageId: z.string().nullable(),
+  resultId: z.string().nullable(), // Links CampaignRecipient to Result table for analytics tracking
   variables: z.custom<JsonValue>().nullable(),
   status: recipientStatusSchema,
   retryCount: z.number(),

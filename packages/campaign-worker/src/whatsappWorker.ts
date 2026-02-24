@@ -1,18 +1,16 @@
 import { RecipientStatus } from "@prisma/client";
-import { startSession } from "@typebot.io/bot-engine/startSession";
-import type { SessionState } from "@typebot.io/chat-session/schemas";
 import { decrypt } from "@typebot.io/credentials/decrypt";
 import { getCredentials } from "@typebot.io/credentials/getCredentials";
 import type { WhatsAppCredentials } from "@typebot.io/credentials/schemas";
 import prisma from "@typebot.io/prisma";
-import {
-  deleteSessionStore,
-  getSessionStore,
-} from "@typebot.io/runtime-session-store";
-import { sendChatReplyToWhatsApp } from "@typebot.io/whatsapp/sendChatReplyToWhatsApp";
+import { deleteSessionStore } from "@typebot.io/runtime-session-store";
+import { getWhatsAppSessionId } from "@typebot.io/whatsapp/getWhatsAppSessionId";
+import { initiateWhatsAppFlow } from "@typebot.io/whatsapp/initiateWhatsAppFlow";
+
 import type { ConsumeMessage } from "amqplib";
 import { config } from "./config";
 import { closeRabbitMQ, connectRabbitMQ, type RecipientJob } from "./rabbitmq";
+import { runAnalyticsTracker } from "./analyticsTracker";
 
 // Rate limiting tracking
 let messagesSentLastMinute = 0;
@@ -78,8 +76,11 @@ const sendWhatsAppMessage = async (
     credentialsRecord.iv,
   )) as WhatsAppCredentials["data"];
 
-  const sessionId = `wa-${credentials.phoneNumberId}-${phoneNumber}`;
-  const sessionStore = getSessionStore(sessionId);
+  const sessionId = await getWhatsAppSessionId({
+    phoneNumber,
+    phoneNumberId:
+      "phoneNumberId" in credentials ? credentials.phoneNumberId : "",
+  });
 
   console.log("📱 Starting typebot session for campaign recipient", {
     sessionId,
@@ -88,70 +89,63 @@ const sendWhatsAppMessage = async (
     phoneNumber,
   });
 
-  const initialSessionState: Pick<SessionState, "whatsApp" | "expiryTimeout"> =
-    {
-      whatsApp: {
-        contact: {
-          name: phoneNumber,
-          phoneNumber,
-        },
-      },
-      expiryTimeout: 24 * 60 * 60 * 1000,
-    };
-
-  const startResponse = await startSession({
-    version: 2,
-    startParams: {
-      type: "live",
-      publicId: campaign.typebot.publicId,
-      isOnlyRegistering: false,
-      isStreamEnabled: false,
-      textBubbleContentFormat: "richText",
-      prefilledVariables: variables,
-    },
-    initialSessionState,
-    sessionStore,
-  });
-
-  console.log(`✅ Typebot session started, sending messages to ${phoneNumber}`);
-
   // Check if we should actually send WhatsApp messages (for testing)
   const skipWhatsAppSending = process.env.CAMPAIGN_SKIP_WHATSAPP === "true";
 
   if (skipWhatsAppSending) {
     console.log(`🧪 TEST MODE: Skipping WhatsApp API call for ${phoneNumber}`);
-    console.log(`🧪 Would have sent ${startResponse.messages.length} messages`);
   } else {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result: any = await sendChatReplyToWhatsApp({
+    const { startResponse, result } = await initiateWhatsAppFlow({
       to: phoneNumber,
-      messages: startResponse.messages,
-      input: startResponse.input,
-      isFirstChatChunk: true,
-      clientSideActions: startResponse.clientSideActions,
+      sessionId,
+      typebot: campaign.typebot,
       credentials,
-      state: startResponse.newSessionState,
+      params: {
+        type: "live",
+        prefilledVariables: variables,
+      },
+      initialSessionState: {
+        whatsApp: {
+          contact: {
+            name: phoneNumber,
+            phoneNumber,
+          },
+        },
+        expiryTimeout: 24 * 60 * 60 * 1000,
+      },
     });
-    if (result?.lastMessageId) {
+
+    // --- Phase 2: Decoupled Campaign Analytics ---
+    // Grab resultId directly from startSession()'s return value (via initiateWhatsAppFlow).
+    // We intentionally do NOT query the ChatSession table here because it is ephemeral
+    // and may be deleted at any time. The Result table is permanent and safe.
+    const resultId = startResponse.resultId ?? startResponse.newSessionState.typebotsQueue[0]?.resultId;
+
+    // Grab the WhatsApp message ID from the sendChatReplyToWhatsApp result.
+    // This is needed so the Meta webhook handler can look up the CampaignRecipient
+    // by messageId to update delivered/opened/failed statuses.
+    const whatsAppMessageId = result?.lastMessageId;
+
+    // Save both resultId and messageId to CampaignRecipient in a single update
+    if (resultId || whatsAppMessageId) {
       await prisma.campaignRecipient.update({
         where: { id: recipientId },
         data: {
-          messageId: result.lastMessageId,
-          status: "SENT",
-          sentAt: new Date(),
+          ...(resultId ? { resultId } : {}),
+          ...(whatsAppMessageId ? { messageId: whatsAppMessageId } : {}),
         },
       });
-      console.log(
-        `✅ [Campaign Analytics] Recipient ${recipientId} (${phoneNumber}) status updated to SENT`,
-      );
+      console.log(`🔗 CampaignRecipient ${recipientId} linked → resultId: ${resultId}, messageId: ${whatsAppMessageId}`);
     }
+
+    console.log(
+      `✅ [Campaign Analytics] WhatsApp message triggered for recipient ${recipientId} (${phoneNumber})`,
+    );
   }
 
   deleteSessionStore(sessionId);
 
-  console.log(
-    `✅ Campaign message sent successfully to ${phoneNumber} (${startResponse.messages.length} messages)`,
-  );
+  console.log(`✅ Campaign message process completed for ${phoneNumber}`);
 };
 
 const checkRateLimit = async (): Promise<void> => {
@@ -293,6 +287,11 @@ const processRecipientJob = async (job: RecipientJob): Promise<void> => {
 const runWhatsAppWorker = async (): Promise<void> => {
   console.log("📱 WhatsApp Worker starting...");
   const channel = await connectRabbitMQ();
+
+  // Start the decoupled analytics tracker alongside the WhatsApp worker.
+  // This polls Result and AnswerV2 tables to populate CampaignRecipient
+  // (startedAt, completedAt, npsScore) without touching core engine files.
+  runAnalyticsTracker();
 
   await channel.prefetch(config.worker.prefetchCount);
 

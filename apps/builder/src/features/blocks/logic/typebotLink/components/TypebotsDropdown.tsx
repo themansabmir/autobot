@@ -62,7 +62,7 @@ export const TypebotsDropdown = ({
           className="shrink-0"
           size="icon"
           href={{
-            pathname: "/typebots/[typebotId]/edit",
+            pathname: "/buildthebot/[typebotId]/edit",
             query: {
               typebotId,
               parentId: query.parentId

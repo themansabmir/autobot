@@ -23,6 +23,18 @@ const campaignAnalyticsSchema = z.object({
       detractors: z.number(),
       totalResponses: z.number(),
       responseRate: z.number(),
+      distribution: z.record(z.string(), z.number()), // Zod record keys are strings usually, but mapping to number
+      trend: z.array(
+        z.object({
+          date: z.string(),
+          score: z.number(),
+          responses: z.number(),
+        }),
+      ),
+      scale: z.object({
+        min: z.number(),
+        max: z.number(),
+      }),
     })
     .nullable(),
 });
@@ -65,6 +77,18 @@ export const getCampaignAnalytics = authenticatedProcedure
         id: campaignId,
         workspaceId,
       },
+      include: {
+        typebot: {
+          select: {
+            groups: true,
+            publishedTypebot: {
+              select: {
+                groups: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!campaign)
@@ -106,12 +130,22 @@ export const getCampaignAnalytics = authenticatedProcedure
     // Initiated = all non-pending recipients
     const initiated = total - pending;
 
-    // Calculate NPS
-    const npsScores = recipients
+    const npsScoresWithDate = recipients
       .filter((r) => r.npsScore !== null)
-      .map((r) => r.npsScore!);
+      .map((r) => ({
+        score: r.npsScore!,
+        date: r.npsRespondedAt
+          ? r.npsRespondedAt.toISOString().split("T")[0]
+          : null,
+      }));
 
-    const npsAnalytics = calculateNPS(npsScores, total);
+    // Extract NPS configuration from Typebot — returns null if bot has no NPS/rating block
+    const npsConfig = extractNpsConfig(campaign.typebot);
+
+    // Only calculate NPS if the bot actually has an NPS/rating block
+    const npsAnalytics = npsConfig
+      ? calculateNPS(npsScoresWithDate, total, npsConfig)
+      : null;
 
     return {
       analytics: {
@@ -130,15 +164,117 @@ export const getCampaignAnalytics = authenticatedProcedure
     };
   });
 
-function calculateNPS(scores: number[], totalRecipients: number) {
-  if (scores.length === 0) return null;
+const extractNpsConfig = (typebot: any) => {
+  const groups =
+    (typebot.publishedTypebot && typebot.publishedTypebot.groups) ||
+    typebot.groups ||
+    [];
 
-  const promoters = scores.filter((s) => s >= 9).length;
-  const passives = scores.filter((s) => s >= 7 && s <= 8).length;
-  const detractors = scores.filter((s) => s <= 6).length;
+  for (const group of groups) {
+    for (const block of group.blocks) {
+      if (block.type === "nps input" || block.type === "rating input") {
+        const startsAt =
+          typeof block.options?.startsAt === "number"
+            ? block.options.startsAt
+            : 1; // Default to 1 as per user request
+        const length = block.options?.length ?? 10;
+        return {
+          min: startsAt,
+          max: startsAt + length - 1,
+        };
+      }
+    }
+  }
+  return null; // No NPS/rating block found in this bot
+};
+
+function calculateNPS(
+  scores: { score: number; date: string | null }[],
+  totalRecipients: number,
+  scale: { min: number; max: number },
+) {
+  // Always return a full NPS object so the frontend renders the widget
+  // even with no data — empty state is better UX than hiding the entire section.
+  if (scores.length === 0)
+    return {
+      score: 0,
+      promoters: 0,
+      passives: 0,
+      detractors: 0,
+      totalResponses: 0,
+      responseRate: 0,
+      distribution: Object.fromEntries(
+        Array.from({ length: scale.max - scale.min + 1 }, (_, i) => [
+          scale.min + i,
+          0,
+        ]),
+      ),
+      trend: [],
+      scale,
+    };
+
+  const scoreValues = scores.map((s) => s.score);
   const totalResponses = scores.length;
 
+  // Normalize scores to 0-10 scale for calculating NPS buckets
+  // Formula: ((score - min) / (max - min)) * 10
+  // Standard NPS (0-10): Promoters (9-10), Passives (7-8), Detractors (0-6)
+  const normalizedScores = scoreValues.map((s) => {
+    if (scale.max === scale.min) return 10; // Avoid division by zero
+    return ((s - scale.min) / (scale.max - scale.min)) * 10;
+  });
+
+  const promoters = normalizedScores.filter((s) => s >= 9).length;
+  const passives = normalizedScores.filter((s) => s >= 7 && s < 9).length;
+  const detractors = normalizedScores.filter((s) => s < 7).length;
+
+  // NPS Formula: (Promoters - Detractors) / Total * 100
+  // This metric represents the "Net" sentiment. Ranges from -100 to 100.
   const npsScore = ((promoters - detractors) / totalResponses) * 100;
+
+  // Calculate Distribution (Scale Min to Max)
+  const distribution: Record<number, number> = {};
+  for (let i = scale.min; i <= scale.max; i++) distribution[i] = 0;
+  scoreValues.forEach((s) => {
+    // Only count if within current scale range to avoid artifacts from old scales
+    if (s >= scale.min && s <= scale.max) {
+      if (distribution[s] !== undefined) distribution[s]++;
+    }
+  });
+
+  // Calculate Trend (Daily)
+  const trendMap = new Map<
+    string,
+    { promoters: number; detractors: number; total: number }
+  >();
+
+  scores.forEach(({ score, date }) => {
+    if (!date) return;
+
+    // Normalize individual score for trend bucket
+    const s = ((score - scale.min) / (scale.max - scale.min)) * 10;
+
+    const current = trendMap.get(date) || {
+      promoters: 0,
+      detractors: 0,
+      total: 0,
+    };
+    if (s >= 9) current.promoters++;
+    else if (s < 7) current.detractors++;
+    current.total++;
+    trendMap.set(date, current);
+  });
+
+  // Sort by date and format
+  const trend = Array.from(trendMap.entries())
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .map(([date, data]) => ({
+      date,
+      score: Math.round(
+        ((data.promoters - data.detractors) / data.total) * 100,
+      ),
+      responses: data.total,
+    }));
 
   return {
     score: Math.round(npsScore),
@@ -147,5 +283,8 @@ function calculateNPS(scores: number[], totalRecipients: number) {
     detractors,
     totalResponses,
     responseRate: (totalResponses / totalRecipients) * 100,
+    distribution,
+    trend,
+    scale, // Pass scale to frontend
   };
 }
