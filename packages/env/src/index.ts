@@ -1,4 +1,3 @@
-import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
 import { getRuntimeVariable } from "./getRuntimeVariable";
 
@@ -77,9 +76,9 @@ const baseEnv = {
       .optional()
       .transform((val) => val?.split(",")),
     DEFAULT_WORKSPACE_PLAN: z
-      .enum(["FREE", "STARTER", "PRO", "LIFETIME", "UNLIMITED"])
+      .enum(["FREE", "STARTER", "PRO", "LIFETIME", "UNLIMITED", "ENTERPRISE", "OFFERED", "CUSTOM"])
       .refine((str) =>
-        ["FREE", "STARTER", "PRO", "LIFETIME", "UNLIMITED"].includes(str),
+        ["FREE", "STARTER", "PRO", "LIFETIME", "UNLIMITED", "ENTERPRISE", "OFFERED", "CUSTOM"].includes(str),
       )
       .default("FREE"),
     DEBUG: boolean.optional().default("false"),
@@ -389,6 +388,8 @@ const whatsAppEnv = {
     DEV_PROXY_URLS: z.string().optional(),
     // Campaign Analytics
     ENABLE_ENHANCED_CAMPAIGN_ANALYTICS: boolean.optional().default("false"),
+    // OCR Worker
+    ENABLE_OCR_WORKER: boolean.optional().default("false"),
   },
 };
 
