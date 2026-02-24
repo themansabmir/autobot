@@ -115,8 +115,19 @@ export const resumeWhatsAppFlow = async ({
   });
 
   if (session && !session.state) {
-    console.log("❌ [DEBUG] Session exists but has no state - throwing error");
-    throw new WhatsAppError("Session is empty. Most likely in reply state.");
+    const placeholderAgeMs = Date.now() - session.updatedAt.getTime();
+    const STUCK_PLACEHOLDER_TTL_MS = 60_000; // 1 minute
+    if (placeholderAgeMs < STUCK_PLACEHOLDER_TTL_MS) {
+      console.log(
+        "❌ [DEBUG] Session exists but has no state and is fresh - throwing error",
+      );
+      throw new WhatsAppError("Session is empty. Most likely in reply state.");
+    }
+    console.log(
+      "⚠️ [DEBUG] Session placeholder is stale (>",
+      Math.round(placeholderAgeMs / 1000),
+      "s old). Treating as expired and restarting.",
+    );
   }
 
   const aggregationResponse =
@@ -137,9 +148,19 @@ export const resumeWhatsAppFlow = async ({
       (isDefined(session.state.expiryTimeout) && session?.updatedAt.getTime() + session.state.expiryTimeout < Date.now())
     );
 
-  if (!isSessionExpired && session?.isReplying && callFrom !== "webhook")
-    throw new WhatsAppError("Is in reply state");
-  else if (aggregationResponse.status === "treat as unique message") {
+  if (!isSessionExpired && session?.isReplying) {
+    const placeholderAgeMs = Date.now() - (session.updatedAt?.getTime() ?? 0);
+    // Sessions with state are waiting for a webhook — give them a longer TTL
+    // before allowing the user to break through (5 min vs 60s for stateless placeholders)
+    const STUCK_TTL_MS = session?.state ? 5 * 60_000 : 60_000;
+    if (placeholderAgeMs < STUCK_TTL_MS)
+      throw new WhatsAppError("Is in reply state");
+    console.log(
+      "⚠️ [DEBUG] isReplying=true but session is stale (>",
+      Math.round(placeholderAgeMs / 1000),
+      "s). Proceeding.",
+    );
+  } else if (aggregationResponse.status === "treat as unique message") {
     console.log(
       "🔄 [DEBUG] Creating placeholder session (treat as unique message) - sessionId:",
       sessionId,
