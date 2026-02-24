@@ -41,8 +41,10 @@ const trackStartedRecipients = async () => {
       resultId: { not: null },
       startedAt: null,
       status: { notIn: [RecipientStatus.PENDING, RecipientStatus.QUEUED] },
+      // Include COMPLETED campaigns too — the completionChecker marks a campaign
+      // as COMPLETED once all messages are SENT, but users may still be mid-flow.
       campaign: {
-        status: CampaignStatus.RUNNING,
+        status: { in: [CampaignStatus.RUNNING, CampaignStatus.COMPLETED] },
       }
     },
     take: 100, // Process in batches
@@ -76,8 +78,9 @@ const trackCompletedRecipients = async () => {
       resultId: { not: null },
       startedAt: { not: null },
       completedAt: null,
+      // Include COMPLETED campaigns too — same reason as trackStartedRecipients.
       campaign: {
-        status: CampaignStatus.RUNNING,
+        status: { in: [CampaignStatus.RUNNING, CampaignStatus.COMPLETED] },
       }
     },
     take: 100,
