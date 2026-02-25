@@ -1,3 +1,4 @@
+import { createId } from "@paralleldrive/cuid2";
 import { LogicBlockType } from "@typebot.io/blocks-logic/constants";
 import { getSession } from "@typebot.io/chat-session/queries/getSession";
 import { env } from "@typebot.io/env";
@@ -61,6 +62,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     await resumeWhatsAppFlow({
       receivedMessages: [
         {
+          id: createId(),
           from: chatSession.id.split("-").at(-1)!,
           timestamp: new Date().toISOString(),
           type: "webhook",
