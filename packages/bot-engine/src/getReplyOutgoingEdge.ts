@@ -6,6 +6,7 @@ import type { SessionStore } from "@typebot.io/runtime-session-store";
 import { parseVariables } from "@typebot.io/variables/parseVariables";
 import type { Variable } from "@typebot.io/variables/schemas";
 import type { SkipReply, SuccessReply } from "./types";
+import { matchesBlockType } from "@typebot.io/i18n";
 
 export const getReplyOutgoingEdge = (
   reply: SuccessReply | SkipReply | undefined,
@@ -19,26 +20,29 @@ export const getReplyOutgoingEdge = (
     sessionStore: SessionStore;
   },
 ): { id: string; isOffDefaultPath: boolean } | undefined => {
-  if (!reply || reply.status === "skip")
+  const successReply = reply?.status === "success" ? (reply as SuccessReply) : undefined;
+  
+  if (!successReply)
     return block.outgoingEdgeId
       ? { id: block.outgoingEdgeId, isOffDefaultPath: false }
       : undefined;
-  if (reply.outgoingEdgeId)
-    return { id: reply.outgoingEdgeId, isOffDefaultPath: true };
+
+  if (successReply.outgoingEdgeId)
+    return { id: successReply.outgoingEdgeId, isOffDefaultPath: true };
+
   if (
     block.type === InputBlockType.CHOICE &&
     !(
       block.options?.isMultipleChoice ??
       defaultChoiceInputOptions.isMultipleChoice
-    ) &&
-    reply
+    )
   ) {
     const matchedItem = block.items.find(
       (item) =>
         parseVariables(item.content, {
           variables,
           sessionStore,
-        }).normalize() === reply.content.normalize(),
+        }).normalize() === successReply.content.normalize(),
     );
     if (matchedItem?.outgoingEdgeId)
       return { id: matchedItem.outgoingEdgeId, isOffDefaultPath: true };
@@ -48,30 +52,31 @@ export const getReplyOutgoingEdge = (
     !(
       block.options?.isMultipleChoice ??
       defaultPictureChoiceOptions.isMultipleChoice
-    ) &&
-    reply
+    )
   ) {
     const matchedItem = block.items.find(
       (item) =>
         parseVariables(item.title, { variables, sessionStore }).normalize() ===
-        reply.content.normalize(),
+        successReply.content.normalize(),
     );
     if (matchedItem?.outgoingEdgeId)
       return { id: matchedItem.outgoingEdgeId, isOffDefaultPath: true };
   }
   if (
-    block.type === InputBlockType.WHATSAPP_LIST &&
-    reply
+    matchesBlockType(block.type, InputBlockType.WHATSAPP_LIST) ||
+    matchesBlockType(block.type, InputBlockType.WHATSAPP_CAROUSEL)
   ) {
-    const matchedItem = (block.items as any[]).find(
-      (item) =>
-        parseVariables(item.content, {
-          variables,
-          sessionStore,
-        }).normalize() === reply.content.normalize(),
-    );
-    if (matchedItem?.outgoingEdgeId)
-      return { id: matchedItem.outgoingEdgeId, isOffDefaultPath: true };
+    if ("items" in block && Array.isArray(block.items)) {
+      const matchedItem = (block.items as any[]).find(
+        (item) =>
+          parseVariables(item.content || item.title, {
+            variables,
+            sessionStore,
+          }).normalize() === successReply.content.normalize(),
+      );
+      if (matchedItem?.outgoingEdgeId)
+        return { id: matchedItem.outgoingEdgeId, isOffDefaultPath: true };
+    }
   }
   return block.outgoingEdgeId
     ? { id: block.outgoingEdgeId, isOffDefaultPath: false }

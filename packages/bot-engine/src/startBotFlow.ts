@@ -7,6 +7,7 @@ import { getStartingPoint } from "./getStartingPoint";
 import { upsertResult } from "./queries/upsertResult";
 import type { ContinueBotFlowResponse } from "./types";
 import { walkFlowForward } from "./walkFlowForward";
+import { loadTranslatedJourney } from "./i18n";
 
 type Props = {
   version: 1 | 2;

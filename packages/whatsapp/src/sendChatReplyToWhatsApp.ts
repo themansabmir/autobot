@@ -18,6 +18,7 @@ const messageAfterMediaTimeout = 5000;
 
 type Props = {
   to: string;
+  sessionId: string;
   isFirstChatChunk: boolean;
   credentials: WhatsAppCredentials["data"];
   state: SessionState;
@@ -35,6 +36,7 @@ type ClientSideActionExecutionResult =
 
 export const sendChatReplyToWhatsApp = async ({
   to,
+  sessionId,
   isFirstChatChunk,
   messages,
   input,
@@ -48,7 +50,7 @@ export const sendChatReplyToWhatsApp = async ({
     messageCount: messages.length,
     hasInput: !!input,
     inputType: input?.type,
-    sessionId: state.sessionId,
+    sessionId,
   });
 
   const messagesBeforeInput = isLastMessageIncludedInInput(
@@ -123,7 +125,7 @@ export const sendChatReplyToWhatsApp = async ({
         message: whatsAppMessage,
         credentials,
       });
-      if (responseId) lastMessageId = responseId;
+if (responseId) lastMessageId = responseId;
       sentMessages.push(whatsAppMessage);
     } catch (error) {
       console.error(

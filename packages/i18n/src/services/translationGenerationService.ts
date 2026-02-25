@@ -10,7 +10,7 @@
 
 import type { Typebot } from "@typebot.io/typebot/schemas/typebot";
 import { invalidateCache, setInCache } from "../cache/translationCache";
-import { extractAsMap } from "../extraction/extractTranslatableContent";
+import { extractAsMap, matchesBlockType } from "../extraction/extractTranslatableContent";
 import {
   deleteTranslatedJourney,
   listTranslations,
@@ -78,7 +78,8 @@ const preserveOriginalValuesForLogic = (typebot: any): void => {
       // Choice / Picture Choice blocks
       if (
         Array.isArray(block.items) &&
-        (block.type === "choice input" || block.type === "picture choice input")
+        (matchesBlockType(block.type, "choice input") || 
+         matchesBlockType(block.type, "picture choice input"))
       ) {
         block.items.forEach((item: any) => {
           if (!item.options) item.options = {};
@@ -91,7 +92,7 @@ const preserveOriginalValuesForLogic = (typebot: any): void => {
       }
 
       // Cards
-      if (block.type === "cards" && Array.isArray(block.items)) {
+      if (matchesBlockType(block.type, "cards") && Array.isArray(block.items)) {
         block.items.forEach((item: any) => {
           if (!item.options) item.options = {};
           // Preserve title in internalValue for logic if not already set
@@ -103,8 +104,7 @@ const preserveOriginalValuesForLogic = (typebot: any): void => {
 
       // WhatsApp Carousel
       if (
-        (block.type === "whatsapp-carousel" ||
-          block.type === "whatsapp carousel") &&
+        matchesBlockType(block.type, "whatsapp-carousel") &&
         Array.isArray(block.items)
       ) {
         block.items.forEach((item: any) => {
@@ -122,7 +122,7 @@ const preserveOriginalValuesForLogic = (typebot: any): void => {
 
       // WhatsApp List
       if (
-        (block.type === "whatsapp-list" || block.type === "whatsapp list") &&
+        matchesBlockType(block.type, "whatsapp-list") &&
         Array.isArray(block.items)
       ) {
         block.items.forEach((item: any) => {
@@ -173,7 +173,7 @@ const validateTranslatedStructure = (
         return;
       }
 
-      if (block.type !== translatedBlock.type) {
+      if (!matchesBlockType(block.type, translatedBlock.type)) {
         console.error(
           `[i18n] WARNING: Block type mismatch at ${gIdx}.${bIdx} (${block.type} -> ${translatedBlock.type})`,
         );
@@ -213,6 +213,12 @@ const setValueAtPath = (
   for (let i = 0; i < parts.length - 1; i++) {
     const part = parts[i];
     const index = parseInt(part, 10);
+    if (!current || typeof current !== "object") {
+      console.warn(
+        `[i18n] Cannot traverse path ${path}: parent at ${parts.slice(0, i).join(".")} is not an object/array`,
+      );
+      return false;
+    }
 
     if (!isNaN(index) && Array.isArray(current)) {
       if (index >= current.length) {
@@ -221,13 +227,15 @@ const setValueAtPath = (
         );
         return false;
       }
-      current = (current as unknown[])[index] as Record<string, unknown>;
-    } else if (current[part] !== undefined) {
+      current = current[index] as Record<string, unknown>;
+    } else if (current[part] !== undefined && current[part] !== null) {
       current = current[part] as Record<string, unknown>;
     } else {
       // Path doesn't exist - log warning but don't fail
       // This can happen if blocks were added after translation generation
-      console.warn(`[i18n] Path does not exist: ${parts.slice(0, i + 1).join(".")}`);
+      console.warn(
+        `[i18n] Path does not exist: ${parts.slice(0, i + 1).join(".")}`,
+      );
       return false;
     }
   }
