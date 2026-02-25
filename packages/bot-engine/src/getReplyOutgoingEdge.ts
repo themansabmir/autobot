@@ -26,7 +26,7 @@ export const getReplyOutgoingEdge = (
   if (reply.outgoingEdgeId)
     return { id: reply.outgoingEdgeId, isOffDefaultPath: true };
   if (
-    (block.type === InputBlockType.CHOICE || block.type === "choice input") &&
+    block.type === InputBlockType.CHOICE &&
     !(
       block.options?.isMultipleChoice ??
       defaultChoiceInputOptions.isMultipleChoice
@@ -44,8 +44,7 @@ export const getReplyOutgoingEdge = (
       return { id: matchedItem.outgoingEdgeId, isOffDefaultPath: true };
   }
   if (
-    (block.type === InputBlockType.PICTURE_CHOICE || 
-     block.type === "picture choice input") &&
+    block.type === InputBlockType.PICTURE_CHOICE &&
     !(
       block.options?.isMultipleChoice ??
       defaultPictureChoiceOptions.isMultipleChoice
@@ -61,9 +60,7 @@ export const getReplyOutgoingEdge = (
       return { id: matchedItem.outgoingEdgeId, isOffDefaultPath: true };
   }
   if (
-    (block.type === InputBlockType.WHATSAPP_LIST || 
-     block.type === "whatsapp list" || 
-     block.type === "whatsapp-list") &&
+    block.type === InputBlockType.WHATSAPP_LIST &&
     reply
   ) {
     const matchedItem = (block.items as any[]).find(
