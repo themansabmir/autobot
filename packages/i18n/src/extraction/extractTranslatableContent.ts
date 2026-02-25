@@ -43,6 +43,17 @@ export const normalizeLanguageCode = (lang: string): string => {
 };
 
 /**
+ * Helper function to match block types in a case-insensitive and format-agnostic way
+ * Handles variations like: "whatsapp carousel", "whatsapp-carousel", "WHATSAPP_CAROUSEL", "whatsappCarousel"
+ */
+const matchesBlockType = (blockType: string, targetType: string): boolean => {
+  // Normalize: lowercase, replace spaces and underscores with hyphens
+  const normalized = blockType.toLowerCase().replace(/[\s_]/g, "-");
+  const targetNormalized = targetType.toLowerCase().replace(/[\s_]/g, "-");
+  return normalized === targetNormalized;
+};
+
+/**
  * Extract all text nodes from rich text and provide their paths
  */
 const extractFromRichText = (
@@ -160,12 +171,29 @@ const extractFromButtonItems = (
 
   items.forEach((item, itemIndex) => {
     const itemObj = item as Record<string, unknown>;
-    const content = itemObj.content;
-
-    if (typeof content === "string" && content.trim()) {
+    
+    // Choice items
+    if (typeof itemObj.content === "string" && itemObj.content.trim()) {
       translatableItems.push({
         path: `groups.${groupIndex}.blocks.${blockIndex}.items.${itemIndex}.content`,
-        text: content,
+        text: itemObj.content,
+        type: "button",
+      });
+    }
+
+    // Picture choice / Card items (if falling through)
+    if (typeof itemObj.title === "string" && itemObj.title.trim()) {
+      translatableItems.push({
+        path: `groups.${groupIndex}.blocks.${blockIndex}.items.${itemIndex}.title`,
+        text: itemObj.title,
+        type: "button",
+      });
+    }
+
+    if (typeof itemObj.description === "string" && itemObj.description.trim()) {
+      translatableItems.push({
+        path: `groups.${groupIndex}.blocks.${blockIndex}.items.${itemIndex}.description`,
+        text: itemObj.description,
         type: "button",
       });
     }
@@ -233,6 +261,266 @@ const extractFromInputOptions = (
 };
 
 /**
+ * Extract translatable content from card items
+ */
+const extractFromCardItems = (
+  items: unknown[],
+  groupIndex: number,
+  blockIndex: number,
+): TranslatableItem[] => {
+  const translatableItems: TranslatableItem[] = [];
+
+  items.forEach((item, itemIndex) => {
+    const itemObj = item as Record<string, unknown>;
+    const basePath = `groups.${groupIndex}.blocks.${blockIndex}.items.${itemIndex}`;
+
+    if (typeof itemObj.title === "string" && itemObj.title.trim()) {
+      translatableItems.push({
+        path: `${basePath}.title`,
+        text: itemObj.title,
+        type: "bubble",
+      });
+    }
+
+    if (typeof itemObj.description === "string" && itemObj.description.trim()) {
+      translatableItems.push({
+        path: `${basePath}.description`,
+        text: itemObj.description,
+        type: "bubble",
+      });
+    }
+
+    if (Array.isArray(itemObj.paths)) {
+      itemObj.paths.forEach((path, pathIndex) => {
+        const pathObj = path as Record<string, unknown>;
+        if (typeof pathObj.text === "string" && pathObj.text.trim()) {
+          translatableItems.push({
+            path: `${basePath}.paths.${pathIndex}.text`,
+            text: pathObj.text,
+            type: "button",
+          });
+        }
+      });
+    }
+  });
+
+  return translatableItems;
+};
+
+/**
+ * Extract translatable content from WhatsApp carousel items
+ */
+const extractFromWhatsAppCarousel = (
+  block: Record<string, unknown>,
+  groupIndex: number,
+  blockIndex: number,
+): TranslatableItem[] => {
+  const items: TranslatableItem[] = [];
+  const basePath = `groups.${groupIndex}.blocks.${blockIndex}`;
+
+  // Options body text
+  const options = block.options as Record<string, unknown> | undefined;
+  if (typeof options?.bodyText === "string" && options.bodyText.trim()) {
+    items.push({
+      path: `${basePath}.options.bodyText`,
+      text: options.bodyText,
+      type: "bubble",
+    });
+  }
+
+  // Carousel items
+  if (Array.isArray(block.items)) {
+    block.items.forEach((item, itemIndex) => {
+      const itemObj = item as Record<string, unknown>;
+      const itemPath = `${basePath}.items.${itemIndex}`;
+
+      if (typeof itemObj.bodyText === "string" && itemObj.bodyText.trim()) {
+        items.push({
+          path: `${itemPath}.bodyText`,
+          text: itemObj.bodyText,
+          type: "bubble",
+        });
+      }
+
+      // CTA URL button
+      const ctaUrlButton = itemObj.ctaUrlButton as
+        | Record<string, unknown>
+        | undefined;
+      if (
+        typeof ctaUrlButton?.displayText === "string" &&
+        ctaUrlButton.displayText.trim()
+      ) {
+        items.push({
+          path: `${itemPath}.ctaUrlButton.displayText`,
+          text: ctaUrlButton.displayText,
+          type: "button",
+        });
+      }
+
+      // Quick reply buttons
+      if (Array.isArray(itemObj.quickReplyButtons)) {
+        itemObj.quickReplyButtons.forEach((button, buttonIndex) => {
+          const btnObj = button as Record<string, unknown>;
+          if (typeof btnObj.title === "string" && btnObj.title.trim()) {
+            items.push({
+              path: `${itemPath}.quickReplyButtons.${buttonIndex}.title`,
+              text: btnObj.title,
+              type: "button",
+            });
+          }
+        });
+      }
+    });
+  }
+
+  return items;
+};
+
+/**
+ * Extract translatable content from NPS/Rating blocks
+ */
+const extractFromRatingBlock = (
+  block: Record<string, unknown>,
+  groupIndex: number,
+  blockIndex: number,
+): TranslatableItem[] => {
+  const items: TranslatableItem[] = [];
+  const basePath = `groups.${groupIndex}.blocks.${blockIndex}`;
+  
+  const options = block.options as Record<string, unknown> | undefined;
+  if (!options) return items;
+  
+  // Button label
+  if (typeof options.buttonLabel === "string" && options.buttonLabel.trim()) {
+    items.push({
+      path: `${basePath}.options.buttonLabel`,
+      text: options.buttonLabel,
+      type: "label",
+    });
+  }
+  
+  // Labels object (left, right, button, etc.)
+  const labels = options.labels as Record<string, unknown> | undefined;
+  if (labels && typeof labels === "object") {
+    Object.entries(labels).forEach(([key, value]) => {
+      if (typeof value === "string" && value.trim()) {
+        items.push({
+          path: `${basePath}.options.labels.${key}`,
+          text: value,
+          type: "label",
+        });
+      }
+    });
+  }
+  
+  return items;
+};
+
+/**
+ * Extract translatable content from CTA URL blocks
+ */
+const extractFromCtaUrlBlock = (
+  block: Record<string, unknown>,
+  groupIndex: number,
+  blockIndex: number,
+): TranslatableItem[] => {
+  const items: TranslatableItem[] = [];
+  const basePath = `groups.${groupIndex}.blocks.${blockIndex}.options`;
+  const options = block.options as Record<string, unknown> | undefined;
+  
+  if (!options) return items;
+
+  const fields = ["headerText", "bodyText", "footerText", "displayText"];
+  fields.forEach(field => {
+    if (typeof options[field] === "string" && (options[field] as string).trim()) {
+      items.push({
+        path: `${basePath}.${field}`,
+        text: options[field] as string,
+        type: field === "displayText" ? "button" : "bubble",
+      });
+    }
+  });
+
+  return items;
+};
+
+/**
+ * Extract translatable content from WhatsApp list items
+ */
+const extractFromWhatsAppList = (
+  block: Record<string, unknown>,
+  groupIndex: number,
+  blockIndex: number,
+): TranslatableItem[] => {
+  const items: TranslatableItem[] = [];
+  const basePath = `groups.${groupIndex}.blocks.${blockIndex}`;
+
+  // Options
+  const options = block.options as Record<string, unknown> | undefined;
+  if (options) {
+    if (typeof options.listHeader === "string" && options.listHeader.trim()) {
+      items.push({
+        path: `${basePath}.options.listHeader`,
+        text: options.listHeader,
+        type: "bubble",
+      });
+    }
+    if (typeof options.buttonLabel === "string" && options.buttonLabel.trim()) {
+      items.push({
+        path: `${basePath}.options.buttonLabel`,
+        text: options.buttonLabel,
+        type: "button",
+      });
+    }
+    if (typeof options.listFooter === "string" && options.listFooter.trim()) {
+      items.push({
+        path: `${basePath}.options.listFooter`,
+        text: options.listFooter,
+        type: "bubble",
+      });
+    }
+  }
+
+  // List items
+  if (Array.isArray(block.items)) {
+    block.items.forEach((item, itemIndex) => {
+      const itemObj = item as Record<string, unknown>;
+      const itemPath = `${basePath}.items.${itemIndex}`;
+
+      if (typeof itemObj.content === "string" && itemObj.content.trim()) {
+        items.push({
+          path: `${itemPath}.content`,
+          text: itemObj.content,
+          type: "bubble",
+        });
+      }
+      if (
+        typeof itemObj.description === "string" &&
+        itemObj.description.trim()
+      ) {
+        items.push({
+          path: `${itemPath}.description`,
+          text: itemObj.description,
+          type: "bubble",
+        });
+      }
+      if (
+        typeof itemObj.sectionTitle === "string" &&
+        itemObj.sectionTitle.trim()
+      ) {
+        items.push({
+          path: `${itemPath}.sectionTitle`,
+          text: itemObj.sectionTitle,
+          type: "bubble",
+        });
+      }
+    });
+  }
+
+  return items;
+};
+
+/**
  * Extract all translatable content from a typebot
  */
 export const extractTranslatableContent = (
@@ -240,38 +528,101 @@ export const extractTranslatableContent = (
 ): TranslatableItem[] => {
   const items: TranslatableItem[] = [];
 
+  if (!typebot.groups) return items;
+
+  console.log(
+    `[i18n] Starting extraction for typebot ${typebot.id} with ${typebot.groups.length} groups`,
+  );
+
   // Process all groups
   typebot.groups.forEach((group, groupIndex) => {
+    if (!group.blocks) return;
+
     // Process all blocks in the group
     group.blocks.forEach((block, blockIndex) => {
-      const blockType = block.type as string;
+      const blockType = (block.type as string) || "";
       const blockObj = block as Record<string, unknown>;
 
+      console.log(
+        `[i18n] Processing block [${groupIndex}.${blockIndex}] type: "${blockType}"`,
+      );
+
       // Text bubble blocks
-      if (blockType === "text") {
-        items.push(...extractFromTextBubble(blockObj, groupIndex, blockIndex));
+      if (matchesBlockType(blockType, "text")) {
+        const extracted = extractFromTextBubble(blockObj, groupIndex, blockIndex);
+        items.push(...extracted);
+      }
+
+      // Card blocks
+      if (matchesBlockType(blockType, "cards")) {
+        if (Array.isArray(blockObj.items)) {
+          const extracted = extractFromCardItems(blockObj.items, groupIndex, blockIndex);
+          items.push(...extracted);
+        }
+      }
+
+      // WhatsApp Carousel
+      if (matchesBlockType(blockType, "whatsapp-carousel")) {
+        const extracted = extractFromWhatsAppCarousel(blockObj, groupIndex, blockIndex);
+        items.push(...extracted);
+      }
+
+      // WhatsApp List
+      if (matchesBlockType(blockType, "whatsapp-list")) {
+        const extracted = extractFromWhatsAppList(blockObj, groupIndex, blockIndex);
+        items.push(...extracted);
+      }
+
+      // NPS/Rating blocks
+      if (matchesBlockType(blockType, "rating") || matchesBlockType(blockType, "nps")) {
+        const extracted = extractFromRatingBlock(blockObj, groupIndex, blockIndex);
+        items.push(...extracted);
+      }
+
+      // CTA URL block
+      if (matchesBlockType(blockType, "cta-url")) {
+        const extracted = extractFromCtaUrlBlock(blockObj, groupIndex, blockIndex);
+        items.push(...extracted);
       }
 
       // Blocks with items (buttons, picture choice, etc.)
-      if (Array.isArray(blockObj.items)) {
-        items.push(
-          ...extractFromButtonItems(blockObj.items, groupIndex, blockIndex),
+      if (
+        Array.isArray(blockObj.items) &&
+        !matchesBlockType(blockType, "cards") &&
+        !matchesBlockType(blockType, "whatsapp-carousel") &&
+        !matchesBlockType(blockType, "whatsapp-list")
+      ) {
+        console.log(
+          `[i18n] Extracting from button items for block ${blockType}`,
         );
+        const extracted = extractFromButtonItems(
+          blockObj.items,
+          groupIndex,
+          blockIndex,
+        );
+        items.push(...extracted);
+      }
+
+      // Sticker block (no text to translate, but we track it for consistency)
+      if (matchesBlockType(blockType, "sticker")) {
+        console.log("[i18n] Found sticker block, skipping text extraction");
       }
 
       // Blocks with options
       if (blockObj.options && typeof blockObj.options === "object") {
-        items.push(
-          ...extractFromInputOptions(
-            blockObj.options as Record<string, unknown>,
-            groupIndex,
-            blockIndex,
-          ),
+        const extracted = extractFromInputOptions(
+          blockObj.options as Record<string, unknown>,
+          groupIndex,
+          blockIndex,
         );
+        if (extracted.length > 0) {
+          items.push(...extracted);
+        }
       }
     });
   });
 
+  console.log(`[i18n] Extraction complete: ${items.length} total items found`);
   return items;
 };
 

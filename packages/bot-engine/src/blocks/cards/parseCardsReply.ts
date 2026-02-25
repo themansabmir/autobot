@@ -76,7 +76,10 @@ export const parseCardsReply = (
     return acc;
   }, []);
 
-  const content = matchedItem.title || matchedItem.imageUrl;
+  const content =
+    matchedItem.options?.internalValue ||
+    matchedItem.title ||
+    matchedItem.imageUrl;
   if (!content) return { status: "fail" };
 
   return {

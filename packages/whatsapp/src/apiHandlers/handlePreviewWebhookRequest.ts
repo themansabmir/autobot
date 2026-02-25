@@ -88,10 +88,14 @@ export const handlePreviewWebhookRequest = async (
 };
 
 const handleUnknownError = async (err: unknown) => {
+  console.error("❌ [handlePreviewWebhookRequest] CRITICAL ERROR CAUGHT:", err);
+  if (err instanceof Error) {
+    console.error("Stack trace:", err.stack);
+  }
   if (err instanceof WhatsAppError) {
     Sentry.captureMessage(err.message, err.details);
   } else {
-    console.log("Sending unkown error to Sentry");
+    console.log("Sending unknown error to Sentry");
     const details = safeJsonParse((await parseUnknownError({ err })).details);
     console.log("details", details);
     Sentry.addBreadcrumb({

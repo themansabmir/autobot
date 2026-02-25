@@ -210,45 +210,43 @@ export const continueBotFlow = async (
     if (block.type === InputBlockType.LANGUAGE && formattedReply) {
       const normalizedLanguage = normalizeLanguageCode(formattedReply);
       console.log(
-        `[i18n] Language selected: ${formattedReply} -> normalized to: ${normalizedLanguage}`,
+        `[i18n] LANGUAGE BLOCK HIT: formattedReply="${formattedReply}", normalized="${normalizedLanguage}"`,
       );
 
       // Load translated journey for the selected language
-      const defaultLanguage =
-        newSessionState.typebotsQueue[0].typebot.settings?.localization
-          ?.languages?.[0];
+      // Always try to load if a language node is hit to ensure we have the correct journey in the queue
+      try {
+        console.log(`[i18n] Attempting to swap journey to ${normalizedLanguage}...`);
+        const translatedTypebot = await loadTranslatedJourney(
+          newSessionState.typebotsQueue[0].typebot.id,
+          normalizedLanguage,
+          newSessionState.typebotsQueue[0].typebot,
+        );
 
-      // Only swap journey if selected language is different from default AND different from current
-      if (
-        normalizedLanguage !== defaultLanguage &&
-        normalizedLanguage !== newSessionState.language
-      ) {
-        try {
-          const translatedTypebot = await loadTranslatedJourney(
-            newSessionState.typebotsQueue[0].typebot.id,
-            normalizedLanguage,
-            newSessionState.typebotsQueue[0].typebot,
-          );
+        // Debug: Check if the first group's first block's content is different if possible
+        const originalFirstBubble = (newSessionState.typebotsQueue[0].typebot.groups[0]?.blocks[0] as any)?.content?.richText?.[0]?.children?.[0]?.text;
+        const translatedFirstBubble = (translatedTypebot.groups[0]?.blocks[0] as any)?.content?.richText?.[0]?.children?.[0]?.text;
+        console.log(`[i18n] SWAP SUCCESS: Original first bubble: "${originalFirstBubble}", Translated: "${translatedFirstBubble}"`);
 
-          // Swap the typebot in the queue with the translated version
-          newSessionState = {
-            ...newSessionState,
-            typebotsQueue: newSessionState.typebotsQueue.map((item, index) =>
-              index === 0
-                ? {
-                    ...item,
-                    typebot: translatedTypebot,
-                  }
-                : item,
-            ),
-          };
-        } catch (error) {
-          console.error("[i18n] Failed to load translated journey:", error);
-          // Continue with default journey on error
-        }
+        // Swap the typebot in the queue with the translated version
+        newSessionState = {
+          ...newSessionState,
+          typebotsQueue: newSessionState.typebotsQueue.map((item, index) =>
+            index === 0
+              ? {
+                  ...item,
+                  typebot: translatedTypebot,
+                }
+              : item,
+          ),
+        };
+      } catch (error) {
+        console.error("[i18n] Failed to load translated journey:", error);
+        // Continue with default journey on error
       }
 
       newSessionState.language = normalizedLanguage;
+      console.log(`[i18n] Session language set to: ${newSessionState.language}`);
     }
     continueReply = parsedReplyResult;
   }

@@ -332,9 +332,11 @@ export const publishTypebot = authenticatedProcedure
     await trackEvents(publishEvents);
 
     // Trigger translation sync for the published version
+    // Parse settings to extract localization configuration
+    const parsedSettings = settingsSchema.parse(existingTypebot.settings);
     triggerTranslationGeneration(
       existingTypebot as any,
-      existingTypebot.settings as any,
+      parsedSettings.localization,
     );
 
     return {

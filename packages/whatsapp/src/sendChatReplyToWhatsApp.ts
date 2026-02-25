@@ -42,6 +42,15 @@ export const sendChatReplyToWhatsApp = async ({
   credentials,
   state,
 }: Props): Promise<ClientSideActionExecutionResult> => {
+  console.log("🔄 [sendChatReplyToWhatsApp] CALLED", {
+    to,
+    isFirstChatChunk,
+    messageCount: messages.length,
+    hasInput: !!input,
+    inputType: input?.type,
+    sessionId: state.sessionId,
+  });
+
   const messagesBeforeInput = isLastMessageIncludedInInput(
     input,
     messages.at(-1),
@@ -89,32 +98,40 @@ export const sendChatReplyToWhatsApp = async ({
           : undefined,
     });
     if (isNotDefined(whatsAppMessage)) continue;
-    const lastSentMessageIsMedia = ["audio", "video", "image"].includes(
-      sentMessages.at(-1)?.type ?? "",
-    );
+    try {
+      const lastSentMessageIsMedia = ["audio", "video", "image"].includes(
+        sentMessages.at(-1)?.type ?? "",
+      );
 
-    const isTypingEmulationDisabled =
-      state.typingEmulation?.isDisabledOnFirstMessage ??
-      defaultSettings.typingEmulation.isDisabledOnFirstMessage;
+      const isTypingEmulationDisabled =
+        state.typingEmulation?.isDisabledOnFirstMessage ??
+        defaultSettings.typingEmulation.isDisabledOnFirstMessage;
 
-    const typingDuration =
-      lastSentMessageIsMedia && !state.publicTypebotId
-        ? messageAfterMediaTimeout
-        : isFirstChatChunk && i === 0 && isTypingEmulationDisabled
-          ? 0
-          : getTypingDuration({
-              message: whatsAppMessage,
-              typingEmulation: state.typingEmulation,
-            });
-    if ((typingDuration ?? 0) > 0)
-      await new Promise((resolve) => setTimeout(resolve, typingDuration));
-    const responseId = await sendWhatsAppMessage({
-      to,
-      message: whatsAppMessage,
-      credentials,
-    });
-    if (responseId) lastMessageId = responseId;
-    sentMessages.push(whatsAppMessage);
+      const typingDuration =
+        lastSentMessageIsMedia && !state.publicTypebotId
+          ? messageAfterMediaTimeout
+          : isFirstChatChunk && i === 0 && isTypingEmulationDisabled
+            ? 0
+            : getTypingDuration({
+                message: whatsAppMessage,
+                typingEmulation: state.typingEmulation,
+              });
+      if ((typingDuration ?? 0) > 0)
+        await new Promise((resolve) => setTimeout(resolve, typingDuration));
+      const responseId = await sendWhatsAppMessage({
+        to,
+        message: whatsAppMessage,
+        credentials,
+      });
+      if (responseId) lastMessageId = responseId;
+      sentMessages.push(whatsAppMessage);
+    } catch (error) {
+      console.error(
+        `❌ [sendChatReplyToWhatsApp] Failed to send bubble message ${i}:`,
+        error,
+      );
+      // We continue to ensure at least some messages might reach the user and state is saved
+    }
     const clientSideActionsAfterMessage =
       clientSideActions?.filter(
         (action) => action.lastBubbleBlockId === message.id,
@@ -142,25 +159,32 @@ export const sendChatReplyToWhatsApp = async ({
             }
           : undefined,
     });
-    for (const message of inputWhatsAppMessages) {
-      const lastSentMessageIsMedia = ["audio", "video", "image"].includes(
-        sentMessages.at(-1)?.type ?? "",
-      );
-      const typingDuration =
-        lastSentMessageIsMedia && !state.publicTypebotId
-          ? messageAfterMediaTimeout
-          : getTypingDuration({
-              message,
-              typingEmulation: state.typingEmulation,
-            });
-      if (typingDuration)
-        await new Promise((resolve) => setTimeout(resolve, typingDuration));
-      const responseId = await sendWhatsAppMessage({
-        to,
-        message,
-        credentials,
-      });
-      if (responseId) lastMessageId = responseId;
+    for (const [idx, message] of inputWhatsAppMessages.entries()) {
+      try {
+        const lastSentMessageIsMedia = ["audio", "video", "image"].includes(
+          sentMessages.at(-1)?.type ?? "",
+        );
+        const typingDuration =
+          lastSentMessageIsMedia && !state.publicTypebotId
+            ? messageAfterMediaTimeout
+            : getTypingDuration({
+                message,
+                typingEmulation: state.typingEmulation,
+              });
+        if (typingDuration)
+          await new Promise((resolve) => setTimeout(resolve, typingDuration));
+        const responseId = await sendWhatsAppMessage({
+          to,
+          message,
+          credentials,
+        });
+        if (responseId) lastMessageId = responseId;
+      } catch (error) {
+        console.error(
+          `❌ [sendChatReplyToWhatsApp] Failed to send input message ${idx}:`,
+          error,
+        );
+      }
     }
   }
 
@@ -204,9 +228,9 @@ const isLastMessageIncludedInInput = (
   return (
     (input.type === InputBlockType.CHOICE ||
       input.type === InputBlockType.LANGUAGE ||
+      input.type === InputBlockType.CARDS ||
       input.type === InputBlockType.WHATSAPP_LIST ||
-      input.type === InputBlockType.NPS ||
-      input.type === InputBlockType.RATING) &&
+      input.type === InputBlockType.WHATSAPP_CAROUSEL) &&
     (!lastMessage || lastMessage.type === BubbleBlockType.TEXT)
   );
 };

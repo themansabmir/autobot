@@ -183,6 +183,7 @@ export type WhatsAppIncomingMessageContext = z.infer<
 >;
 
 const sharedIncomingMessageFieldsSchema = z.object({
+  id: z.string(),
   from: z.string(),
   timestamp: z.string(),
   referral: incomingMessageReferral.optional(),

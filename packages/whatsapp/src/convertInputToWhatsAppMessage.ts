@@ -520,8 +520,8 @@ export const convertInputToWhatsAppMessages = async ({
       const options = carouselInput.options;
       const items = carouselInput.items as any[];
 
-      // Use default bodyText if not provided (consistent with UI defaults)
-      const bodyText = options?.bodyText || "Choose an option below:";
+      // Use the last message text as body text if available, otherwise use options or default
+      const bodyText = lastMessageText || options?.bodyText || "Choose an option below:";
 
       if (items.length < 2) {
         console.log("⚠️ [WhatsApp Carousel] Insufficient cards:", {
@@ -551,13 +551,8 @@ export const convertInputToWhatsAppMessages = async ({
         };
 
         // Set card type based on button type (required by Meta API)
-        // According to latest docs/examples, card.type can be "cta_url" even for quick_reply buttons
-        if (item.buttonType === "cta_url") {
-          card.type = "cta_url";
-        } else if (item.buttonType === "quick_reply") {
-          // Strict compliance with user docs: type is "cta_url"
-          card.type = "cta_url";
-        }
+        card.type =
+          item.buttonType === "quick_reply" ? "quick_reply" : "cta_url";
 
         // Header (required)
         if (item.headerType && item.headerUrl) {

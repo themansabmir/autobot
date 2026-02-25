@@ -25,8 +25,30 @@ export const startBotFlow = async ({
   startFrom,
   textBubbleContentFormat,
 }: Props): Promise<ContinueBotFlowResponse> => {
-  const newSessionState = state;
+  let newSessionState = state;
   const setVariableHistory: SetVariableHistoryItem[] = [];
+
+  // If language is already set in the state, load the translated journey
+  if (newSessionState.language && newSessionState.typebotsQueue[0]) {
+    try {
+      console.log(`[i18n] Initial load: using language ${newSessionState.language}`);
+      const translatedTypebot = await loadTranslatedJourney(
+        newSessionState.typebotsQueue[0].typebot.id,
+        newSessionState.language,
+        newSessionState.typebotsQueue[0].typebot,
+      );
+      
+      newSessionState = {
+        ...newSessionState,
+        typebotsQueue: newSessionState.typebotsQueue.map((item, index) =>
+          index === 0 ? { ...item, typebot: translatedTypebot } : item
+        ),
+      };
+    } catch (error) {
+      console.error("[i18n] Initial load translated journey failed:", error);
+    }
+  }
+
   const startingPoint = getStartingPoint({
     typebot: newSessionState.typebotsQueue[0]?.typebot,
     startFrom,

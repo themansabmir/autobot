@@ -28,31 +28,37 @@ export const loadTranslatedJourney = async (
   defaultTypebot: TypebotInSession,
 ): Promise<TypebotInSession> => {
   if (!I18N_ENABLED || !language) {
+    console.log(`[i18n] i18n disabled or no language provided: ${language}`);
     return defaultTypebot;
   }
 
   try {
+    console.log(`[i18n] Loading journey for bot ${botId}, language ${language}...`);
+    
     // Try to get from cache first
     const cached = await getFromCache<TypebotInSession>(botId, language);
     if (cached) {
-      console.log(`[i18n] Cache hit for ${language}`);
+      console.log(`[i18n] Cache HIT for ${language}`);
       return cached;
     }
 
+    console.log(`[i18n] Cache MISS for ${language}, fetching from database...`);
     const translatedJourney = await getTranslatedJourney<TypebotInSession>(
       botId,
       language,
     );
 
     if (translatedJourney) {
+      console.log(`[i18n] Database HIT for ${language}`);
       // Set in cache for future requests
       await setInCache(botId, language, translatedJourney);
       return translatedJourney;
     }
 
+    console.log(`[i18n] Database MISS for ${language}, returning default journey`);
     return defaultTypebot;
   } catch (error) {
-    console.error(`Failed to load translated journey for ${language}:`, error);
+    console.error(`[i18n] Failed to load translated journey for ${language}:`, error);
     return defaultTypebot;
   }
 };
