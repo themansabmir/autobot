@@ -156,6 +156,7 @@ export const resumeWhatsAppFlow = async ({
     isWaitingForWebhook,
   } = await resumeFlowAndSendWhatsAppMessages({
     to: receivedMessages[0].from,
+    sessionId,
     credentials,
     isSessionExpired,
     reply,
@@ -494,6 +495,7 @@ const aggregateParallelMediaMessagesIfRedisEnabled = async ({
 
 const resumeFlowAndSendWhatsAppMessages = async (props: {
   to: string;
+  sessionId: string;
   state: SessionState | null | undefined;
   sessionStore: SessionStore;
   reply: Message | undefined;
@@ -519,6 +521,7 @@ const resumeFlowAndSendWhatsAppMessages = async (props: {
   const isFirstChatChunk = (!props.state || props.isSessionExpired) ?? false;
   const result = await sendChatReplyToWhatsApp({
     to: props.to,
+    sessionId: props.sessionId,
     messages,
     input,
     isFirstChatChunk,

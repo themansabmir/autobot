@@ -64,6 +64,7 @@ export const initiateWhatsAppFlow = async ({
 
   const result = await sendChatReplyToWhatsApp({
     to,
+    sessionId,
     messages: startResponse.messages,
     input: startResponse.input,
     isFirstChatChunk: true,

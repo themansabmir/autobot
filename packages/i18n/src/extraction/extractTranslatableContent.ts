@@ -46,7 +46,7 @@ export const normalizeLanguageCode = (lang: string): string => {
  * Helper function to match block types in a case-insensitive and format-agnostic way
  * Handles variations like: "whatsapp carousel", "whatsapp-carousel", "WHATSAPP_CAROUSEL", "whatsappCarousel"
  */
-const matchesBlockType = (blockType: string, targetType: string): boolean => {
+export const matchesBlockType = (blockType: string, targetType: string): boolean => {
   // Normalize: lowercase, replace spaces and underscores with hyphens
   const normalized = blockType.toLowerCase().replace(/[\s_]/g, "-");
   const targetNormalized = targetType.toLowerCase().replace(/[\s_]/g, "-");

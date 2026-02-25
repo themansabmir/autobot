@@ -4,7 +4,7 @@
  * Enterprise-grade internationalization package for bot content translation.
  * Provides:
  * - Translation extraction from bot journeys
- * - Google Translate integration (free, using google-translate-api-x)
+ * - Google Translate integration (official @google-cloud/translate)
  * - Database storage for translated journeys (PostgreSQL JSONB)
  * - Caching layer (Redis + memory fallback)
  *

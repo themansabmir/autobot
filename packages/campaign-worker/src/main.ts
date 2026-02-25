@@ -378,6 +378,7 @@ const sendWhatsAppMessage = async (
   } else {
     await sendChatReplyToWhatsApp({
       to: phoneNumber,
+      sessionId,
       messages: startResponse.messages,
       input: startResponse.input,
       isFirstChatChunk: true,
