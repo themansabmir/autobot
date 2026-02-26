@@ -4,6 +4,7 @@ import { continueBotFlow } from "@typebot.io/bot-engine/continueBotFlow";
 import { saveStateToDatabase } from "@typebot.io/bot-engine/saveStateToDatabase";
 import type { Message } from "@typebot.io/chat-api/schemas";
 import { getSession } from "@typebot.io/chat-session/queries/getSession";
+import { deleteSession } from "@typebot.io/chat-session/queries/deleteSession";
 import { upsertSession } from "@typebot.io/chat-session/queries/upsertSession";
 import type { SessionState } from "@typebot.io/chat-session/schemas";
 import { decrypt } from "@typebot.io/credentials/decrypt";
@@ -94,8 +95,17 @@ export const resumeWhatsAppFlow = async ({
       receivedPhoneNumberId: phoneNumberId,
     });
 
-  const session = await getSession(sessionId);
+  let session = await getSession(sessionId);
   console.log("🔍 [DEBUG] Session retrieved successfully");
+
+  // FIX: Provide a clean slate if a user explicitly finished a flow that wasn't auto-deleted
+  // (like Builder Preview sessions or bots with results collection disabled).
+  // This prevents `continueBotFlow` from automatically putting them back into the exact same bot.
+  if (session && session.state && session.state.currentBlockId === undefined) {
+    console.log("ℹ️ [resumeWhatsAppFlow] Found completed session. Deleting it to allow catching a new bot instance.", { sessionId });
+    await deleteSession(sessionId);
+    session = null;
+  }
 
   if (session && !session.state) {
     throw new WhatsAppError("Session is empty. Most likely in reply state.");
@@ -474,12 +484,16 @@ const aggregateParallelMediaMessagesIfRedisEnabled = async ({
           JSON.parse(msgStr),
         ),
       };
-    } catch (error) {
-      console.error(
-        "Failed to process webhook event:",
-        error,
-        receivedMessages,
-      );
+    } catch (err) {
+      console.error("❌ [aggregateParallelMediaMessagesIfRedisEnabled] CRITICAL ERROR:", err);
+      if (err instanceof Error) {
+        console.error("Stack trace:", err.stack);
+      }
+      // Assuming sessionStore is available in this scope or can be passed.
+      // If not, this line would cause a reference error.
+      // For now, commenting out as sessionStore is not in the provided context for this function.
+      // await sessionStore.cleanup();
+      throw err;
     }
   }
 
