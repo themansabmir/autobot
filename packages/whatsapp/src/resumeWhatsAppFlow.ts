@@ -160,14 +160,7 @@ export const resumeWhatsAppFlow = async ({
 
   const sessionStore = getSessionStore(sessionId);
   console.log("🔍 [DEBUG] Resuming flow and sending WhatsApp messages...");
-  const {
-    input,
-    logs,
-    visitedEdges,
-    setVariableHistory,
-    newSessionState,
-    isWaitingForWebhook,
-  } = await resumeFlowAndSendWhatsAppMessages({
+  const resumeResult = await resumeFlowAndSendWhatsAppMessages({
     to: receivedMessages[0].from,
     sessionId,
     credentials,
@@ -180,6 +173,23 @@ export const resumeWhatsAppFlow = async ({
     credentialsId,
     referral,
   });
+
+  if ("status" in resumeResult && resumeResult.status === "ignored") {
+    console.log("ℹ️ [resumeWhatsAppFlow] Webhook gracefully ignored message. Releasing isReplying lock.");
+    await upsertSession(sessionId, { isReplying: false });
+    deleteSessionStore(sessionId);
+    return;
+  }
+
+  const {
+    input,
+    logs,
+    visitedEdges,
+    setVariableHistory,
+    newSessionState,
+    isWaitingForWebhook,
+  } = resumeResult;
+
   deleteSessionStore(sessionId);
 
   await saveStateToDatabase({
@@ -521,6 +531,13 @@ const resumeFlowAndSendWhatsAppMessages = async (props: {
 }) => {
   const resumeResponse = await resumeFlow(props);
 
+  if ("status" in resumeResponse && resumeResponse.status === "ignored") {
+    return { status: "ignored" as const };
+  }
+
+  // TypeScript loses narrowing on complex inferred unions, so we enforce the exclusion
+  const successResponse = resumeResponse as Exclude<typeof resumeResponse, { status: "ignored" }>;
+
   const {
     input,
     logs,
@@ -529,7 +546,7 @@ const resumeFlowAndSendWhatsAppMessages = async (props: {
     visitedEdges,
     setVariableHistory,
     newSessionState,
-  } = resumeResponse;
+  } = successResponse;
 
   const isFirstChatChunk = (!props.state || props.isSessionExpired) ?? false;
   const result = await sendChatReplyToWhatsApp({
