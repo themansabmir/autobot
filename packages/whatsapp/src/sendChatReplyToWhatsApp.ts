@@ -233,7 +233,7 @@ const isLastMessageIncludedInInput = (
       input.type === InputBlockType.CARDS ||
       input.type === InputBlockType.WHATSAPP_LIST ||
       input.type === InputBlockType.NPS ||
-      input.type === InputBlockType.RATING)||
+      input.type === InputBlockType.RATING ||
       input.type === InputBlockType.WHATSAPP_CAROUSEL) &&
     (!lastMessage || lastMessage.type === BubbleBlockType.TEXT)
   );

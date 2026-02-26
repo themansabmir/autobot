@@ -4,9 +4,16 @@ import { isDefined, isNotDefined } from "@typebot.io/lib/utils";
 import { Plan } from "@typebot.io/prisma/enum";
 import { Badge } from "@typebot.io/ui/components/Badge";
 import { Button } from "@typebot.io/ui/components/Button";
+import { useOpenControls } from "@typebot.io/ui/hooks/useOpenControls";
 import { SquareLock01Icon } from "@typebot.io/ui/icons/SquareLock01Icon";
 import { TrashIcon } from "@typebot.io/ui/icons/TrashIcon";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 import { Seo } from "@/components/Seo";
+import {
+  WhatsAppLogo,
+  whatsAppBrandColor,
+} from "@/components/logos/WhatsAppLogo";
 import { UpgradeButton } from "@/features/billing/components/UpgradeButton";
 import { hasProPerks } from "@/features/billing/helpers/hasProPerks";
 import { CustomDomainsDropdown } from "@/features/customDomains/components/CustomDomainsDropdown";
@@ -18,21 +25,41 @@ import { isCloudProdInstance } from "@/helpers/isCloudProdInstance";
 import { toast } from "@/lib/toast";
 import { getPublicId } from "../helpers/getPublicId";
 import { isPublicDomainAvailableQuery } from "../queries/isPublicDomainAvailableQuery";
-import { integrationsList } from "./deploy/DeployButton";
+import { WhatsAppDeployDialog } from "./deploy/dialogs/whatsApp/WhatsAppDeployDialog";
 import { EditableUrl } from "./EditableUrl";
 
 export const SharePage = () => {
   const { t } = useTranslate();
   const { workspace } = useWorkspace();
+  const router = useRouter();
   const { typebot, updateTypebot, publishedTypebot, currentUserMode } =
     useTypebot();
+  const {
+    isOpen: isWhatsAppDialogOpen,
+    onOpen: onWhatsAppDialogOpen,
+    onClose: onWhatsAppDialogClose,
+  } = useOpenControls();
+
+  const publicId = getPublicId(typebot);
+  const isPublished = isDefined(publishedTypebot);
+
+  // Auto-open WhatsApp dialog on first publish
+  useEffect(() => {
+    if (router.query.openWhatsApp === "true") {
+      onWhatsAppDialogOpen();
+      // Clean up the query param from the URL without navigation
+      const { openWhatsApp, ...restQuery } = router.query;
+      router.replace(
+        { pathname: router.pathname, query: restQuery },
+        undefined,
+        { shallow: true }
+      );
+    }
+  }, [router.query.openWhatsApp]);
 
   const handlePublicIdChange = async (publicId: string) => {
     updateTypebot({ updates: { publicId }, save: true });
   };
-
-  const publicId = getPublicId(typebot);
-  const isPublished = isDefined(publishedTypebot);
 
   const handlePathnameChange = (pathname: string) => {
     if (!typebot?.customDomain) return;
@@ -148,13 +175,27 @@ export const SharePage = () => {
               {t("sharePage.embed.heading")}
             </h1>
             <div className="flex flex-wrap gap-4">
-              {integrationsList.slice(0, 1).map((IntegrationButton, idx) => (
-                <IntegrationButton
-                  key={idx}
-                  publicId={publicId}
-                  isPublished={isPublished}
-                />
-              ))}
+              <Button
+                className="w-[225px] h-[270px] text-center whitespace-normal rounded-xl bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-gray-800 hover:border-yellow-400 hover:bg-white dark:hover:bg-[#1A1A1A] shadow-sm hover:shadow-md transition-all"
+                variant="ghost"
+                onClick={onWhatsAppDialogOpen}
+                iconStyle="none"
+                size="lg"
+              >
+                <div className="flex flex-col items-center gap-2">
+                  <WhatsAppLogo
+                    className="w-[60px] h-[100px]"
+                    color={whatsAppBrandColor}
+                  />
+                  <p>WhatsApp</p>
+                </div>
+              </Button>
+              <WhatsAppDeployDialog
+                isOpen={isWhatsAppDialogOpen}
+                onClose={onWhatsAppDialogClose}
+                publicId={publicId}
+                isPublished={isPublished}
+              />
             </div>
           </div>
         </div>
