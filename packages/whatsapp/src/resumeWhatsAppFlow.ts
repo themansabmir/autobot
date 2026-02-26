@@ -474,16 +474,12 @@ const aggregateParallelMediaMessagesIfRedisEnabled = async ({
           JSON.parse(msgStr),
         ),
       };
-    } catch (err) {
-      console.error("❌ [aggregateParallelMediaMessagesIfRedisEnabled] CRITICAL ERROR:", err);
-      if (err instanceof Error) {
-        console.error("Stack trace:", err.stack);
-      }
-      // Assuming sessionStore is available in this scope or can be passed.
-      // If not, this line would cause a reference error.
-      // For now, commenting out as sessionStore is not in the provided context for this function.
-      // await sessionStore.cleanup();
-      throw err;
+    } catch (error) {
+      console.error(
+        "Failed to process webhook event:",
+        error,
+        receivedMessages,
+      );
     }
   }
 
