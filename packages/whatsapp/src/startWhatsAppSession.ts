@@ -92,6 +92,14 @@ export const startWhatsAppSession = async ({
     ? botsWithWhatsAppEnabled[0]
     : (matchedBot ?? catchAllBot);
 
+  console.log("🐛 [DEBUG startWhatsAppSession] matching logic:", {
+    incomingMessageText: incomingMessage?.type === 'text' ? incomingMessage.text : 'non-text',
+    numBots: botsWithWhatsAppEnabled.length,
+    foundMatchedBotId: matchedBot?.typebot?.id,
+    foundCatchAllBotId: catchAllBot?.typebot?.id,
+    finalPickedBotId: publicTypebot?.typebot?.id
+  });
+
   if (isNotDefined(publicTypebot)) {
     if (botsWithWhatsAppEnabled.length > 0)
       throw new WhatsAppError("Message did not matched any condition");

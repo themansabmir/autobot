@@ -4,7 +4,6 @@ import { continueBotFlow } from "@typebot.io/bot-engine/continueBotFlow";
 import { saveStateToDatabase } from "@typebot.io/bot-engine/saveStateToDatabase";
 import type { Message } from "@typebot.io/chat-api/schemas";
 import { getSession } from "@typebot.io/chat-session/queries/getSession";
-import { deleteSession } from "@typebot.io/chat-session/queries/deleteSession";
 import { upsertSession } from "@typebot.io/chat-session/queries/upsertSession";
 import type { SessionState } from "@typebot.io/chat-session/schemas";
 import { decrypt } from "@typebot.io/credentials/decrypt";
@@ -98,16 +97,20 @@ export const resumeWhatsAppFlow = async ({
   let session = await getSession(sessionId);
   console.log("🔍 [DEBUG] Session retrieved successfully");
 
+  let isSessionCleared = false;
   // FIX: Provide a clean slate if a user explicitly finished a flow that wasn't auto-deleted
   // (like Builder Preview sessions or bots with results collection disabled).
   // This prevents `continueBotFlow` from automatically putting them back into the exact same bot.
   if (session && session.state && session.state.currentBlockId === undefined) {
-    console.log("ℹ️ [resumeWhatsAppFlow] Found completed session. Deleting it to allow catching a new bot instance.", { sessionId });
-    await deleteSession(sessionId);
-    session = null;
+    console.log("ℹ️ [resumeWhatsAppFlow] Found completed session. Clearing state to allow catching a new bot instance.", { sessionId });
+    // Instead of deleting from DB which might cause Prisma update sync issues later,
+    // we simply clear the state in memory.
+    // This forces `startWhatsAppSession` to run, which re-uses the session ID cleanly.
+    session.state = undefined as any;
+    isSessionCleared = true;
   }
 
-  if (session && !session.state) {
+  if (session && !session.state && !isSessionCleared) {
     throw new WhatsAppError("Session is empty. Most likely in reply state.");
   }
 
