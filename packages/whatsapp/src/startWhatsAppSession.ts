@@ -59,12 +59,13 @@ export const startWhatsAppSession = async ({
         settings: true,
         typebot: {
           select: {
+            id: true,
             publicId: true,
           },
         },
       },
     })) as (Pick<PublicTypebot, "settings"> & {
-      typebot: Pick<Typebot, "publicId">;
+      typebot: Pick<Typebot, "id" | "publicId">;
     })[];
 
   const botsWithWhatsAppEnabled = publicTypebotsWithWhatsAppEnabled.filter(
@@ -73,20 +74,23 @@ export const startWhatsAppSession = async ({
       (typebotId ? true : publicTypebot.settings.whatsApp?.isEnabled),
   );
 
+  const matchedBot = botsWithWhatsAppEnabled.find(
+    (publicTypebot) =>
+      (publicTypebot.settings.whatsApp?.startCondition?.comparisons
+        .length ?? 0) > 0 &&
+      messageMatchStartCondition(
+        incomingMessage ?? { type: "text", text: "" },
+        publicTypebot.settings.whatsApp?.startCondition,
+      ),
+  );
+
+  const catchAllBot = botsWithWhatsAppEnabled.find(
+    (publicTypebot) => !publicTypebot.settings.whatsApp?.startCondition,
+  );
+
   const publicTypebot = typebotId
     ? botsWithWhatsAppEnabled[0]
-    : (botsWithWhatsAppEnabled.find(
-        (publicTypebot) =>
-          (publicTypebot.settings.whatsApp?.startCondition?.comparisons
-            .length ?? 0) > 0 &&
-          messageMatchStartCondition(
-            incomingMessage ?? { type: "text", text: "" },
-            publicTypebot.settings.whatsApp?.startCondition,
-          ),
-      ) ??
-      botsWithWhatsAppEnabled.find(
-        (publicTypebot) => !publicTypebot.settings.whatsApp?.startCondition,
-      ));
+    : (matchedBot ?? catchAllBot);
 
   if (isNotDefined(publicTypebot)) {
     if (botsWithWhatsAppEnabled.length > 0)
@@ -94,6 +98,23 @@ export const startWhatsAppSession = async ({
     throw new WhatsAppError(
       "No public typebot with WhatsApp integration found",
     );
+  }
+
+  // Prevent re-initiating the catch-all bot if the user just completed it
+  // and they didn't explicitly match a keyword trigger
+  if (!typebotId && !matchedBot && publicTypebot.typebot.id) {
+    const recentRecipient = await prisma.campaignRecipient.findFirst({
+      where: {
+        phoneNumber: contact.phoneNumber,
+        campaign: { typebotId: publicTypebot.typebot.id },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    
+    if (recentRecipient && recentRecipient.status === "COMPLETED") {
+       console.log("ℹ️ [startWhatsAppSession] Ignoring message because user recently completed this catch-all bot.", { phoneNumber: contact.phoneNumber });
+       throw new WhatsAppError("Ignored random message because user recently completed this bot's session.");
+    }
   }
 
   const sessionExpiryTimeoutHours =
