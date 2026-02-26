@@ -193,6 +193,29 @@ export const convertMessageToWhatsAppMessage = async ({
     case BubbleBlockType.STICKER: {
       if (!message.content.url) return null;
 
+      const urlWithoutParams = message.content.url.split("?")[0].toLowerCase();
+      const isWebp = urlWithoutParams.endsWith(".webp");
+
+      if (!isWebp) {
+        console.warn(
+          `[WhatsApp] Sticker URL is not a WebP: ${message.content.url}. Falling back to image type.`,
+        );
+        return convertMessageToWhatsAppMessage({
+          ...message,
+          type: BubbleBlockType.IMAGE,
+        } as any);
+      }
+
+      // PRIORITY 1: Use pre-uploaded mediaId (Important for localized flows)
+      const mediaId = (message.content as any)?.mediaId;
+      if (mediaId) {
+        return {
+          type: "sticker",
+          sticker: { id: mediaId },
+        };
+      }
+
+      // PRIORITY 2: Fallback to runtime upload
       if (mediaCache) {
         const mediaId = await getOrUploadMedia({
           url: message.content.url,

@@ -1,17 +1,22 @@
 /**
- * Google Translate wrapper using free google-translate-api-x
+ * Google Translate wrapper using official @google-cloud/translate
  */
 
-import translate from "google-translate-api-x";
+import { Translate } from "@google-cloud/translate/build/src/v2";
+import { env } from "@typebot.io/env";
 import { normalizeLanguageCode } from "../extraction/extractTranslatableContent";
 
-export interface TranslationResult {
-  text: string;
-  from: {
-    language: {
-      iso: string;
-    };
-  };
+const apiKey = env.GOOGLE_TRANSLATE_API_KEY;
+
+let translate: Translate | undefined;
+
+if (apiKey) {
+  console.log(
+    `[i18n] Initializing Google Translate with ENV key: ${apiKey.substring(0, 6)}...`,
+  );
+  translate = new Translate({ key: apiKey });
+} else {
+  console.error("[i18n] CRITICAL: No Google Translate API key found in ENV!");
 }
 
 const DEFAULT_DELAY_MS = 100;
@@ -23,6 +28,45 @@ const delay = (ms: number): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
+ * Protects {{variables}} from being translated by replacing them with markers
+ */
+const protectVariables = (
+  text: string,
+): { protectedText: string; variables: string[] } => {
+  const variables: string[] = [];
+  const protectedText = text.replace(/\{\{[^}]+\}\}/g, (match) => {
+    variables.push(match);
+    return `[#${variables.length - 1}]`;
+  });
+  return { protectedText, variables };
+};
+
+/**
+ * Restores {{variables}} from markers after translation
+ */
+const restoreVariables = (text: string, variables: string[]): string => {
+  // 1. New marker format: [#0], [# 0]
+  let restored = text.replace(/\[\s*#\s*(\d+)\s*\]/g, (match, index) => {
+    const varIndex = parseInt(index, 10);
+    return variables[varIndex] || match;
+  });
+
+  // 2. Legacy/Mangled formats: catch Google Translate "optimizations"
+  restored = restored.replace(
+    /(?:__?|\[\s*)?v[ar]*\s*[_\s-]*(\d+)\s*(?:__?|\])?/gi,
+    (match, index) => {
+      const varIndex = parseInt(index, 10);
+      if (variables[varIndex]) {
+        return variables[varIndex];
+      }
+      return match;
+    },
+  );
+
+  return restored;
+};
+
+/**
  * Translate a single text to target language
  */
 export const translateText = async (
@@ -30,40 +74,34 @@ export const translateText = async (
   targetLang: string,
   sourceLang?: string,
 ): Promise<string> => {
-  if (!text || text.trim().length === 0) {
+  if (!text || text.trim().length === 0 || !translate) {
     return text;
   }
 
+  const { protectedText, variables } = protectVariables(text);
+
   try {
     const target = normalizeLanguageCode(targetLang);
-    const source = sourceLang ? normalizeLanguageCode(sourceLang) : "auto";
+    const source = sourceLang ? normalizeLanguageCode(sourceLang) : undefined;
 
-    console.log(
-      `DEBUG: Translating "${text.substring(0, 20)}..." to ${target} from ${source}`,
-    );
-
-    const result = (await translate(text, {
+    const [translation] = await translate.translate(protectedText, {
       to: target,
       from: source,
-      autoCorrect: true,
-    })) as TranslationResult;
+    });
 
-    console.log(
-      `DEBUG: Translation result: "${result.text.substring(0, 20)}..."`,
-    );
-    return result.text;
+    const restoredText = restoreVariables(translation, variables);
+    return restoredText;
   } catch (error) {
     console.error(
       `Translation error for text: ${text.substring(0, 50)}...`,
       error,
     );
-    // Return original text on error
     return text;
   }
 };
 
 /**
- * Translate multiple texts in a batch with rate limiting
+ * Translate multiple texts in a batch
  */
 export const translateBatch = async (
   texts: string[],
@@ -71,15 +109,21 @@ export const translateBatch = async (
   sourceLang?: string,
   delayMs: number = DEFAULT_DELAY_MS,
 ): Promise<string[]> => {
-  if (texts.length === 0) {
-    return [];
+  if (texts.length === 0 || !translate) {
+    return texts;
   }
 
-  // Filter out empty texts and track their positions
-  const nonEmptyTexts: { index: number; text: string }[] = [];
+  const nonEmptyTexts: {
+    index: number;
+    text: string;
+    variables: string[];
+    protectedText: string;
+  }[] = [];
+
   texts.forEach((text, index) => {
     if (text && text.trim().length > 0) {
-      nonEmptyTexts.push({ index, text });
+      const { protectedText, variables } = protectVariables(text);
+      nonEmptyTexts.push({ index, text, variables, protectedText });
     }
   });
 
@@ -89,31 +133,32 @@ export const translateBatch = async (
 
   try {
     const target = normalizeLanguageCode(targetLang);
-    const source = sourceLang ? normalizeLanguageCode(sourceLang) : "auto";
+    const source = sourceLang ? normalizeLanguageCode(sourceLang) : undefined;
 
-    console.log(
-      `DEBUG: Batch translating ${nonEmptyTexts.length} items to ${target} from ${source}`,
-    );
-
-    // google-translate-api-x supports batch translation natively
-    const textsToTranslate = nonEmptyTexts.map((t) => t.text);
-    const results = (await translate(textsToTranslate, {
+    const textsToTranslate = nonEmptyTexts.map((t) => t.protectedText);
+    console.log(`[i18n] Calling Google Translate for ${textsToTranslate.length} items to ${targetLang}`);
+    
+    const [translations] = await translate.translate(textsToTranslate, {
       to: target,
       from: source,
-      autoCorrect: true,
-    })) as TranslationResult | TranslationResult[];
+    });
 
-    // Reconstruct the array with translations in correct positions
+    console.log(`[i18n] Google Translate returned ${Array.isArray(translations) ? translations.length : 1} results`);
+
     const translatedTexts = [...texts];
-    const resultsArray = Array.isArray(results) ? results : [results];
+    const resultsArray = Array.isArray(translations)
+      ? translations
+      : [translations];
 
     nonEmptyTexts.forEach((item, idx) => {
       if (resultsArray[idx]) {
-        translatedTexts[item.index] = resultsArray[idx].text;
+        translatedTexts[item.index] = restoreVariables(
+          resultsArray[idx],
+          item.variables,
+        );
       }
     });
 
-    // Add delay to respect rate limits
     if (delayMs > 0) {
       await delay(delayMs);
     }
@@ -121,19 +166,18 @@ export const translateBatch = async (
     return translatedTexts;
   } catch (error) {
     console.error("Batch translation error:", error);
-    // Return original texts on error
     return texts;
   }
 };
 
 /**
- * Translate multiple texts in chunks to avoid rate limiting
+ * Translate multiple texts in chunks
  */
 export const translateBatchChunked = async (
   texts: string[],
   targetLang: string,
   sourceLang?: string,
-  chunkSize: number = 10,
+  chunkSize: number = 25, // Official API handles larger batches
   delayMs: number = DEFAULT_DELAY_MS,
 ): Promise<string[]> => {
   const results: string[] = [];
@@ -144,11 +188,10 @@ export const translateBatchChunked = async (
       chunk,
       targetLang,
       sourceLang,
-      0, // No delay within batch
+      0,
     );
     results.push(...translatedChunk);
 
-    // Add delay between chunks
     if (i + chunkSize < texts.length && delayMs > 0) {
       await delay(delayMs);
     }

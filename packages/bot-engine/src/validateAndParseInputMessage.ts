@@ -37,16 +37,18 @@ export const validateAndParseInputMessage = (
 ): ParsedReply => {
   switch (block.type) {
     case InputBlockType.EMAIL: {
+      const emailBlock = block as Extract<InputBlock, { type: InputBlockType.EMAIL }>;
       if (!message || message.type !== "text") return { status: "fail" };
       const formattedEmail = formatEmail(message.text);
       if (!formattedEmail) return { status: "fail" };
       return { status: "success", content: formattedEmail };
     }
     case InputBlockType.PHONE: {
+      const phoneBlock = block as Extract<InputBlock, { type: InputBlockType.PHONE }>;
       if (!message || message.type !== "text") return { status: "fail" };
       const formattedPhone = formatPhoneNumber(
         message.text,
-        block.options?.defaultCountryCode,
+        phoneBlock.options?.defaultCountryCode,
       );
       if (!formattedPhone) return { status: "fail" };
       return { status: "success", content: formattedPhone };
@@ -58,12 +60,13 @@ export const validateAndParseInputMessage = (
       return { status: "success", content: message.text };
     }
     case InputBlockType.CHOICE: {
+      const choiceBlock = block as Extract<InputBlock, { type: InputBlockType.CHOICE }>;
       if (!message || message.type !== "text") return { status: "fail" };
-      const displayedItems = injectVariableValuesInButtonsInputBlock(block, {
+      const displayedItems = injectVariableValuesInButtonsInputBlock(choiceBlock, {
         variables,
         sessionStore,
       }).items;
-      if (block.options?.isMultipleChoice)
+      if (choiceBlock.options?.isMultipleChoice)
         return parseMultipleChoiceReply(message.text, {
           items: displayedItems,
         });
@@ -73,24 +76,28 @@ export const validateAndParseInputMessage = (
       });
     }
     case InputBlockType.NUMBER: {
+      const numberBlock = block as Extract<InputBlock, { type: InputBlockType.NUMBER }>;
       if (!message || message.type !== "text") return { status: "fail" };
       return parseNumber(message.text, {
-        options: block.options,
+        options: numberBlock.options,
         variables,
         sessionStore,
       });
     }
     case InputBlockType.DATE: {
+      const dateBlock = block as Extract<InputBlock, { type: InputBlockType.DATE }>;
       if (!message || message.type !== "text") return { status: "fail" };
-      return parseDateReply(message.text, block);
+      return parseDateReply(message.text, dateBlock);
     }
     case InputBlockType.TIME: {
+      const timeBlock = block as Extract<InputBlock, { type: InputBlockType.TIME }>;
       if (!message || message.type !== "text") return { status: "fail" };
-      return parseTime(message.text, block.options);
+      return parseTime(message.text, timeBlock.options);
     }
     case InputBlockType.FILE: {
+      const fileBlock = block as Extract<InputBlock, { type: InputBlockType.FILE }>;
       if (!message)
-        return (block.options?.isRequired ?? defaultFileInputOptions.isRequired)
+        return (fileBlock.options?.isRequired ?? defaultFileInputOptions.isRequired)
           ? { status: "fail" }
           : { status: "skip" };
 
@@ -101,10 +108,10 @@ export const validateAndParseInputMessage = (
       );
 
       const allowedFileTypesMetadata =
-        block.options?.allowedFileTypes?.types &&
-        block.options?.allowedFileTypes?.types?.length > 0 &&
-        block.options?.allowedFileTypes?.isEnabled
-          ? parseAllowedFileTypesMetadata(block.options.allowedFileTypes.types)
+        fileBlock.options?.allowedFileTypes?.types &&
+        fileBlock.options?.allowedFileTypes?.types?.length > 0 &&
+        fileBlock.options?.allowedFileTypes?.isEnabled
+          ? parseAllowedFileTypesMetadata(fileBlock.options.allowedFileTypes.types)
           : undefined;
       const allFilesAreAllowed = allowedFileTypesMetadata
         ? urls.every((url) => {
@@ -118,7 +125,7 @@ export const validateAndParseInputMessage = (
         : true;
 
       const status = hasValidUrls && allFilesAreAllowed ? "success" : "fail";
-      if (!block.options?.isMultipleAllowed && urls.length > 1)
+      if (!fileBlock.options?.isMultipleAllowed && urls.length > 1)
         return { status, content: replyValue.split(",")[0] };
       return { status, content: replyValue };
     }
@@ -134,12 +141,13 @@ export const validateAndParseInputMessage = (
       return { status: "success", content: message.text };
     }
     case InputBlockType.PICTURE_CHOICE: {
+      const pictureChoiceBlock = block as Extract<InputBlock, { type: InputBlockType.PICTURE_CHOICE }>;
       if (!message || message.type !== "text") return { status: "fail" };
-      const displayedItems = injectVariableValuesInPictureChoiceBlock(block, {
+      const displayedItems = injectVariableValuesInPictureChoiceBlock(pictureChoiceBlock, {
         variables,
         sessionStore,
       }).items;
-      if (block.options?.isMultipleChoice)
+      if (pictureChoiceBlock.options?.isMultipleChoice)
         return parseMultipleChoiceReply(message.text, {
           items: displayedItems,
         });
@@ -152,7 +160,7 @@ export const validateAndParseInputMessage = (
       if (!message) return { status: "fail" };
       return {
         status: "success",
-        content: message.type === "audio" ? message.url : message.text,
+        content: message.type === "text" ? message.text : message.url,
       };
     }
     case InputBlockType.LANGUAGE: {
@@ -169,13 +177,20 @@ export const validateAndParseInputMessage = (
       });
     }
     case InputBlockType.CARDS: {
+      const cardsBlock = block as Extract<InputBlock, { type: InputBlockType.CARDS }>;
       if (!message || message.type !== "text") return { status: "fail" };
-      return parseCardsReply(message.text, {
-        block,
+      console.log("🎴 [Cards] Validating reply:", { text: message.text });
+      const response = parseCardsReply(message.text, {
+        block: cardsBlock,
         variables,
         sessionStore,
         replyId: message.metadata?.replyId,
       });
+      if (response.status === "fail") {
+        console.log("🎴 [Cards] Validation failed, falling back to success for WhatsApp compatibility");
+        return { status: "success", content: message.text };
+      }
+      return response;
     }
     case InputBlockType.CTA_URL: {
       if (!message || message.type !== "text") return { status: "fail" };
@@ -183,18 +198,54 @@ export const validateAndParseInputMessage = (
     }
     case InputBlockType.WHATSAPP_LIST:
     case InputBlockType.WHATSAPP_CAROUSEL: {
+      const whatsappBlock = block as Extract<InputBlock, { type: InputBlockType.WHATSAPP_LIST | InputBlockType.WHATSAPP_CAROUSEL }>;
       if (!message || message.type !== "text") return { status: "fail" };
-      const displayedItems = injectVariableValuesInButtonsInputBlock(
-        block as any,
+      console.log("🎡 [WhatsApp Interactive] Validating reply:", {
+        type: whatsappBlock.type,
+        text: message.text,
+        replyId: message.metadata?.replyId,
+      });
+      const displayedBlock = injectVariableValuesInButtonsInputBlock(
+        whatsappBlock as any,
         {
           variables,
           sessionStore,
         },
-      ).items;
-      return parseSingleChoiceReply(message.text, {
+      );
+      
+      let itemsToValidate = (displayedBlock as any).items;
+      
+      // Special handling for Carousel cards which have nested buttons
+      if (whatsappBlock.type === InputBlockType.WHATSAPP_CAROUSEL) {
+        itemsToValidate = (displayedBlock as any).items.flatMap((item: any) => 
+          (item.quickReplyButtons ?? []).map((btn: any) => ({
+            ...btn,
+            content: btn.title,
+            outgoingEdgeId: item.outgoingEdgeId
+          }))
+        );
+      }
+
+      const response = parseSingleChoiceReply(message.text, {
         replyId: message.metadata?.replyId,
-        items: displayedItems,
+        items: itemsToValidate,
       });
+
+      if (response.status === "success") {
+        console.log("🎡 [WhatsApp Interactive] Validation success:", {
+          content: response.content,
+          outgoingEdgeId: response.outgoingEdgeId,
+        });
+        return response;
+      }
+
+      if (response.status === "skip") return response;
+
+      console.log("🎡 [WhatsApp Interactive] Validation failed, falling back to success");
+      return {
+        status: "success",
+        content: message.text,
+      };
     }
     case InputBlockType.NPS: {
       if (!message || message.type !== "text") return { status: "fail" };
@@ -204,5 +255,6 @@ export const validateAndParseInputMessage = (
       return { status: "success", content: message.text };
     }
   }
+  // console.log("❌ [validateAndParseInputMessage] No case matched for block type:", (block as any).type);
   return { status: "fail" };
 };

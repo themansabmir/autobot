@@ -400,6 +400,12 @@ const redisEnv = {
   },
 };
 
+const googleTranslateEnv = {
+  server: {
+    GOOGLE_TRANSLATE_API_KEY: z.string().min(1).optional(),
+  },
+};
+
 const sentryEnv = {
   server: {
     SENTRY_DSN: z.string().min(1).optional(),
@@ -491,6 +497,7 @@ export const env = createEnv({
     ...telemetryEnv.server,
     ...keycloakEnv.server,
     ...posthogEnv.server,
+    ...googleTranslateEnv.server,
   },
   client: {
     ...baseEnv.client,
