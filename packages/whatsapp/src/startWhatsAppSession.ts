@@ -40,11 +40,12 @@ export const startWhatsAppSession = async ({
   sessionStore,
   typebotId,
 }: Props): Promise<
-  ContinueChatResponse & {
-    newSessionState: SessionState;
-    visitedEdges: Prisma.VisitedEdge[];
-    setVariableHistory: SetVariableHistoryItem[];
-  }
+  | (ContinueChatResponse & {
+      newSessionState: SessionState;
+      visitedEdges: Prisma.VisitedEdge[];
+      setVariableHistory: SetVariableHistoryItem[];
+    })
+  | { status: "ignored" }
 > => {
   const publicTypebotsWithWhatsAppEnabled =
     (await prisma.publicTypebot.findMany({
@@ -121,7 +122,7 @@ export const startWhatsAppSession = async ({
     
     if (recentRecipient && recentRecipient.status === "COMPLETED") {
        console.log("ℹ️ [startWhatsAppSession] Ignoring message because user recently completed this catch-all bot.", { phoneNumber: contact.phoneNumber });
-       throw new WhatsAppError("Ignored random message because user recently completed this bot's session.");
+       return { status: "ignored" as const };
     }
   }
 
