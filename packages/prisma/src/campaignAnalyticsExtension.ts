@@ -21,8 +21,13 @@ const handleCampaignAnalytics = async (
   model: string,
   action: string,
   result: any,
+  args: any,
 ) => {
-  if (process.env.ENABLE_EVENT_DRIVEN_CAMPAIGN_ANALYTICS !== "true") return;
+  console.log(`🔎 [Prisma Extension] Intercepted ${model}.${action}`);
+  if (process.env.ENABLE_EVENT_DRIVEN_CAMPAIGN_ANALYTICS !== "true") {
+    console.log(`🔎 [Prisma Extension] SKIPPED: Flag is ${process.env.ENABLE_EVENT_DRIVEN_CAMPAIGN_ANALYTICS}`);
+    return;
+  }
   if (!result) return;
 
   try {
@@ -61,46 +66,51 @@ const handleCampaignAnalytics = async (
     }
 
     // Handle NPS answers via AnswerV2
-    if (model === "AnswerV2" && action === "create") {
-      const resultId = result.resultId;
-      const blockId = result.blockId;
-      const content = result.content;
+    if (model === "AnswerV2" && (action === "create" || action === "createMany")) {
+      const answers = action === "createMany" ? args.data : [result];
+      if (!Array.isArray(answers)) return;
 
-      if (!resultId || !blockId) return;
+      for (const ans of answers) {
+        const resultId = ans.resultId;
+        const blockId = ans.blockId;
+        const content = ans.content;
 
-      const recipient = await prisma.campaignRecipient.findFirst({
-        where: { resultId, npsScore: null },
-        select: {
-          id: true,
-          campaign: {
-            select: {
-              typebot: {
-                select: {
-                  groups: true,
-                  publishedTypebot: { select: { groups: true } },
+        if (!resultId || !blockId) continue;
+
+        const recipient = await prisma.campaignRecipient.findFirst({
+          where: { resultId, npsScore: null },
+          select: {
+            id: true,
+            campaign: {
+              select: {
+                typebot: {
+                  select: {
+                    groups: true,
+                    publishedTypebot: { select: { groups: true } },
+                  },
                 },
               },
             },
           },
-        },
-      });
+        });
 
-      if (!recipient) return;
+        if (!recipient) continue;
 
-      const npsConfig = extractNpsConfig(recipient.campaign.typebot);
-      if (npsConfig?.blockId === blockId) {
-        const score = parseInt(content, 10);
-        if (!isNaN(score)) {
-          await prisma.campaignRecipient.update({
-            where: { id: recipient.id },
-            data: {
-              npsScore: score,
-              npsRespondedAt: result.createdAt ?? new Date(),
-            },
-          });
-          console.log(
-            `📊 Analytics (Event): Recipient ${recipient.id} gave NPS ${score}.`,
-          );
+        const npsConfig = extractNpsConfig(recipient.campaign.typebot);
+        if (npsConfig?.blockId === blockId) {
+          const score = parseInt(content, 10);
+          if (!isNaN(score)) {
+            await prisma.campaignRecipient.update({
+              where: { id: recipient.id },
+              data: {
+                npsScore: score,
+                npsRespondedAt: ans.createdAt ?? new Date(),
+              },
+            });
+            console.log(
+              `📊 Analytics (Event): Recipient ${recipient.id} gave NPS ${score}.`,
+            );
+          }
         }
       }
     }
@@ -115,19 +125,24 @@ export const campaignAnalyticsExtension = Prisma.defineExtension((client) => {
       result: {
         async upsert({ args, query }) {
           const result = await query(args);
-          void handleCampaignAnalytics(client, "Result", "upsert", result);
+          void handleCampaignAnalytics(client, "Result", "upsert", result, args);
           return result;
         },
         async update({ args, query }) {
           const result = await query(args);
-          void handleCampaignAnalytics(client, "Result", "update", result);
+          void handleCampaignAnalytics(client, "Result", "update", result, args);
           return result;
         },
       },
       answerV2: {
         async create({ args, query }) {
           const result = await query(args);
-          void handleCampaignAnalytics(client, "AnswerV2", "create", result);
+          void handleCampaignAnalytics(client, "AnswerV2", "create", result, args);
+          return result;
+        },
+        async createMany({ args, query }) {
+          const result = await query(args);
+          void handleCampaignAnalytics(client, "AnswerV2", "createMany", result, args);
           return result;
         },
       },
