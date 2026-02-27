@@ -125,7 +125,7 @@ export const sendChatReplyToWhatsApp = async ({
         message: whatsAppMessage,
         credentials,
       });
-if (responseId) lastMessageId = responseId;
+      if (responseId) lastMessageId = responseId;
       sentMessages.push(whatsAppMessage);
     } catch (error) {
       console.error(

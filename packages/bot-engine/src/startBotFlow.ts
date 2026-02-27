@@ -4,10 +4,10 @@ import type { SessionStore } from "@typebot.io/runtime-session-store";
 import type { SetVariableHistoryItem } from "@typebot.io/variables/schemas";
 import { continueBotFlow } from "./continueBotFlow";
 import { getStartingPoint } from "./getStartingPoint";
+import { loadTranslatedJourney } from "./i18n";
 import { upsertResult } from "./queries/upsertResult";
 import type { ContinueBotFlowResponse } from "./types";
 import { walkFlowForward } from "./walkFlowForward";
-import { loadTranslatedJourney } from "./i18n";
 
 type Props = {
   version: 1 | 2;
@@ -32,17 +32,19 @@ export const startBotFlow = async ({
   // If language is already set in the state, load the translated journey
   if (newSessionState.language && newSessionState.typebotsQueue[0]) {
     try {
-      console.log(`[i18n] Initial load: using language ${newSessionState.language}`);
+      console.log(
+        `[i18n] Initial load: using language ${newSessionState.language}`,
+      );
       const translatedTypebot = await loadTranslatedJourney(
         newSessionState.typebotsQueue[0].typebot.id,
         newSessionState.language,
         newSessionState.typebotsQueue[0].typebot,
       );
-      
+
       newSessionState = {
         ...newSessionState,
         typebotsQueue: newSessionState.typebotsQueue.map((item, index) =>
-          index === 0 ? { ...item, typebot: translatedTypebot } : item
+          index === 0 ? { ...item, typebot: translatedTypebot } : item,
         ),
       };
     } catch (error) {

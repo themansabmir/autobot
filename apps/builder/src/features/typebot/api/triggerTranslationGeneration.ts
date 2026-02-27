@@ -67,4 +67,3 @@ const hasLanguageBlock = (typebot: Typebot): boolean => {
     group.blocks.some((block) => block.type === "language"),
   );
 };
-

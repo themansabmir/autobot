@@ -69,7 +69,6 @@ export const saveStateToDatabase = async ({
           isReplying: isWaitingForExternalEvent ?? false,
         });
 
-
   if (!resultId) {
     if (queries.length > 0) await prisma.$transaction(queries);
     return session;

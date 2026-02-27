@@ -5,7 +5,7 @@ declare const global: { prisma: PrismaClient };
 
 if (!global.prisma) {
   global.prisma = new PrismaClient().$extends(
-    campaignAnalyticsExtension
+    campaignAnalyticsExtension,
   ) as unknown as PrismaClient;
 }
 

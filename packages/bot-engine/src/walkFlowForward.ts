@@ -114,7 +114,9 @@ export const walkFlowForward = async (
     if (executionResponse.updatedTimeoutStartTime)
       timeoutStartTime = executionResponse.updatedTimeoutStartTime;
     lastBubbleBlockId = executionResponse.lastBubbleBlockId;
-    console.log(`[walkFlowForward] Request ${requestId} finished group. NextEdge: ${executionResponse.nextEdge?.id}, Messages: ${executionResponse.messages?.length}`);
+    console.log(
+      `[walkFlowForward] Request ${requestId} finished group. NextEdge: ${executionResponse.nextEdge?.id}, Messages: ${executionResponse.messages?.length}`,
+    );
 
     nextEdge = executionResponse.nextEdge;
   } while (

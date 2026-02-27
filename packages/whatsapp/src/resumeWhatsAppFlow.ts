@@ -76,12 +76,12 @@ export const resumeWhatsAppFlow = async ({
     workspaceId,
     isPreview,
   });
-  console.log("🔍 [DEBUG] Credentials result:", { 
-    found: !!credentials, 
+  console.log("🔍 [DEBUG] Credentials result:", {
+    found: !!credentials,
     provider: credentials?.provider,
-    phoneNumberId: (credentials as any)?.phoneNumberId 
+    phoneNumberId: (credentials as any)?.phoneNumberId,
   });
-  
+
   if (!credentials) throw new WhatsAppError("Could not find credentials");
 
   if (
@@ -94,7 +94,7 @@ export const resumeWhatsAppFlow = async ({
       receivedPhoneNumberId: phoneNumberId,
     });
 
-  let session = await getSession(sessionId);
+  const session = await getSession(sessionId);
   console.log("🔍 [DEBUG] Session retrieved successfully");
 
   let isSessionCleared = false;
@@ -102,7 +102,10 @@ export const resumeWhatsAppFlow = async ({
   // (like Builder Preview sessions or bots with results collection disabled).
   // This prevents `continueBotFlow` from automatically putting them back into the exact same bot.
   if (session && session.state && session.state.currentBlockId === undefined) {
-    console.log("ℹ️ [resumeWhatsAppFlow] Found completed session. Clearing state to allow catching a new bot instance.", { sessionId });
+    console.log(
+      "ℹ️ [resumeWhatsAppFlow] Found completed session. Clearing state to allow catching a new bot instance.",
+      { sessionId },
+    );
     // Instead of deleting from DB which might cause Prisma update sync issues later,
     // we simply clear the state in memory.
     // This forces `startWhatsAppSession` to run, which re-uses the session ID cleanly.
@@ -141,12 +144,12 @@ export const resumeWhatsAppFlow = async ({
     (currentTypebot && session?.state?.currentBlockId
       ? getBlockById(session.state.currentBlockId, currentTypebot.groups)
       : undefined) ?? {};
-  
-  // If forcedTypebotId is set, we use that for message conversion context if possible? 
+
+  // If forcedTypebotId is set, we use that for message conversion context if possible?
   // Actually convertWhatsAppMessageToTypebotMessage uses currentTypebot?.id for media paths.
   // If we are switching, "currentTypebot" is technically the old one, but we are about to discard it.
   // Ideally we should peek the new bot, but for now we follow standard flow.
-  
+
   console.log("🔍 [DEBUG] Converting WhatsApp messages to Typebot messages...");
   const reply = await convertWhatsAppMessageToTypebotMessage({
     messages: aggregationResponse.incomingMessages,
@@ -175,7 +178,9 @@ export const resumeWhatsAppFlow = async ({
   });
 
   if ("status" in resumeResult && resumeResult.status === "ignored") {
-    console.log("ℹ️ [resumeWhatsAppFlow] Webhook gracefully ignored message. Releasing isReplying lock.");
+    console.log(
+      "ℹ️ [resumeWhatsAppFlow] Webhook gracefully ignored message. Releasing isReplying lock.",
+    );
     await upsertSession(sessionId, { isReplying: false });
     deleteSessionStore(sessionId);
     return;
@@ -375,14 +380,23 @@ const getWhatsAppCredentials = async ({
   workspaceId?: string;
   isPreview: boolean;
 }): Promise<WhatsAppCredentials["data"] | undefined> => {
-  console.log("🔍 [DEBUG credentials] Entering getWhatsAppCredentials", { isPreview, credentialsId, workspaceId });
+  console.log("🔍 [DEBUG credentials] Entering getWhatsAppCredentials", {
+    isPreview,
+    credentialsId,
+    workspaceId,
+  });
   if (isPreview) {
-    console.log("🔍 [DEBUG credentials] Preview mode detected. Checking env vars...");
+    console.log(
+      "🔍 [DEBUG credentials] Preview mode detected. Checking env vars...",
+    );
     try {
       const token = env.META_SYSTEM_USER_TOKEN;
       const phoneId = env.WHATSAPP_PREVIEW_FROM_PHONE_NUMBER_ID;
-      console.log("🔍 [DEBUG credentials] Env var access SUCCESS", { hasToken: !!token, hasPhoneId: !!phoneId });
-      
+      console.log("🔍 [DEBUG credentials] Env var access SUCCESS", {
+        hasToken: !!token,
+        hasPhoneId: !!phoneId,
+      });
+
       if (!token || !phoneId) {
         console.log("🔍 [DEBUG credentials] Missing preview env vars");
         return;
@@ -395,22 +409,30 @@ const getWhatsAppCredentials = async ({
       console.log("🔍 [DEBUG credentials] Returning preview credentials");
       return creds;
     } catch (e) {
-      console.error("❌ [DEBUG credentials] CRASH during preview env access!", e);
+      console.error(
+        "❌ [DEBUG credentials] CRASH during preview env access!",
+        e,
+      );
       throw e;
     }
   }
 
   if (!credentialsId || !workspaceId) {
-    console.log("🔍 [DEBUG credentials] Missing credentialsId or workspaceId for non-preview");
+    console.log(
+      "🔍 [DEBUG credentials] Missing credentialsId or workspaceId for non-preview",
+    );
     return;
   }
 
   try {
     console.log("🔍 [DEBUG credentials] Fetching production credentials...");
     const credentials = await getCredentials(credentialsId, workspaceId);
-    console.log("🔍 [DEBUG credentials] Credentials fetched from DB:", !!credentials);
+    console.log(
+      "🔍 [DEBUG credentials] Credentials fetched from DB:",
+      !!credentials,
+    );
     if (!credentials) return;
-    
+
     console.log("🔍 [DEBUG credentials] Decrypting credentials...", {
       ivLength: credentials.iv.length,
       dataLength: credentials.data.length,
@@ -420,13 +442,16 @@ const getWhatsAppCredentials = async ({
       credentials.data,
       credentials.iv,
     )) as WhatsAppCredentials["data"];
-    console.log("🔍 [DEBUG credentials] Decryption SUCCESS", { 
+    console.log("🔍 [DEBUG credentials] Decryption SUCCESS", {
       provider: data?.provider,
-      phoneNumberId: (data as any)?.phoneNumberId 
+      phoneNumberId: (data as any)?.phoneNumberId,
     });
     return data;
   } catch (e) {
-    console.error("❌ [DEBUG credentials] CRASH during production fetch/decrypt!", e);
+    console.error(
+      "❌ [DEBUG credentials] CRASH during production fetch/decrypt!",
+      e,
+    );
     throw e;
   }
 };
@@ -498,7 +523,10 @@ const aggregateParallelMediaMessagesIfRedisEnabled = async ({
         ),
       };
     } catch (err) {
-      console.error("❌ [aggregateParallelMediaMessagesIfRedisEnabled] CRITICAL ERROR:", err);
+      console.error(
+        "❌ [aggregateParallelMediaMessagesIfRedisEnabled] CRITICAL ERROR:",
+        err,
+      );
       if (err instanceof Error) {
         console.error("Stack trace:", err.stack);
       }
@@ -536,7 +564,10 @@ const resumeFlowAndSendWhatsAppMessages = async (props: {
   }
 
   // TypeScript loses narrowing on complex inferred unions, so we enforce the exclusion
-  const successResponse = resumeResponse as Exclude<typeof resumeResponse, { status: "ignored" }>;
+  const successResponse = resumeResponse as Exclude<
+    typeof resumeResponse,
+    { status: "ignored" }
+  >;
 
   const {
     input,

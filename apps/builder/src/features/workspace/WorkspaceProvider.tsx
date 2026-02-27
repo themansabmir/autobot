@@ -128,7 +128,9 @@ export const WorkspaceProvider = ({
       return;
     // Prefer an Enterprise workspace over other plans
     const getPreferredWorkspace = () => {
-      const enterpriseWorkspace = workspaces.find((w) => w.plan === "ENTERPRISE");
+      const enterpriseWorkspace = workspaces.find(
+        (w) => w.plan === "ENTERPRISE",
+      );
       return enterpriseWorkspace ?? workspaces[0];
     };
 

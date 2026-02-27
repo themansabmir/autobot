@@ -8,9 +8,9 @@ import { getWhatsAppSessionId } from "@typebot.io/whatsapp/getWhatsAppSessionId"
 import { initiateWhatsAppFlow } from "@typebot.io/whatsapp/initiateWhatsAppFlow";
 
 import type { ConsumeMessage } from "amqplib";
+import { runAnalyticsTracker } from "./analyticsTracker";
 import { config } from "./config";
 import { closeRabbitMQ, connectRabbitMQ, type RecipientJob } from "./rabbitmq";
-import { runAnalyticsTracker } from "./analyticsTracker";
 
 // Rate limiting tracking
 let messagesSentLastMinute = 0;
@@ -119,7 +119,9 @@ const sendWhatsAppMessage = async (
     // Grab resultId directly from startSession()'s return value (via initiateWhatsAppFlow).
     // We intentionally do NOT query the ChatSession table here because it is ephemeral
     // and may be deleted at any time. The Result table is permanent and safe.
-    const resultId = startResponse.resultId ?? startResponse.newSessionState.typebotsQueue[0]?.resultId;
+    const resultId =
+      startResponse.resultId ??
+      startResponse.newSessionState.typebotsQueue[0]?.resultId;
 
     // Grab the WhatsApp message ID from the sendChatReplyToWhatsApp result.
     // This is needed so the Meta webhook handler can look up the CampaignRecipient
@@ -135,7 +137,9 @@ const sendWhatsAppMessage = async (
           ...(whatsAppMessageId ? { messageId: whatsAppMessageId } : {}),
         },
       });
-      console.log(`🔗 CampaignRecipient ${recipientId} linked → resultId: ${resultId}, messageId: ${whatsAppMessageId}`);
+      console.log(
+        `🔗 CampaignRecipient ${recipientId} linked → resultId: ${resultId}, messageId: ${whatsAppMessageId}`,
+      );
     }
 
     console.log(

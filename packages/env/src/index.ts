@@ -77,9 +77,27 @@ const baseEnv = {
       .optional()
       .transform((val) => val?.split(",")),
     DEFAULT_WORKSPACE_PLAN: z
-      .enum(["FREE", "STARTER", "PRO", "LIFETIME", "UNLIMITED", "ENTERPRISE", "OFFERED", "CUSTOM"])
+      .enum([
+        "FREE",
+        "STARTER",
+        "PRO",
+        "LIFETIME",
+        "UNLIMITED",
+        "ENTERPRISE",
+        "OFFERED",
+        "CUSTOM",
+      ])
       .refine((str) =>
-        ["FREE", "STARTER", "PRO", "LIFETIME", "UNLIMITED", "ENTERPRISE", "OFFERED", "CUSTOM"].includes(str),
+        [
+          "FREE",
+          "STARTER",
+          "PRO",
+          "LIFETIME",
+          "UNLIMITED",
+          "ENTERPRISE",
+          "OFFERED",
+          "CUSTOM",
+        ].includes(str),
       )
       .default("FREE"),
     DEBUG: boolean.optional().default("false"),

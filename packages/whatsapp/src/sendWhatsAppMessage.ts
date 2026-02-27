@@ -70,7 +70,7 @@ export const sendWhatsAppMessage = async ({
     }
   } catch (err) {
     let errorDetails = err instanceof Error ? err.message : String(err);
-    let responseBody = undefined;
+    let responseBody;
 
     // Use dynamic import for ky to avoid issues if it is not globally available in this context
     try {
@@ -79,15 +79,15 @@ export const sendWhatsAppMessage = async ({
         try {
           responseBody = await err.response.json();
           errorDetails = `HTTP ${err.response.status}: ${JSON.stringify(responseBody)}`;
-        } catch (e) {
+        } catch (_e) {
           // Fallback if not JSON
           try {
-             responseBody = await err.response.text();
-             errorDetails = `HTTP ${err.response.status}: ${responseBody}`;
-          } catch (e2) {}
+            responseBody = await err.response.text();
+            errorDetails = `HTTP ${err.response.status}: ${responseBody}`;
+          } catch (_e2) {}
         }
       }
-    } catch (e) {}
+    } catch (_e) {}
 
     console.error("❌ [WhatsApp API] Error sending message:", {
       messageType: message.type,
@@ -98,7 +98,7 @@ export const sendWhatsAppMessage = async ({
     Sentry.addBreadcrumb({
       message: JSON.stringify(message),
       category: "whatsapp",
-      data: { error: errorDetails, responseBody }
+      data: { error: errorDetails, responseBody },
     });
     throw err;
   }

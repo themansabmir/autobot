@@ -25,7 +25,9 @@ const handleCampaignAnalytics = async (
 ) => {
   console.log(`🔎 [Prisma Extension] Intercepted ${model}.${action}`);
   if (process.env.ENABLE_EVENT_DRIVEN_CAMPAIGN_ANALYTICS !== "true") {
-    console.log(`🔎 [Prisma Extension] SKIPPED: Flag is ${process.env.ENABLE_EVENT_DRIVEN_CAMPAIGN_ANALYTICS}`);
+    console.log(
+      `🔎 [Prisma Extension] SKIPPED: Flag is ${process.env.ENABLE_EVENT_DRIVEN_CAMPAIGN_ANALYTICS}`,
+    );
     return;
   }
   if (!result) return;
@@ -66,7 +68,10 @@ const handleCampaignAnalytics = async (
     }
 
     // Handle NPS answers via AnswerV2
-    if (model === "AnswerV2" && (action === "create" || action === "createMany")) {
+    if (
+      model === "AnswerV2" &&
+      (action === "create" || action === "createMany")
+    ) {
       const answers = action === "createMany" ? args.data : [result];
       if (!Array.isArray(answers)) return;
 
@@ -125,24 +130,48 @@ export const campaignAnalyticsExtension = Prisma.defineExtension((client) => {
       result: {
         async upsert({ args, query }) {
           const result = await query(args);
-          void handleCampaignAnalytics(client, "Result", "upsert", result, args);
+          void handleCampaignAnalytics(
+            client,
+            "Result",
+            "upsert",
+            result,
+            args,
+          );
           return result;
         },
         async update({ args, query }) {
           const result = await query(args);
-          void handleCampaignAnalytics(client, "Result", "update", result, args);
+          void handleCampaignAnalytics(
+            client,
+            "Result",
+            "update",
+            result,
+            args,
+          );
           return result;
         },
       },
       answerV2: {
         async create({ args, query }) {
           const result = await query(args);
-          void handleCampaignAnalytics(client, "AnswerV2", "create", result, args);
+          void handleCampaignAnalytics(
+            client,
+            "AnswerV2",
+            "create",
+            result,
+            args,
+          );
           return result;
         },
         async createMany({ args, query }) {
           const result = await query(args);
-          void handleCampaignAnalytics(client, "AnswerV2", "createMany", result, args);
+          void handleCampaignAnalytics(
+            client,
+            "AnswerV2",
+            "createMany",
+            result,
+            args,
+          );
           return result;
         },
       },

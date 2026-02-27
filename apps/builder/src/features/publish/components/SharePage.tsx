@@ -9,11 +9,11 @@ import { SquareLock01Icon } from "@typebot.io/ui/icons/SquareLock01Icon";
 import { TrashIcon } from "@typebot.io/ui/icons/TrashIcon";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { Seo } from "@/components/Seo";
 import {
   WhatsAppLogo,
   whatsAppBrandColor,
 } from "@/components/logos/WhatsAppLogo";
+import { Seo } from "@/components/Seo";
 import { UpgradeButton } from "@/features/billing/components/UpgradeButton";
 import { hasProPerks } from "@/features/billing/helpers/hasProPerks";
 import { CustomDomainsDropdown } from "@/features/customDomains/components/CustomDomainsDropdown";
@@ -52,7 +52,7 @@ export const SharePage = () => {
       router.replace(
         { pathname: router.pathname, query: restQuery },
         undefined,
-        { shallow: true }
+        { shallow: true },
       );
     }
   }, [router.query.openWhatsApp]);
