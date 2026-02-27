@@ -295,11 +295,11 @@ const NpsDistributionChart = ({
   );
 
   return (
-    <div className="rounded-xl border border-gray-6 bg-gradient-to-br from-gray-1 to-gray-2 p-6">
-      <h3 className="text-sm font-medium text-gray-11 mb-6 uppercase tracking-wider">
+    <div className="rounded-xl border border-gray-6 bg-gradient-to-br from-gray-1 to-gray-2 p-6 flex flex-col justify-between min-h-[300px] shadow-sm">
+      <h3 className="text-sm font-medium text-gray-11 mb-2 uppercase tracking-wider">
         Score Distribution ({scale.min}-{scale.max})
       </h3>
-      <div className="h-40 flex items-end gap-2 sm:gap-4">
+      <div className="flex-1 flex items-end justify-between gap-2 sm:gap-4 mt-8 px-2">
         {keys.map((score) => {
           // Coerce score to string for key lookup as distribution keys are strings
           const count =
@@ -312,32 +312,43 @@ const NpsDistributionChart = ({
               ? 10
               : ((score - scale.min) / (scale.max - scale.min)) * 10;
 
-          const colorClass =
+          // Explicit HEX to avoid Tailwind missing variable bugs
+          const colorHex =
             normalized >= 9
-              ? "bg-green-9"
+              ? "#22c55e" // green-500
               : normalized >= 7
-                ? "bg-[#f97316]"
-                : "bg-red-9";
+                ? "#f97316" // orange-500
+                : "#ef4444"; // red-500
 
           return (
             <div
               key={score}
-              className="flex-1 flex flex-col items-center gap-2 group"
+              className="flex-1 flex flex-col items-center group h-full justify-end"
             >
-              <div className="w-full relative flex-1 flex items-end bg-gray-3/50 rounded-t-sm overflow-hidden">
+              <div className="w-full max-w-[48px] relative flex-1 flex flex-col justify-end bg-gray-3 border border-gray-4 rounded-full p-1 shadow-inner overflow-visible hover:scale-105 transition-transform">
                 <div
-                  className={cn(
-                    "w-full transition-all duration-700 ease-out rounded-t-sm opacity-80 group-hover:opacity-100",
-                    colorClass,
-                  )}
-                  style={{ height: `${Math.max(heightPercent, 2)}%` }} // Min height for visibility
-                />
+                  className="w-full transition-all duration-1000 ease-out rounded-full relative shadow-sm"
+                  style={{ 
+                    height: `${Math.max(heightPercent, 5)}%`, // Minimum 5% to show pill shape
+                    backgroundColor: count > 0 ? colorHex : "#9ca3af", // gray if empty
+                    opacity: count > 0 ? 1 : 0.2 // Dim empty segments
+                  }}
+                >
+                    {/* Glossy highlight inside pill for premium feel */}
+                    <div className="absolute top-1 left-[10%] right-[10%] bg-white/30 rounded-full h-1/4 max-h-3 blur-[1px]"></div>
+                </div>
                 {/* Tooltip on hover */}
-                <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-gray-12 text-gray-1 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none">
-                  {count} votes
+                <div className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 bg-gray-12 text-gray-1 font-semibold text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20 shadow-lg pointer-events-none">
+                  <div className="flex flex-col items-center">
+                    <span className="text-[10px] text-gray-8 opacity-80 uppercase tracking-widest mb-0.5">Votes</span>
+                    <span className="text-base">{count}</span>
+                  </div>
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-solid border-t-gray-12 border-t-[6px] border-x-transparent border-x-[6px] border-b-0"></div>
                 </div>
               </div>
-              <span className="text-xs font-medium text-gray-11">{score}</span>
+              <span className="text-sm font-semibold text-gray-11 mt-4 tabular-nums">
+                {score}
+              </span>
             </div>
           );
         })}
@@ -353,12 +364,17 @@ const NpsTrendChart = ({
 }) => {
   if (!trend || trend.length === 0) {
     return (
-      <div className="rounded-xl border border-gray-6 bg-gradient-to-br from-gray-1 to-gray-2 p-6 flex flex-col items-center justify-center min-h-[300px] text-gray-10 text-sm">
-        <span className="bg-gray-4 p-3 rounded-full mb-3 text-2xl">📉</span>
-        <p>Not enough data for trend</p>
+      <div className="rounded-xl border border-gray-6 bg-gradient-to-br from-gray-1 to-gray-2 p-6 flex flex-col items-center justify-center min-h-[300px] text-gray-10 text-sm shadow-sm">
+        <span className="bg-gray-4 p-4 rounded-full mb-4 text-3xl">📉</span>
+        <p className="font-medium text-gray-11">Not enough data to generate trend</p>
       </div>
     );
   }
+
+  // Artificial padding for single data point
+  const renderData = trend.length === 1 
+    ? [{ date: "Start", score: trend[0].score }, { date: trend[0].date, score: trend[0].score }] 
+    : trend;
 
   // Chart dimensions
   const width = 300;
@@ -368,16 +384,9 @@ const NpsTrendChart = ({
   // Scales
   const minScore = -100;
   const maxScore = 100;
-  const dates = trend.map((t) => new Date(t.date).getTime());
-  const minDate = Math.min(...dates);
-  const maxDate = Math.max(...dates);
 
-  const getX = (dateStr: string) => {
-    const d = new Date(dateStr).getTime();
-    if (maxDate === minDate) return width / 2;
-    return (
-      padding + ((d - minDate) / (maxDate - minDate)) * (width - 2 * padding)
-    );
+  const getX = (index: number) => {
+    return padding + (index / (renderData.length - 1)) * (width - 2 * padding);
   };
 
   const getY = (score: number) => {
@@ -389,63 +398,79 @@ const NpsTrendChart = ({
   };
 
   // Generate Path
-  // If only 1 point, path is empty, logic handles points separately
-  const points =
-    trend.length > 1
-      ? trend.map((t) => `${getX(t.date)},${getY(t.score)}`).join(" ")
-      : "";
+  const points = renderData.map((t, i) => `${getX(i)},${getY(t.score)}`).join(" ");
+  const areaPoints = `${getX(0)},${height - padding} ${points} ${getX(renderData.length - 1)},${height - padding}`;
 
   return (
-    <div className="rounded-xl border border-gray-6 bg-gradient-to-br from-gray-1 to-gray-2 p-6 flex flex-col min-h-[300px]">
-      <h3 className="text-sm font-medium text-gray-11 mb-6 uppercase tracking-wider">
-        NPS Trend
+    <div className="rounded-xl border border-gray-6 bg-gradient-to-br from-gray-1 to-gray-2 p-6 flex flex-col justify-between min-h-[300px] shadow-sm">
+      <h3 className="text-sm font-medium text-gray-11 mb-2 uppercase tracking-wider">
+        NPS Trend ({renderData.length === 2 && renderData[0].date === "Start" ? "Latest" : "Over Time"})
       </h3>
 
-      <div className="flex-1 flex items-center justify-center w-full">
+      <div className="flex-1 flex items-center justify-center w-full relative mt-4">
         <svg
           viewBox={`0 0 ${width} ${height}`}
           className="w-full h-full overflow-visible"
         >
+          <defs>
+            <linearGradient id="trendGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.4}/>
+              <stop offset="100%" stopColor="#3b82f6" stopOpacity={0}/>
+            </linearGradient>
+            <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+          </defs>
+
           {/* Zero Line */}
           <line
             x1={padding}
             y1={getY(0)}
             x2={width - padding}
             y2={getY(0)}
-            stroke="currentColor"
-            className="text-gray-6"
+            stroke="#9ca3af" // explicitly gray
+            strokeWidth="1.5"
             strokeDasharray="4 4"
+            opacity="0.6"
           />
 
-          {/* Data Line (only if > 1 point) */}
-          {trend.length > 1 && (
-            <polyline
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              points={points}
-              className="text-[#3b82f6]"
-            />
-          )}
+          {/* Area Fill */}
+          <polygon points={areaPoints} fill="url(#trendGradient)" className="transition-all duration-1000 ease-out" />
+
+          {/* Data Line */}
+          <polyline
+            fill="none"
+            stroke="#3b82f6"
+            strokeWidth="3.5"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            points={points}
+            filter="url(#glow)"
+            className="transition-all duration-1000 ease-out"
+          />
 
           {/* Data Points */}
-          {trend.map((t, i) => (
-            <circle
-              key={i}
-              cx={getX(t.date)}
-              cy={getY(t.score)}
-              r="3"
-              className={cn(
-                "fill-current transition-all hover:r-4",
-                t.score > 0 ? "text-[#3b82f6]" : "text-red-9",
-              )}
-            />
+          {renderData.map((t, i) => (
+            <g key={i}>
+              <circle
+                cx={getX(i)}
+                cy={getY(t.score)}
+                r="6"
+                fill="#ffffff"
+                stroke={t.score >= 0 ? "#3b82f6" : "#ef4444"}
+                strokeWidth="2.5"
+                className="transition-all duration-300 hover:r-[8px] cursor-pointer"
+              />
+              <title>{t.date !== "Start" ? t.date : "Current"}: {t.score}</title>
+            </g>
           ))}
         </svg>
       </div>
-      <div className="flex justify-between text-xs text-gray-10 mt-2">
-        <span>{trend[0].date}</span>
-        <span>{trend[trend.length - 1].date}</span>
+
+      <div className="flex justify-between text-xs text-gray-10 font-bold tracking-wide mt-6 uppercase items-end">
+        <span>{renderData[0].date === "Start" ? "N/A" : renderData[0].date}</span>
+        <span>{renderData[renderData.length - 1].date}</span>
       </div>
     </div>
   );

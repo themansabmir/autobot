@@ -110,6 +110,7 @@ const baseEnv = {
       guessLandingUrlForVercelPreview,
       z.string().url().optional(),
     ),
+    ENABLE_EVENT_DRIVEN_CAMPAIGN_ANALYTICS: boolean.optional().default("false"),
   },
   client: {
     NEXT_PUBLIC_VIEWER_URL: z.preprocess(
