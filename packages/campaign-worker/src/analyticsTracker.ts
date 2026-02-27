@@ -1,4 +1,5 @@
 import { CampaignStatus, RecipientStatus } from "@prisma/client";
+import { env } from "@typebot.io/env";
 import prisma from "@typebot.io/prisma";
 import { config } from "./config";
 
@@ -190,6 +191,9 @@ export const runAnalyticsTracker = async () => {
 
   const poll = async () => {
     try {
+      if (env.ENABLE_EVENT_DRIVEN_CAMPAIGN_ANALYTICS) {
+        return; // Skip polling when event-driven analytics is active
+      }
       await trackStartedRecipients();
       await trackCompletedRecipients();
       await trackNpsScores();
