@@ -2,11 +2,11 @@ import type { Block } from "@typebot.io/blocks-core/schemas/schema";
 import { defaultChoiceInputOptions } from "@typebot.io/blocks-inputs/choice/constants";
 import { InputBlockType } from "@typebot.io/blocks-inputs/constants";
 import { defaultPictureChoiceOptions } from "@typebot.io/blocks-inputs/pictureChoice/constants";
-import { matchesBlockType } from "@typebot.io/i18n";
 import type { SessionStore } from "@typebot.io/runtime-session-store";
 import { parseVariables } from "@typebot.io/variables/parseVariables";
 import type { Variable } from "@typebot.io/variables/schemas";
 import type { SkipReply, SuccessReply } from "./types";
+import { matchesBlockType } from "@typebot.io/i18n";
 
 export const getReplyOutgoingEdge = (
   reply: SuccessReply | SkipReply | undefined,
@@ -20,9 +20,8 @@ export const getReplyOutgoingEdge = (
     sessionStore: SessionStore;
   },
 ): { id: string; isOffDefaultPath: boolean } | undefined => {
-  const successReply =
-    reply?.status === "success" ? (reply as SuccessReply) : undefined;
-
+  const successReply = reply?.status === "success" ? (reply as SuccessReply) : undefined;
+  
   if (!successReply)
     return block.outgoingEdgeId
       ? { id: block.outgoingEdgeId, isOffDefaultPath: false }

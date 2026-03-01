@@ -9,7 +9,7 @@ import { parseGuessedValueType } from "./parseGuessedValueType";
 import { parseVariables } from "./parseVariables";
 import type { Variable } from "./schemas";
 
-const defaultTimeout = 5 * 1000;
+const defaultTimeout = 10 * 1000;
 
 type Props = {
   variables: Variable[];

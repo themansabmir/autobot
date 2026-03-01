@@ -521,8 +521,7 @@ export const convertInputToWhatsAppMessages = async ({
       const items = carouselInput.items as any[];
 
       // Use the last message text as body text if available, otherwise use options or default
-      const bodyText =
-        lastMessageText || options?.bodyText || "Choose an option below:";
+      const bodyText = lastMessageText || options?.bodyText || "Choose an option below:";
 
       if (items.length < 2) {
         console.log("⚠️ [WhatsApp Carousel] Insufficient cards:", {

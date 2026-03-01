@@ -136,18 +136,14 @@ export const translateBatch = async (
     const source = sourceLang ? normalizeLanguageCode(sourceLang) : undefined;
 
     const textsToTranslate = nonEmptyTexts.map((t) => t.protectedText);
-    console.log(
-      `[i18n] Calling Google Translate for ${textsToTranslate.length} items to ${targetLang}`,
-    );
-
+    console.log(`[i18n] Calling Google Translate for ${textsToTranslate.length} items to ${targetLang}`);
+    
     const [translations] = await translate.translate(textsToTranslate, {
       to: target,
       from: source,
     });
 
-    console.log(
-      `[i18n] Google Translate returned ${Array.isArray(translations) ? translations.length : 1} results`,
-    );
+    console.log(`[i18n] Google Translate returned ${Array.isArray(translations) ? translations.length : 1} results`);
 
     const translatedTexts = [...texts];
     const resultsArray = Array.isArray(translations)

@@ -75,9 +75,9 @@ export const deleteSessionStore = (sessionId: string | undefined): void => {
 };
 
 // In theory we always remove the session stores once it was used but in case we forget somewhere, we run this cleanup every 30 minutes at most
-const cleanupOldSessionStores = (maxAgeHours = 1) => {
+const cleanupOldSessionStores = (maxAgeDays = 3) => {
   const now = new Date();
-  const maxAgeMs = maxAgeHours * 60 * 60 * 1000;
+  const maxAgeMs = maxAgeDays * 24 * 60 * 60 * 1000;
 
   for (const [sessionId, store] of sessionStores.entries()) {
     const storeAge = now.getTime() - store.getCreatedAt().getTime();

@@ -5,11 +5,11 @@ import { config } from "./config";
 
 /**
  * --- Phase 2: Decoupled Campaign Analytics Architecture ---
- *
- * This module runs as a background worker. Instead of hooking directly into
- * the core Bot Engine (like `resumeWhatsAppFlow` or `saveStateToDatabase`),
+ * 
+ * This module runs as a background worker. Instead of hooking directly into 
+ * the core Bot Engine (like `resumeWhatsAppFlow` or `saveStateToDatabase`), 
  * which causes session conflicts and stalls, this module passively tracks analytics.
- *
+ * 
  * How it works:
  * 1. `main.ts` creates a CampaignRecipient with a `resultId` when a message is sent.
  * 2. This tracker polls the permanent `Result` table using that `resultId`.
@@ -46,7 +46,7 @@ const trackStartedRecipients = async () => {
       // as COMPLETED once all messages are SENT, but users may still be mid-flow.
       campaign: {
         status: { in: [CampaignStatus.RUNNING, CampaignStatus.COMPLETED] },
-      },
+      }
     },
     take: 100, // Process in batches
     select: { id: true, resultId: true, phoneNumber: true },
@@ -67,9 +67,7 @@ const trackStartedRecipients = async () => {
         where: { id: recipient.id },
         data: { startedAt: new Date() }, // Or ideally use the first answer's timestamp if needed, but new Date() works for polling
       });
-      console.log(
-        `📈 Analytics: Recipient ${recipient.phoneNumber} STARTED flow.`,
-      );
+      console.log(`📈 Analytics: Recipient ${recipient.phoneNumber} STARTED flow.`);
     }
   }
 };
@@ -84,7 +82,7 @@ const trackCompletedRecipients = async () => {
       // Include COMPLETED campaigns too — same reason as trackStartedRecipients.
       campaign: {
         status: { in: [CampaignStatus.RUNNING, CampaignStatus.COMPLETED] },
-      },
+      }
     },
     take: 100,
     select: { id: true, resultId: true, phoneNumber: true },
@@ -108,9 +106,7 @@ const trackCompletedRecipients = async () => {
           status: RecipientStatus.COMPLETED,
         },
       });
-      console.log(
-        `✅ Analytics: Recipient ${recipient.phoneNumber} COMPLETED flow.`,
-      );
+      console.log(`✅ Analytics: Recipient ${recipient.phoneNumber} COMPLETED flow.`);
     }
   }
 };
@@ -134,12 +130,12 @@ const trackNpsScores = async () => {
             select: {
               groups: true,
               publishedTypebot: {
-                select: { groups: true },
-              },
-            },
-          },
-        },
-      },
+                select: { groups: true }
+              }
+            }
+          }
+        }
+      }
     },
   });
 
@@ -178,16 +174,14 @@ const trackNpsScores = async () => {
             npsRespondedAt: answer.createdAt,
           },
         });
-        console.log(
-          `📊 Analytics: Recipient ${recipient.phoneNumber} gave NPS ${score}.`,
-        );
+        console.log(`📊 Analytics: Recipient ${recipient.phoneNumber} gave NPS ${score}.`);
       }
     } else {
-      // Mark as checked so we don't infinitely poll if they completed but skipped NPS block
-      await prisma.campaignRecipient.update({
-        where: { id: recipient.id },
-        data: { npsRespondedAt: new Date() },
-      });
+       // Mark as checked so we don't infinitely poll if they completed but skipped NPS block
+       await prisma.campaignRecipient.update({
+         where: { id: recipient.id },
+         data: { npsRespondedAt: new Date() },
+       });
     }
   }
 };

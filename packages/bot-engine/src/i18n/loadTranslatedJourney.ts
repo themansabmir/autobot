@@ -33,10 +33,8 @@ export const loadTranslatedJourney = async (
   }
 
   try {
-    console.log(
-      `[i18n] Loading journey for bot ${botId}, language ${language}...`,
-    );
-
+    console.log(`[i18n] Loading journey for bot ${botId}, language ${language}...`);
+    
     // Try to get from cache first
     const cached = await getFromCache<TypebotInSession>(botId, language);
     if (cached) {
@@ -57,15 +55,10 @@ export const loadTranslatedJourney = async (
       return translatedJourney;
     }
 
-    console.log(
-      `[i18n] Database MISS for ${language}, returning default journey`,
-    );
+    console.log(`[i18n] Database MISS for ${language}, returning default journey`);
     return defaultTypebot;
   } catch (error) {
-    console.error(
-      `[i18n] Failed to load translated journey for ${language}:`,
-      error,
-    );
+    console.error(`[i18n] Failed to load translated journey for ${language}:`, error);
     return defaultTypebot;
   }
 };

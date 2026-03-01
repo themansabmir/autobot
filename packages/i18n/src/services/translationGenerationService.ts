@@ -10,10 +10,7 @@
 
 import type { Typebot } from "@typebot.io/typebot/schemas/typebot";
 import { invalidateCache, setInCache } from "../cache/translationCache";
-import {
-  extractAsMap,
-  matchesBlockType,
-} from "../extraction/extractTranslatableContent";
+import { extractAsMap, matchesBlockType } from "../extraction/extractTranslatableContent";
 import {
   deleteTranslatedJourney,
   listTranslations,
@@ -48,9 +45,7 @@ const applyTranslations = (
       successCount++;
       // Log samples of successful sets
       if (successCount % 5 === 0) {
-        console.log(
-          `[i18n] Set translated value at ${path}: "${(value as string).substring(0, 20)}..."`,
-        );
+        console.log(`[i18n] Set translated value at ${path}: "${(value as string).substring(0, 20)}..."`);
       }
     } else {
       failCount++;
@@ -69,7 +64,7 @@ const applyTranslations = (
 };
 
 /**
- * Ensures that blocks with items (choice, cards, picture choice) have their
+ * Ensures that blocks with items (choice, cards, picture choice) have their 
  * original text content preserved in their 'value' or 'internalValue' fields.
  * This should be called on the base typebot clone BEFORE applying translations.
  */
@@ -83,8 +78,8 @@ const preserveOriginalValuesForLogic = (typebot: any): void => {
       // Choice / Picture Choice blocks
       if (
         Array.isArray(block.items) &&
-        (matchesBlockType(block.type, "choice input") ||
-          matchesBlockType(block.type, "picture choice input"))
+        (matchesBlockType(block.type, "choice input") || 
+         matchesBlockType(block.type, "picture choice input"))
       ) {
         block.items.forEach((item: any) => {
           if (!item.options) item.options = {};
@@ -288,7 +283,7 @@ export const generateTranslationForLanguage = async (
     });
 
     // SAMPLE LOG
-    const _samples = Object.entries(translatedMap).slice(0, 3);
+    const samples = Object.entries(translatedMap).slice(0, 3);
     // console.log(`[i18n] Translation SUCCESS for ${targetLanguage}. Samples:`, JSON.stringify(samples, null, 2));
 
     // Apply translations to create translated typebot
@@ -390,9 +385,7 @@ export const syncTranslations = async (
   */
 
   if (runningSyncs.has(typebot.id)) {
-    console.log(
-      `[i18n] Sync ALREADY IN PROGRESS for bot ${typebot.id}, skipping new request.`,
-    );
+    console.log(`[i18n] Sync ALREADY IN PROGRESS for bot ${typebot.id}, skipping new request.`);
     return [];
   }
 
@@ -418,17 +411,14 @@ export const syncTranslations = async (
         await deleteTranslatedJourney(typebot.id, language);
         await invalidateCache(typebot.id, language);
       } catch (error) {
-        console.log(
-          `[i18n] Failed to remove translation for ${language}:`,
-          error,
-        );
+        console.log(`[i18n] Failed to remove translation for ${language}:`, error);
       }
     }
 
     // Always regenerate all enabled languages to reflect any content changes
     if (enabledLanguages.length > 0) {
       console.log("DEBUG: Regenerating all translations", enabledLanguages);
-
+      
       // Invalidate cache for all enabled languages first to ensure freshness
       for (const language of enabledLanguages) {
         await invalidateCache(typebot.id, language);

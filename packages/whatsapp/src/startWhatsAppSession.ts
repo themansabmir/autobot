@@ -77,8 +77,8 @@ export const startWhatsAppSession = async ({
 
   const matchedBot = botsWithWhatsAppEnabled.find(
     (publicTypebot) =>
-      (publicTypebot.settings.whatsApp?.startCondition?.comparisons.length ??
-        0) > 0 &&
+      (publicTypebot.settings.whatsApp?.startCondition?.comparisons
+        .length ?? 0) > 0 &&
       messageMatchStartCondition(
         incomingMessage ?? { type: "text", text: "" },
         publicTypebot.settings.whatsApp?.startCondition,
@@ -94,12 +94,11 @@ export const startWhatsAppSession = async ({
     : (matchedBot ?? catchAllBot);
 
   console.log("🐛 [DEBUG startWhatsAppSession] matching logic:", {
-    incomingMessageText:
-      incomingMessage?.type === "text" ? incomingMessage.text : "non-text",
+    incomingMessageText: incomingMessage?.type === 'text' ? incomingMessage.text : 'non-text',
     numBots: botsWithWhatsAppEnabled.length,
     foundMatchedBotId: matchedBot?.typebot?.id,
     foundCatchAllBotId: catchAllBot?.typebot?.id,
-    finalPickedBotId: publicTypebot?.typebot?.id,
+    finalPickedBotId: publicTypebot?.typebot?.id
   });
 
   if (isNotDefined(publicTypebot)) {
@@ -120,13 +119,10 @@ export const startWhatsAppSession = async ({
       },
       orderBy: { createdAt: "desc" },
     });
-
+    
     if (recentRecipient && recentRecipient.status === "COMPLETED") {
-      console.log(
-        "ℹ️ [startWhatsAppSession] Ignoring message because user recently completed this catch-all bot.",
-        { phoneNumber: contact.phoneNumber },
-      );
-      return { status: "ignored" as const };
+       console.log("ℹ️ [startWhatsAppSession] Ignoring message because user recently completed this catch-all bot.", { phoneNumber: contact.phoneNumber });
+       return { status: "ignored" as const };
     }
   }
 

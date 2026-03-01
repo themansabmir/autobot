@@ -46,10 +46,7 @@ export const normalizeLanguageCode = (lang: string): string => {
  * Helper function to match block types in a case-insensitive and format-agnostic way
  * Handles variations like: "whatsapp carousel", "whatsapp-carousel", "WHATSAPP_CAROUSEL", "whatsappCarousel"
  */
-export const matchesBlockType = (
-  blockType: string,
-  targetType: string,
-): boolean => {
+export const matchesBlockType = (blockType: string, targetType: string): boolean => {
   // Normalize: lowercase, replace spaces and underscores with hyphens
   const normalized = blockType.toLowerCase().replace(/[\s_]/g, "-");
   const targetNormalized = targetType.toLowerCase().replace(/[\s_]/g, "-");
@@ -174,7 +171,7 @@ const extractFromButtonItems = (
 
   items.forEach((item, itemIndex) => {
     const itemObj = item as Record<string, unknown>;
-
+    
     // Choice items
     if (typeof itemObj.content === "string" && itemObj.content.trim()) {
       translatableItems.push({
@@ -389,10 +386,10 @@ const extractFromRatingBlock = (
 ): TranslatableItem[] => {
   const items: TranslatableItem[] = [];
   const basePath = `groups.${groupIndex}.blocks.${blockIndex}`;
-
+  
   const options = block.options as Record<string, unknown> | undefined;
   if (!options) return items;
-
+  
   // Button label
   if (typeof options.buttonLabel === "string" && options.buttonLabel.trim()) {
     items.push({
@@ -401,7 +398,7 @@ const extractFromRatingBlock = (
       type: "label",
     });
   }
-
+  
   // Labels object (left, right, button, etc.)
   const labels = options.labels as Record<string, unknown> | undefined;
   if (labels && typeof labels === "object") {
@@ -415,7 +412,7 @@ const extractFromRatingBlock = (
       }
     });
   }
-
+  
   return items;
 };
 
@@ -430,15 +427,12 @@ const extractFromCtaUrlBlock = (
   const items: TranslatableItem[] = [];
   const basePath = `groups.${groupIndex}.blocks.${blockIndex}.options`;
   const options = block.options as Record<string, unknown> | undefined;
-
+  
   if (!options) return items;
 
   const fields = ["headerText", "bodyText", "footerText", "displayText"];
-  fields.forEach((field) => {
-    if (
-      typeof options[field] === "string" &&
-      (options[field] as string).trim()
-    ) {
+  fields.forEach(field => {
+    if (typeof options[field] === "string" && (options[field] as string).trim()) {
       items.push({
         path: `${basePath}.${field}`,
         text: options[field] as string,
@@ -555,66 +549,39 @@ export const extractTranslatableContent = (
 
       // Text bubble blocks
       if (matchesBlockType(blockType, "text")) {
-        const extracted = extractFromTextBubble(
-          blockObj,
-          groupIndex,
-          blockIndex,
-        );
+        const extracted = extractFromTextBubble(blockObj, groupIndex, blockIndex);
         items.push(...extracted);
       }
 
       // Card blocks
       if (matchesBlockType(blockType, "cards")) {
         if (Array.isArray(blockObj.items)) {
-          const extracted = extractFromCardItems(
-            blockObj.items,
-            groupIndex,
-            blockIndex,
-          );
+          const extracted = extractFromCardItems(blockObj.items, groupIndex, blockIndex);
           items.push(...extracted);
         }
       }
 
       // WhatsApp Carousel
       if (matchesBlockType(blockType, "whatsapp-carousel")) {
-        const extracted = extractFromWhatsAppCarousel(
-          blockObj,
-          groupIndex,
-          blockIndex,
-        );
+        const extracted = extractFromWhatsAppCarousel(blockObj, groupIndex, blockIndex);
         items.push(...extracted);
       }
 
       // WhatsApp List
       if (matchesBlockType(blockType, "whatsapp-list")) {
-        const extracted = extractFromWhatsAppList(
-          blockObj,
-          groupIndex,
-          blockIndex,
-        );
+        const extracted = extractFromWhatsAppList(blockObj, groupIndex, blockIndex);
         items.push(...extracted);
       }
 
       // NPS/Rating blocks
-      if (
-        matchesBlockType(blockType, "rating") ||
-        matchesBlockType(blockType, "nps")
-      ) {
-        const extracted = extractFromRatingBlock(
-          blockObj,
-          groupIndex,
-          blockIndex,
-        );
+      if (matchesBlockType(blockType, "rating") || matchesBlockType(blockType, "nps")) {
+        const extracted = extractFromRatingBlock(blockObj, groupIndex, blockIndex);
         items.push(...extracted);
       }
 
       // CTA URL block
       if (matchesBlockType(blockType, "cta-url")) {
-        const extracted = extractFromCtaUrlBlock(
-          blockObj,
-          groupIndex,
-          blockIndex,
-        );
+        const extracted = extractFromCtaUrlBlock(blockObj, groupIndex, blockIndex);
         items.push(...extracted);
       }
 
