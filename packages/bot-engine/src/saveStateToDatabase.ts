@@ -82,7 +82,7 @@ export const saveStateToDatabase = async ({
       resultId,
       typebot: state.typebotsQueue[0].typebot,
       isCompleted: Boolean(
-        !input && !containsSetVariableClientSideAction && answers.length > 0,
+        !input && !containsSetVariableClientSideAction && (answers.length > 0 || visitedEdges.length > 0),
       ),
       hasStarted: answers.length > 0,
       lastChatSessionId: session.id,

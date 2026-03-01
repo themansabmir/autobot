@@ -93,6 +93,6 @@ export const upsertResult = ({
       setVariableHistory: setVariableHistoryToCreate,
       edges: visitedEdgesToCreate,
     },
-    select: { id: true },
+    select: { id: true, isCompleted: true, hasStarted: true },
   });
 };
