@@ -287,8 +287,8 @@ const NpsDistributionChart = ({
   distribution: Record<string, number>;
   scale?: { min: number; max: number };
 }) => {
-  // Find max value for scaling
-  const maxVal = Math.max(...Object.values(distribution || {}), 0);
+  // Find max value for scaling (min ceiling of 10 so early votes don't immediately jump to 100% height)
+  const maxVal = Math.max(...Object.values(distribution || {}).map(Number), 10);
   const keys = Array.from(
     { length: scale.max - scale.min + 1 },
     (_, i) => i + scale.min,
@@ -299,12 +299,13 @@ const NpsDistributionChart = ({
       <h3 className="text-sm font-medium text-gray-11 mb-2 uppercase tracking-wider">
         Score Distribution ({scale.min}-{scale.max})
       </h3>
-      <div className="flex-1 flex items-end justify-between gap-2 sm:gap-4 mt-8 px-2">
+      <div className="flex-1 flex items-stretch justify-between gap-2 sm:gap-4 mt-8 px-2">
         {keys.map((score) => {
           // Coerce score to string for key lookup as distribution keys are strings
-          const count =
-            distribution?.[score.toString()] || distribution?.[score] || 0;
+          const rawCount = distribution?.[score.toString()] ?? distribution?.[score] ?? 0;
+          const count = Number(rawCount) || 0;
           const heightPercent = maxVal > 0 ? (count / maxVal) * 100 : 0;
+          const safeHeight = isNaN(heightPercent) ? 0 : heightPercent;
 
           // Normalize score to 0-10 for coloring
           const normalized =
@@ -323,13 +324,13 @@ const NpsDistributionChart = ({
           return (
             <div
               key={score}
-              className="flex-1 flex flex-col items-center group h-full justify-end"
+              className="flex-1 flex flex-col items-center group h-full justify-end relative"
             >
               <div className="w-full max-w-[48px] relative flex-1 flex flex-col justify-end bg-gray-3 border border-gray-4 rounded-full p-1 shadow-inner overflow-visible hover:scale-105 transition-transform">
                 <div
                   className="w-full transition-all duration-1000 ease-out rounded-full relative shadow-sm"
                   style={{ 
-                    height: `${Math.max(heightPercent, 5)}%`, // Minimum 5% to show pill shape
+                    height: `${Math.max(safeHeight, 5)}%`, // Minimum 5% to show pill shape
                     backgroundColor: count > 0 ? colorHex : "#9ca3af", // gray if empty
                     opacity: count > 0 ? 1 : 0.2 // Dim empty segments
                   }}
@@ -371,46 +372,56 @@ const NpsTrendChart = ({
     );
   }
 
-  // Artificial padding for single data point
-  const renderData = trend.length === 1 
-    ? [{ date: "Start", score: trend[0].score }, { date: trend[0].date, score: trend[0].score }] 
-    : trend;
+  const hasOnePoint = trend.length === 1;
 
-  // Chart dimensions
-  const width = 300;
-  const height = 150;
-  const padding = 20;
+  // Chart dimensions configured for a standard 2:1 aspect ratio with room for axes
+  const width = 500;
+  const height = 250;
+  const paddingLeft = 45;
+  const paddingRight = 20;
+  const paddingTop = 20;
+  const paddingBottom = 25; // extra space for X axis labels
 
-  // Scales
   const minScore = -100;
   const maxScore = 100;
 
+  const drawWidth = width - paddingLeft - paddingRight;
+  const drawHeight = height - paddingTop - paddingBottom;
+
   const getX = (index: number) => {
-    return padding + (index / (renderData.length - 1)) * (width - 2 * padding);
+    if (hasOnePoint) return paddingLeft + drawWidth / 2;
+    return paddingLeft + (index / (trend.length - 1)) * drawWidth;
   };
 
   const getY = (score: number) => {
-    return (
-      height -
-      padding -
-      ((score - minScore) / (maxScore - minScore)) * (height - 2 * padding)
-    );
+    return paddingTop + (1 - (score - minScore) / (maxScore - minScore)) * drawHeight;
   };
 
   // Generate Path
-  const points = renderData.map((t, i) => `${getX(i)},${getY(t.score)}`).join(" ");
-  const areaPoints = `${getX(0)},${height - padding} ${points} ${getX(renderData.length - 1)},${height - padding}`;
+  // If only 1 point, we still draw a straight horizontal line across the screen to look like a baseline layer
+  const pathData = hasOnePoint
+    ? [
+        { x: paddingLeft, y: getY(trend[0].score) },
+        { x: width - paddingRight, y: getY(trend[0].score) },
+      ]
+    : trend.map((t, i) => ({ x: getX(i), y: getY(t.score) }));
+
+  const points = pathData.map((p) => `${p.x},${p.y}`).join(" ");
+  const areaPoints = `${pathData[0].x},${paddingTop + drawHeight} ${points} ${pathData[pathData.length - 1].x},${paddingTop + drawHeight}`;
 
   return (
     <div className="rounded-xl border border-gray-6 bg-gradient-to-br from-gray-1 to-gray-2 p-6 flex flex-col justify-between min-h-[300px] shadow-sm">
-      <h3 className="text-sm font-medium text-gray-11 mb-2 uppercase tracking-wider">
-        NPS Trend ({renderData.length === 2 && renderData[0].date === "Start" ? "Latest" : "Over Time"})
-      </h3>
+      <div className="mb-2">
+        <h3 className="text-sm font-medium text-gray-11 uppercase tracking-wider">
+          NPS Trend
+        </h3>
+        <p className="text-[11px] text-gray-9 mt-1 uppercase tracking-widest font-medium">Score over time (Scale: -100 to +100)</p>
+      </div>
 
       <div className="flex-1 flex items-center justify-center w-full relative mt-4">
         <svg
           viewBox={`0 0 ${width} ${height}`}
-          className="w-full h-full overflow-visible"
+          className="w-full h-auto overflow-visible"
         >
           <defs>
             <linearGradient id="trendGradient" x1="0" y1="0" x2="0" y2="1">
@@ -423,17 +434,34 @@ const NpsTrendChart = ({
             </filter>
           </defs>
 
-          {/* Zero Line */}
-          <line
-            x1={padding}
-            y1={getY(0)}
-            x2={width - padding}
-            y2={getY(0)}
-            stroke="#9ca3af" // explicitly gray
-            strokeWidth="1.5"
-            strokeDasharray="4 4"
-            opacity="0.6"
-          />
+          {/* Grid lines & Y Axis Labels */}
+          {[100, 0, -100].map((score) => (
+            <g key={score}>
+              {/* Subtle background grid line */}
+              <line
+                x1={paddingLeft}
+                y1={getY(score)}
+                x2={width - paddingRight}
+                y2={getY(score)}
+                stroke={score === 0 ? "#9ca3af" : "#d1d5db"} // explicitly gray
+                strokeWidth={score === 0 ? "1.5" : "1"}
+                strokeDasharray={score === 0 ? "4 4" : "0"}
+                opacity={score === 0 ? "0.6" : "0.3"}
+              />
+              {/* Y Axis text */}
+              <text
+                x={paddingLeft - 8}
+                y={getY(score)}
+                fill="#9ca3af"
+                fontSize="11"
+                fontWeight="600"
+                textAnchor="end"
+                alignmentBaseline="middle"
+              >
+                {score > 0 ? `+${score}` : score}
+              </text>
+            </g>
+          ))}
 
           {/* Area Fill */}
           <polygon points={areaPoints} fill="url(#trendGradient)" className="transition-all duration-1000 ease-out" />
@@ -451,26 +479,41 @@ const NpsTrendChart = ({
           />
 
           {/* Data Points */}
-          {renderData.map((t, i) => (
-            <g key={i}>
-              <circle
-                cx={getX(i)}
-                cy={getY(t.score)}
-                r="6"
-                fill="#ffffff"
-                stroke={t.score >= 0 ? "#3b82f6" : "#ef4444"}
-                strokeWidth="2.5"
-                className="transition-all duration-300 hover:r-[8px] cursor-pointer"
-              />
-              <title>{t.date !== "Start" ? t.date : "Current"}: {t.score}</title>
-            </g>
-          ))}
-        </svg>
-      </div>
+          {(hasOnePoint ? [trend[0]] : trend).map((t, i) => {
+            const cx = hasOnePoint ? paddingLeft + drawWidth / 2 : getX(i);
+            return (
+              <g key={i}>
+                <circle
+                  cx={cx}
+                  cy={getY(t.score)}
+                  r="6"
+                  fill="#ffffff"
+                  stroke={t.score >= 0 ? "#3b82f6" : "#ef4444"}
+                  strokeWidth="2.5"
+                  className="transition-transform duration-300 hover:scale-[1.3] origin-center cursor-pointer"
+                  style={{ transformOrigin: `${cx}px ${getY(t.score)}px` }}
+                />
+                <title>{t.date}: {t.score}</title>
+              </g>
+            );
+          })}
 
-      <div className="flex justify-between text-xs text-gray-10 font-bold tracking-wide mt-6 uppercase items-end">
-        <span>{renderData[0].date === "Start" ? "N/A" : renderData[0].date}</span>
-        <span>{renderData[renderData.length - 1].date}</span>
+          {/* X Axis Date Labels */}
+          {hasOnePoint ? (
+            <text x={paddingLeft + drawWidth / 2} y={height} fill="#9ca3af" fontSize="10" fontWeight="600" textAnchor="middle" className="uppercase tracking-widest">
+              First Response on {trend[0].date}
+            </text>
+          ) : (
+            <>
+              <text x={paddingLeft} y={height} fill="#9ca3af" fontSize="10" fontWeight="600" textAnchor="start" className="uppercase tracking-widest">
+                {trend[0].date}
+              </text>
+              <text x={width - paddingRight} y={height} fill="#9ca3af" fontSize="10" fontWeight="600" textAnchor="end" className="uppercase tracking-widest">
+                {trend[trend.length - 1].date}
+              </text>
+            </>
+          )}
+        </svg>
       </div>
     </div>
   );
@@ -607,8 +650,9 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
           <div className="mt-2 flex items-center gap-2">
             <div className="h-1.5 flex-1 bg-gray-4 rounded-full overflow-hidden">
               <div
-                className="h-full bg-purple-9 rounded-full"
+                className="h-full rounded-full"
                 style={{
+                  backgroundColor: "#a855f7", // purple-500
                   width: `${analytics.sent > 0 ? (analytics.delivered / analytics.sent) * 100 : 0}%`,
                 }}
               />
@@ -627,8 +671,9 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
           <div className="mt-2 flex items-center gap-2">
             <div className="h-1.5 flex-1 bg-gray-4 rounded-full overflow-hidden">
               <div
-                className="h-full bg-orange-9 rounded-full"
+                className="h-full rounded-full"
                 style={{
+                  backgroundColor: "#f59e0b", // amber-500
                   width: `${analytics.delivered > 0 ? (analytics.opened / analytics.delivered) * 100 : 0}%`,
                 }}
               />
@@ -637,24 +682,25 @@ export const CampaignAnalyticsPage = ({ workspaceId, campaignId }: Props) => {
           <p className="text-xs text-gray-10 mt-2">Opened / Delivered</p>
         </div>
         <div className="rounded-xl border border-gray-6 bg-gradient-to-br from-gray-1 to-gray-2 p-6 transition-all hover:shadow-lg hover:border-gray-7">
-          <p className="text-sm font-medium text-gray-11">Completion Rate</p>
+          <p className="text-sm font-medium text-gray-11">Overall Completion</p>
           <p className="text-4xl font-bold text-gray-12 mt-2">
-            {analytics.started > 0
-              ? ((analytics.completed / analytics.started) * 100).toFixed(1)
+            {analytics.total > 0
+              ? ((analytics.completed / analytics.total) * 100).toFixed(1)
               : "0.0"}
             %
           </p>
           <div className="mt-2 flex items-center gap-2">
             <div className="h-1.5 flex-1 bg-gray-4 rounded-full overflow-hidden">
               <div
-                className="h-full bg-teal-9 rounded-full"
+                className="h-full rounded-full"
                 style={{
-                  width: `${analytics.started > 0 ? (analytics.completed / analytics.started) * 100 : 0}%`,
+                  backgroundColor: "#14b8a6", // teal-500
+                  width: `${analytics.total > 0 ? (analytics.completed / analytics.total) * 100 : 0}%`,
                 }}
               />
             </div>
           </div>
-          <p className="text-xs text-gray-10 mt-2">Completed / Started</p>
+          <p className="text-xs text-gray-10 mt-2">Completed / Total Recipients</p>
         </div>
       </div>
 
