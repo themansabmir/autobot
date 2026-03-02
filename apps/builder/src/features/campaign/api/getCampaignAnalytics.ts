@@ -188,6 +188,20 @@ const extractNpsConfig = (typebot: any) => {
   return null; // No NPS/rating block found in this bot
 };
 
+function getNpsBucket(score: number, _min: number, max: number): "promoter" | "passive" | "detractor" {
+  // Highly robust, O(1) dynamic scaling algorithm for ANY rating scale (e.g. 1-3, 1-7, 1-10)
+  // Ensures ratings always evaluate relative to their max ceiling, eliminating hardcoded switch cases.
+  
+  // Promoters: Top tier, typically >= 80% of the maximum possible score
+  if (score >= Math.ceil(max * 0.8)) return "promoter";
+  
+  // Passives: Middle tier, typically >= 50% of the maximum possible score
+  if (score >= Math.ceil(max * 0.5)) return "passive";
+  
+  // Detractors: Bottom tier falling below 50%
+  return "detractor";
+}
+
 function calculateNPS(
   scores: { score: number; date: string | null }[],
   totalRecipients: number,
@@ -216,17 +230,11 @@ function calculateNPS(
   const scoreValues = scores.map((s) => s.score);
   const totalResponses = scores.length;
 
-  // Normalize scores to 0-10 scale for calculating NPS buckets
-  // Formula: ((score - min) / (max - min)) * 10
-  // Standard NPS (0-10): Promoters (9-10), Passives (7-8), Detractors (0-6)
-  const normalizedScores = scoreValues.map((s) => {
-    if (scale.max === scale.min) return 10; // Avoid division by zero
-    return ((s - scale.min) / (scale.max - scale.min)) * 10;
-  });
-
-  const promoters = normalizedScores.filter((s) => s >= 9).length;
-  const passives = normalizedScores.filter((s) => s >= 7 && s < 9).length;
-  const detractors = normalizedScores.filter((s) => s < 7).length;
+  // Calculate Dynamic Buckets
+  const buckets = scoreValues.map((s) => getNpsBucket(s, scale.min, scale.max));
+  const promoters = buckets.filter((b) => b === "promoter").length;
+  const passives = buckets.filter((b) => b === "passive").length;
+  const detractors = buckets.filter((b) => b === "detractor").length;
 
   // NPS Formula: (Promoters - Detractors) / Total * 100
   // This metric represents the "Net" sentiment. Ranges from -100 to 100.
@@ -251,16 +259,16 @@ function calculateNPS(
   scores.forEach(({ score, date }) => {
     if (!date) return;
 
-    // Normalize individual score for trend bucket
-    const s = ((score - scale.min) / (scale.max - scale.min)) * 10;
+    // Use dynamic bucket helper for trend accuracy
+    const bucket = getNpsBucket(score, scale.min, scale.max);
 
     const current = trendMap.get(date) || {
       promoters: 0,
       detractors: 0,
       total: 0,
     };
-    if (s >= 9) current.promoters++;
-    else if (s < 7) current.detractors++;
+    if (bucket === "promoter") current.promoters++;
+    else if (bucket === "detractor") current.detractors++;
     current.total++;
     trendMap.set(date, current);
   });

@@ -307,32 +307,31 @@ const NpsDistributionChart = ({
           const heightPercent = maxVal > 0 ? (count / maxVal) * 100 : 0;
           const safeHeight = isNaN(heightPercent) ? 0 : heightPercent;
 
-          // Normalize score to 0-10 for coloring
-          const normalized =
-            scale.max === scale.min
-              ? 10
-              : ((score - scale.min) / (scale.max - scale.min)) * 10;
+          // Dynamically calculate bucket internally for frontend coloring
+          const length = scale.max - scale.min + 1;
+          let isPromoter = false, isPassive = false;
+          if (score >= Math.ceil(scale.max * 0.8)) isPromoter = true;
+          else if (score >= Math.ceil(scale.max * 0.5)) isPassive = true;
 
-          // Explicit HEX to avoid Tailwind missing variable bugs
-          const colorHex =
-            normalized >= 9
-              ? "#22c55e" // green-500
-              : normalized >= 7
-                ? "#f97316" // orange-500
-                : "#ef4444"; // red-500
+          // Premium explicit Hex codes matching the dynamic logic
+          const colorHex = isPromoter
+              ? "#10b981" // emerald-500
+              : isPassive
+                ? "#f59e0b" // amber-500
+                : "#f43f5e"; // rose-500
 
           return (
             <div
               key={score}
-              className="flex-1 flex flex-col items-center group h-full justify-end relative"
+              className="flex-1 flex flex-col items-center justify-end group h-full relative"
             >
-              <div className="w-full max-w-[48px] relative flex-1 flex flex-col justify-end bg-gray-3 border border-gray-4 rounded-full p-1 shadow-inner overflow-visible hover:scale-105 transition-transform">
+              <div className="w-full max-w-[48px] flex-1 bg-gray-3 border border-gray-4 rounded-full p-1 shadow-inner relative flex flex-col justify-end transition-transform hover:scale-105">
                 <div
-                  className="w-full transition-all duration-1000 ease-out rounded-full relative shadow-sm"
+                  className="w-full transition-all duration-1000 ease-out rounded-full relative overflow-hidden"
                   style={{ 
                     height: `${Math.max(safeHeight, 5)}%`, // Minimum 5% to show pill shape
-                    backgroundColor: count > 0 ? colorHex : "#9ca3af", // gray if empty
-                    opacity: count > 0 ? 1 : 0.2 // Dim empty segments
+                    backgroundColor: count > 0 ? colorHex : "#d1d5db", // gray-300 if empty
+                    opacity: count > 0 ? 1 : 0.3 // Dim empty segments more for neutrality
                   }}
                 >
                     {/* Glossy highlight inside pill for premium feel */}
@@ -453,7 +452,7 @@ const NpsTrendChart = ({
                 x={paddingLeft - 8}
                 y={getY(score)}
                 fill="#9ca3af"
-                fontSize="11"
+                fontSize="13"
                 fontWeight="600"
                 textAnchor="end"
                 alignmentBaseline="middle"
@@ -500,15 +499,15 @@ const NpsTrendChart = ({
 
           {/* X Axis Date Labels */}
           {hasOnePoint ? (
-            <text x={paddingLeft + drawWidth / 2} y={height} fill="#9ca3af" fontSize="10" fontWeight="600" textAnchor="middle" className="uppercase tracking-widest">
+            <text x={paddingLeft + drawWidth / 2} y={height} fill="#9ca3af" fontSize="13" fontWeight="600" textAnchor="middle" className="uppercase tracking-widest">
               First Response on {trend[0].date}
             </text>
           ) : (
             <>
-              <text x={paddingLeft} y={height} fill="#9ca3af" fontSize="10" fontWeight="600" textAnchor="start" className="uppercase tracking-widest">
+              <text x={paddingLeft} y={height} fill="#9ca3af" fontSize="13" fontWeight="600" textAnchor="start" className="uppercase tracking-widest">
                 {trend[0].date}
               </text>
-              <text x={width - paddingRight} y={height} fill="#9ca3af" fontSize="10" fontWeight="600" textAnchor="end" className="uppercase tracking-widest">
+              <text x={width - paddingRight} y={height} fill="#9ca3af" fontSize="13" fontWeight="600" textAnchor="end" className="uppercase tracking-widest">
                 {trend[trend.length - 1].date}
               </text>
             </>
