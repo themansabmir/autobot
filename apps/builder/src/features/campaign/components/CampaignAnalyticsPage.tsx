@@ -325,7 +325,8 @@ const NpsDistributionChart = ({
               key={score}
               className="flex-1 flex flex-col items-center justify-end group h-full relative"
             >
-              <div className="w-full max-w-[48px] flex-1 bg-gray-3 border border-gray-4 rounded-full p-1 shadow-inner relative flex flex-col justify-end transition-transform hover:scale-105">
+              {/* Explicit pixel height guarantees percentage-filled children render correctly */}
+              <div className="w-full max-w-[48px] h-[160px] bg-gray-3 border border-gray-4 rounded-full p-1 shadow-inner relative flex flex-col justify-end transition-transform hover:scale-105">
                 <div
                   className="w-full transition-all duration-1000 ease-out rounded-full relative overflow-hidden"
                   style={{ 
@@ -452,7 +453,7 @@ const NpsTrendChart = ({
                 x={paddingLeft - 8}
                 y={getY(score)}
                 fill="#9ca3af"
-                fontSize="13"
+                fontSize="16"
                 fontWeight="600"
                 textAnchor="end"
                 alignmentBaseline="middle"
@@ -499,15 +500,15 @@ const NpsTrendChart = ({
 
           {/* X Axis Date Labels */}
           {hasOnePoint ? (
-            <text x={paddingLeft + drawWidth / 2} y={height} fill="#9ca3af" fontSize="13" fontWeight="600" textAnchor="middle" className="uppercase tracking-widest">
+            <text x={paddingLeft + drawWidth / 2} y={height} fill="#9ca3af" fontSize="16" fontWeight="600" textAnchor="middle" className="uppercase tracking-widest">
               First Response on {trend[0].date}
             </text>
           ) : (
             <>
-              <text x={paddingLeft} y={height} fill="#9ca3af" fontSize="13" fontWeight="600" textAnchor="start" className="uppercase tracking-widest">
+              <text x={paddingLeft} y={height} fill="#9ca3af" fontSize="16" fontWeight="600" textAnchor="start" className="uppercase tracking-widest">
                 {trend[0].date}
               </text>
-              <text x={width - paddingRight} y={height} fill="#9ca3af" fontSize="13" fontWeight="600" textAnchor="end" className="uppercase tracking-widest">
+              <text x={width - paddingRight} y={height} fill="#9ca3af" fontSize="16" fontWeight="600" textAnchor="end" className="uppercase tracking-widest">
                 {trend[trend.length - 1].date}
               </text>
             </>
