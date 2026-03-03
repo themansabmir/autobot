@@ -4,6 +4,7 @@ export const config = {
     queues: {
       campaign: "campaign.execute",
       whatsapp: "whatsapp.send",
+      nudge: "nudge.send",
       ocr: process.env.OCR_QUEUE_NAME || "ocr-jobs",
     },
     exchanges: {
@@ -14,6 +15,10 @@ export const config = {
   scheduler: {
     pollIntervalMs: parseInt(
       process.env.SCHEDULER_POLL_INTERVAL_MS || "5000",
+      10,
+    ),
+    nudgePollIntervalMs: parseInt(
+      process.env.NUDGE_SCHEDULER_POLL_INTERVAL_MS || "60000",
       10,
     ),
   },

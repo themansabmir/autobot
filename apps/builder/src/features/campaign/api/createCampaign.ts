@@ -27,6 +27,8 @@ export const createCampaign = authenticatedProcedure
       typebotId: z.string(),
       executionMode: campaignExecutionModeSchema,
       executeAt: z.string().datetime().optional(),
+      nudgeDelaySeconds: z.number().int().optional(),
+      maxNudges: z.number().int().optional(),
     }),
   )
   .output(
@@ -43,6 +45,8 @@ export const createCampaign = authenticatedProcedure
         typebotId,
         executionMode,
         executeAt,
+        nudgeDelaySeconds,
+        maxNudges,
       },
       ctx: { user },
     }) => {
@@ -67,6 +71,8 @@ export const createCampaign = authenticatedProcedure
           typebotId,
           executionMode,
           executeAt: executeAt ? new Date(executeAt) : null,
+          nudgeDelaySeconds: nudgeDelaySeconds ?? 3600,
+          maxNudges: maxNudges ?? 1,
           status,
         } satisfies Partial<Prisma.Campaign>,
       });

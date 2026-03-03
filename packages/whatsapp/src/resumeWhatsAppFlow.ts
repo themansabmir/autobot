@@ -13,6 +13,7 @@ import { env } from "@typebot.io/env";
 import { getBlockById } from "@typebot.io/groups/helpers/getBlockById";
 import { extensionFromMimeType } from "@typebot.io/lib/extensionFromMimeType";
 import redis from "@typebot.io/lib/redis";
+import prisma from "@typebot.io/prisma";
 import { uploadFileToBucket } from "@typebot.io/lib/s3/uploadFileToBucket";
 import { isDefined } from "@typebot.io/lib/utils";
 import {
@@ -63,6 +64,97 @@ export const resumeWhatsAppFlow = async ({
 }: Props) => {
   if (receivedMessages.length === 0)
     throw new WhatsAppError("Received messages is empty");
+  
+  // Intercept Nudge Responses
+  for (const message of receivedMessages) {
+    if (message.type === "interactive" && message.interactive.type === "button_reply") {
+      const replyId = message.interactive.button_reply.id;
+      if (replyId.startsWith("nudge_")) {
+        console.log(`📱 [NudgeResponse] Intercepted nudge reply: ${replyId}`);
+        const [_, action, nudgeId] = replyId.split("_");
+        
+        await prisma.nudgeAttempt.update({
+          where: { id: nudgeId },
+          data: { 
+            // Only update the 'responded' implicitly by updating CampaignRecipient
+            // since we removed the 'status' from NudgeAttempt
+          }
+        }).catch(() => null); // Ignore if already processed or deleted
+
+        // Find the NudgeAttempt to get the recipient ID
+        const nudge = await prisma.nudgeAttempt.findUnique({ where: { id: nudgeId } });
+        
+        if (nudge) {
+          if (action === "no") {
+            await (prisma.campaignRecipient as any).update({
+              where: { id: nudge.campaignRecipientId },
+              data: { nudgeStatus: "OPTED_OUT" }
+            });
+            
+            // Optionally send a friendly sign-off (fire and forget)
+            try {
+              const credentials = await getWhatsAppCredentials({ credentialsId, workspaceId, isPreview: false });
+              if (credentials && credentials.provider === "meta") {
+                 const metaUrl = `https://graph.facebook.com/v20.0/${credentials.phoneNumberId}/messages`;
+                 await fetch(metaUrl, {
+                   method: "POST",
+                   headers: {
+                     "Content-Type": "application/json",
+                     Authorization: `Bearer ${credentials.systemUserAccessToken}`,
+                   },
+                   body: JSON.stringify({
+                     messaging_product: "whatsapp",
+                     recipient_type: "individual",
+                     to: message.from,
+                     type: "text",
+                     text: { body: "No problem! Have a great day." }
+                   }),
+                 });
+              }
+            } catch (e) {
+              console.error("Failed to send opt-out sign-off", e);
+            }
+
+            console.log(`✅ [NudgeResponse] Recipient ${nudge.campaignRecipientId} opted out.`);
+            return; // Stop flow
+          } else if (action === "yes") {
+            await prisma.campaignRecipient.update({
+              where: { id: nudge.campaignRecipientId },
+              data: { nudgeStatus: "RESPONDED" }
+            });
+
+            // Re-prompt the user to continue from where they left off
+            try {
+              const credentials = await getWhatsAppCredentials({ credentialsId, workspaceId, isPreview: false });
+              if (credentials && credentials.provider === "meta") {
+                 const metaUrl = `https://graph.facebook.com/v20.0/${credentials.phoneNumberId}/messages`;
+                 await fetch(metaUrl, {
+                   method: "POST",
+                   headers: {
+                     "Content-Type": "application/json",
+                     Authorization: `Bearer ${credentials.systemUserAccessToken}`,
+                   },
+                   body: JSON.stringify({
+                     messaging_product: "whatsapp",
+                     recipient_type: "individual",
+                     to: message.from,
+                     type: "text",
+                     text: { body: "Great! Please send your answer to the previous question to continue." }
+                   }),
+                 });
+              }
+            } catch (e) {
+              console.error("Failed to send continue prompt", e);
+            }
+            
+            console.log(`✅ [NudgeResponse] Recipient ${nudge.campaignRecipientId} resumed via nudge.`);
+            return; // We don't want to pass "Yes" to the bot engine, we just want to wake them up.
+          }
+        }
+      }
+    }
+  }
+
   if (areMessagesTooOld(receivedMessages))
     throw new WhatsAppError("Message is too old", {
       timestamps: receivedMessages.map((message) => message.timestamp),
@@ -581,7 +673,8 @@ const resumeFlowAndSendWhatsAppMessages = async (props: {
   };
 };
 
-const resumeFlow = ({
+const resumeFlow = async ({
+  sessionId,
   state,
   isSessionExpired,
   reply,
@@ -601,6 +694,7 @@ const resumeFlow = ({
   credentialsId?: string;
   workspaceId?: string;
   sessionStore: SessionStore;
+  sessionId: string;
 }) => {
   if (state && !isSessionExpired) {
     return continueBotFlow(reply, {

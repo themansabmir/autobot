@@ -24,7 +24,7 @@ export const sendRequest = async <ResponseData>(
           ? JSON.stringify(params.body)
           : undefined,
     });
-    const data = await response.json();
+    const data = (await response.json()) as any;
     if (!response.ok) throw "error" in data ? data.error : data;
     return { data, response };
   } catch (e) {
@@ -121,22 +121,29 @@ export const parseNumberWithCommas = (num: number) =>
   num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
 export const injectCustomHeadCode = (customHeadCode: string) => {
+  // @ts-ignore
+  if (typeof document === "undefined") return;
   const headCodes = customHeadCode.split("</noscript>");
   headCodes.forEach((headCode) => {
     const [codeToInject, noScriptContentToInject] =
       headCode.split("<noscript>");
+    // @ts-ignore
     const fragment = document
       .createRange()
       .createContextualFragment(codeToInject ?? "");
+    // @ts-ignore
     document.head.append(fragment);
 
     if (isNotDefined(noScriptContentToInject)) return;
 
+    // @ts-ignore
     const noScriptElement = document.createElement("noscript");
+    // @ts-ignore
     const noScriptContentFragment = document
       .createRange()
       .createContextualFragment(noScriptContentToInject);
     noScriptElement.append(noScriptContentFragment);
+    // @ts-ignore
     document.head.append(noScriptElement);
   });
 };
