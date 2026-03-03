@@ -41,8 +41,8 @@ export const campaignSchema = z.object({
   errorMessage: z.string().nullable(),
   workspaceId: z.string(),
   typebotId: z.string(),
-  nudgeDelaySeconds: z.number().int().default(3600),
-  maxNudges: z.number().int().default(1),
+  nudgeDelaySeconds: z.number().int(),
+  maxNudges: z.number().int(),
 }) satisfies z.ZodType<Prisma.Campaign>;
 
 export const campaignRecipientSchema = z.object({
@@ -66,7 +66,7 @@ export const campaignRecipientSchema = z.object({
   npsRespondedAt: z.date().nullable(),
   errorCode: z.string().nullable(),
   errorMessage: z.string().nullable(),
-  nudgeStatus: z.enum(["NONE", "SENT", "RESPONDED", "OPTED_OUT"]).default("NONE"),
+  nudgeStatus: z.enum(["NONE", "SENT", "RESPONDED", "OPTED_OUT"]),
 }) satisfies z.ZodType<Prisma.CampaignRecipient>;
 
 export type Campaign = z.infer<typeof campaignSchema>;
