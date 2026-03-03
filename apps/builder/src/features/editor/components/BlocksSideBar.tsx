@@ -40,10 +40,13 @@ const legacyIntegrationBlocks = [IntegrationBlockType.OPEN_AI];
 const ALLOWED_INTEGRATIONS = [
   IntegrationBlockType.HTTP_REQUEST,
   IntegrationBlockType.GOOGLE_SHEETS,
+  IntegrationBlockType.ZAPIER,
+  IntegrationBlockType.OPEN_AI,
+  IntegrationBlockType.MAKE_COM
 ];
 
 // Allowed forged blocks to show in sidebar
-const ALLOWED_FORGED_BLOCKS = ["nocodb"];
+const ALLOWED_FORGED_BLOCKS = ["nocodb", "openai", "anthropic", "elevenlabs", "deepseek", "makecom"];
 
 export const BlocksSideBar = () => {
   const { t } = useTranslate();
