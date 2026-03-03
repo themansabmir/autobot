@@ -473,6 +473,13 @@ enum RecipientStatus {
   FAILED
 }
 
+enum NudgeStatus {
+  NONE
+  SENT
+  RESPONDED
+  OPTED_OUT
+}
+
 model Campaign {
   id              String                @id @default(cuid())
   createdAt       DateTime              @default(now())
@@ -493,6 +500,9 @@ model Campaign {
   typebotId       String
   typebot         Typebot               @relation(fields: [typebotId], references: [id], onDelete: Cascade)
   recipients      CampaignRecipient[]
+
+  nudgeDelaySeconds Int @default(3600)
+  maxNudges         Int @default(1)
 
   @@index([workspaceId])
   @@index([status, executeAt])
@@ -523,6 +533,9 @@ model CampaignRecipient {
   npsScore       Int?      @db.SmallInt // 0-10 or null
   npsRespondedAt DateTime?
 
+  nudgeStatus   NudgeStatus    @default(NONE)
+  nudgeAttempts NudgeAttempt[]
+
   // Error tracking
   errorMessage String?
   errorCode    String?
@@ -546,4 +559,11 @@ model LocalizationTranslation {
   @@unique([typebotId, language])
   @@index([typebotId])
   @@index([language])
+}
+
+model NudgeAttempt {
+  id                  String            @id @default(cuid())
+  campaignRecipientId String
+  sentAt              DateTime          @default(now())
+  campaignRecipient   CampaignRecipient @relation(fields: [campaignRecipientId], references: [id], onDelete: Cascade)
 }

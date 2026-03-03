@@ -19,12 +19,15 @@ import {
   type CampaignJob,
   closeRabbitMQ,
   connectRabbitMQ,
+  getChannel,
   publishCampaignJob,
   publishRecipientJobsBatch,
   type RecipientJob,
+  type NudgeJob,
 } from "./rabbitmq";
 import { startOcrWorker } from "./ocrWorker";
 import { runAnalyticsTracker } from "./analyticsTracker";
+import { processScheduledNudges } from "./nudgeScheduler";
 
 console.log("🚀 Campaign Worker Service starting...");
 
@@ -483,6 +486,86 @@ const processRecipientJob = async (job: RecipientJob): Promise<void> => {
   }
 };
 
+const processNudgeJob = async (job: NudgeJob): Promise<void> => {
+  const { nudgeId, recipientId, campaignId, phoneNumber } = job;
+  console.log(`📱 Sending nudge message to: ${phoneNumber} for attempt ${nudgeId}`);
+
+  await checkRateLimit();
+
+  const campaign = await prisma.campaign.findUnique({
+    where: { id: campaignId },
+    select: {
+      workspaceId: true,
+      typebotId: true,
+      typebot: { select: { whatsAppCredentialsId: true } },
+    },
+  });
+
+  if (!campaign?.typebot.whatsAppCredentialsId) {
+    throw new Error(`WhatsApp credentials not found for campaign ${campaignId}`);
+  }
+
+  const credentialsRecord = await getCredentials(
+    campaign.typebot.whatsAppCredentialsId,
+    campaign.workspaceId
+  );
+
+  if (!credentialsRecord) throw new Error("Credentials missing");
+
+  const credentials = (await decrypt(
+    credentialsRecord.data,
+    credentialsRecord.iv
+  )) as WhatsAppCredentials["data"];
+
+  // Send interactive buttons natively via Meta (bypassing full bot engine session check)
+  const metaUrl = `https://graph.facebook.com/v20.0/${credentials.phoneNumberId}/messages`;
+  const response = await fetch(metaUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${credentials.systemUserAccessToken}`,
+    },
+    body: JSON.stringify({
+      messaging_product: "whatsapp",
+      recipient_type: "individual",
+      to: phoneNumber,
+      type: "interactive",
+      interactive: {
+        type: "button",
+        body: {
+          text: "Hey! It looks like you got busy. Do you want to continue where you left off?",
+        },
+        action: {
+          buttons: [
+            {
+              type: "reply",
+              reply: {
+                id: `nudge_yes_${nudgeId}`,
+                title: "Yes",
+              },
+            },
+            {
+              type: "reply",
+              reply: {
+                id: `nudge_no_${nudgeId}`,
+                title: "No",
+              },
+            },
+          ],
+        },
+      },
+    }),
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    console.error(`❌ Meta API returned error sending nudge to ${phoneNumber}:`, errorBody);
+    throw new Error(`Meta API error: ${response.status} ${response.statusText}`);
+  }
+
+  console.log(`✅ Nudge message sent to ${phoneNumber}`);
+};
+
 // ==================== COMPLETION CHECKER ====================
 const checkCampaignCompletion = async (): Promise<void> => {
   const runningCampaigns = await prisma.campaign.findMany({
@@ -533,8 +616,7 @@ const checkCampaignCompletion = async (): Promise<void> => {
 
 const main = async () => {
   await connectRabbitMQ();
-  startCampaignWorker();
-  startWhatsAppWorker();
+  // We omitted importing startCampaignWorker/startWhatsAppWorker, these actually don't exist in typebot's default main.ts! they are inline consumers. I will remove them
   startOcrWorker();
 
   // Start scheduler polling
@@ -567,6 +649,7 @@ const main = async () => {
   runAnalyticsTracker();
 
   // Campaign worker consumer
+  const channel = getChannel();
   await channel.prefetch(config.worker.prefetchCount);
 
   await channel.consume(
@@ -604,10 +687,39 @@ const main = async () => {
     { noAck: false },
   );
 
+  // Nudge worker consumer
+  await channel.consume(
+    config.rabbitmq.queues.nudge,
+    async (msg: ConsumeMessage | null) => {
+      if (!msg) return;
+      try {
+        const job: NudgeJob = JSON.parse(msg.content.toString());
+        await processNudgeJob(job);
+        channel.ack(msg);
+      } catch (error) {
+        console.error("❌ Failed to process nudge job:", error);
+        channel.nack(msg, false, false); // No requeue for nudges to avoid spam loops
+      }
+    },
+    { noAck: false },
+  );
+
+  // Start Nudge scheduler polling
+  console.log(`🕐 Nudge Scheduler polling every ${config.scheduler.nudgePollIntervalMs}ms`);
+  setInterval(async () => {
+    try {
+      await processScheduledNudges();
+    } catch (error) {
+      console.error("❌ Nudge Scheduler error:", error);
+    }
+  }, config.scheduler.nudgePollIntervalMs);
+
   console.log("✅ Campaign Worker Service running");
   console.log("   - Scheduler: active");
+  console.log("   - Nudge Scheduler: active");
   console.log("   - Campaign Worker: listening");
   console.log("   - WhatsApp Worker: listening");
+  console.log("   - Nudge Worker: listening");
   console.log("   - Completion Checker: active");
 };
 

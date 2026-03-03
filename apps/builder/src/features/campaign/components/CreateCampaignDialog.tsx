@@ -49,6 +49,8 @@ export const CreateCampaignDialog = ({
     "NOW" | "SCHEDULED" | null
   >(null);
   const [executeAt, setExecuteAt] = useState("");
+  const [nudgeDelaySeconds, setNudgeDelaySeconds] = useState(3600);
+  const [maxNudges, setMaxNudges] = useState(1);
   const [currentStep, setCurrentStep] = useState(1);
 
   const { data: typebotsData, isLoading: isLoadingTypebots } = useQuery(
@@ -82,6 +84,8 @@ export const CreateCampaignDialog = ({
     setFileUrl("");
     setExecutionMode(null);
     setExecuteAt("");
+    setNudgeDelaySeconds(3600);
+    setMaxNudges(1);
     setCurrentStep(1);
   };
 
@@ -111,6 +115,8 @@ export const CreateCampaignDialog = ({
         executionMode === "SCHEDULED" && executeAt
           ? new Date(executeAt).toISOString()
           : undefined,
+      nudgeDelaySeconds,
+      maxNudges,
     });
   };
 
@@ -429,6 +435,38 @@ export const CreateCampaignDialog = ({
                                 />
                               </div>
                             )}
+
+                            <div className="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-4">
+                              <Label>Re-engagement Settings (Nudges)</Label>
+                              <p className="text-xs text-gray-500">
+                                Automatically send a message to users who drop off mid-conversation.
+                              </p>
+                              
+                              <div className="grid grid-cols-2 gap-4">
+                                <div className="flex flex-col gap-2">
+                                  <Label htmlFor="nudgeDelay" className="text-xs">Inactivity Delay (seconds)</Label>
+                                  <Input
+                                    id="nudgeDelay"
+                                    type="number"
+                                    min="60"
+                                    value={nudgeDelaySeconds}
+                                    onChange={(e) => setNudgeDelaySeconds(Number(e.target.value))}
+                                  />
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                  <Label htmlFor="maxNudges" className="text-xs">Max Nudges per User</Label>
+                                  <Input
+                                    id="maxNudges"
+                                    type="number"
+                                    min="0"
+                                    max="5"
+                                    value={maxNudges}
+                                    onChange={(e) => setMaxNudges(Number(e.target.value))}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+
                           </div>
                         </div>
                       </>

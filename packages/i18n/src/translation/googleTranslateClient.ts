@@ -2,6 +2,7 @@
  * Google Translate wrapper using official @google-cloud/translate
  */
 
+// @ts-expect-error Types missing
 import { Translate } from "@google-cloud/translate/build/src/v2";
 import { env } from "@typebot.io/env";
 import { normalizeLanguageCode } from "../extraction/extractTranslatableContent";

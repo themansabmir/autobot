@@ -34,17 +34,22 @@ export const connectRabbitMQ = async (): Promise<AmqpChannel> => {
     },
   });
 
-  await channel.assertQueue(`${config.rabbitmq.queues.campaign}.dlq`, {
+  await channel.assertQueue(config.rabbitmq.queues.nudge, {
     durable: true,
+    arguments: {
+      "x-dead-letter-exchange": "",
+      "x-dead-letter-routing-key": `${config.rabbitmq.queues.nudge}.dlq`,
+    },
   });
-  await channel.assertQueue(`${config.rabbitmq.queues.whatsapp}.dlq`, {
-    durable: true,
-  });
+
+  await channel.assertQueue(`${config.rabbitmq.queues.campaign}.dlq`, { durable: true });
+  await channel.assertQueue(`${config.rabbitmq.queues.whatsapp}.dlq`, { durable: true });
+  await channel.assertQueue(`${config.rabbitmq.queues.nudge}.dlq`, { durable: true });
 
   await channel.bindQueue(
     config.rabbitmq.queues.campaign,
     config.rabbitmq.exchanges.campaign,
-    "campaign",
+    "campaign"
   );
 
   console.log("✅ RabbitMQ connected and queues initialized");
@@ -84,6 +89,13 @@ export interface RecipientJob {
   variables?: Record<string, unknown>;
 }
 
+export interface NudgeJob {
+  nudgeId: string;
+  recipientId: string;
+  campaignId: string;
+  phoneNumber: string;
+}
+
 export const publishCampaignJob = async (job: CampaignJob): Promise<void> => {
   const ch = getChannel();
   ch.publish(
@@ -105,15 +117,24 @@ export const publishRecipientJob = async (job: RecipientJob): Promise<void> => {
 };
 
 export const publishRecipientJobsBatch = async (
-  jobs: RecipientJob[],
+  jobs: RecipientJob[]
 ): Promise<void> => {
   const ch = getChannel();
   for (const job of jobs) {
     ch.sendToQueue(
       config.rabbitmq.queues.whatsapp,
       Buffer.from(JSON.stringify(job)),
-      { persistent: true },
+      { persistent: true }
     );
   }
   console.log(`📤 Published ${jobs.length} recipient jobs to WhatsApp queue`);
+};
+
+export const publishNudgeJob = async (job: NudgeJob): Promise<void> => {
+  const ch = getChannel();
+  ch.sendToQueue(
+    config.rabbitmq.queues.nudge,
+    Buffer.from(JSON.stringify(job)),
+    { persistent: true }
+  );
 };
