@@ -22,6 +22,8 @@ import {
   type SessionStore,
 } from "@typebot.io/runtime-session-store";
 import { downloadMedia } from "./downloadMedia";
+import { formatInputForChatResponse } from "@typebot.io/bot-engine/formatInputForChatResponse";
+import { convertInputToWhatsAppMessages } from "./convertInputToWhatsAppMessage";
 import type {
   WhatsAppIncomingMessage,
   WhatsAppMessageReferral,
@@ -73,7 +75,7 @@ export const resumeWhatsAppFlow = async ({
         console.log(`📱 [NudgeResponse] Intercepted nudge reply: ${replyId}`);
         const [_, action, nudgeId] = replyId.split("_");
         
-        await prisma.nudgeAttempt.update({
+        await (prisma as any).nudgeAttempt.update({
           where: { id: nudgeId },
           data: { 
             // Only update the 'responded' implicitly by updating CampaignRecipient
@@ -82,7 +84,7 @@ export const resumeWhatsAppFlow = async ({
         }).catch(() => null); // Ignore if already processed or deleted
 
         // Find the NudgeAttempt to get the recipient ID
-        const nudge = await prisma.nudgeAttempt.findUnique({ where: { id: nudgeId } });
+        const nudge = await (prisma as any).nudgeAttempt.findUnique({ where: { id: nudgeId } });
         
         if (nudge) {
           if (action === "no") {
@@ -118,7 +120,7 @@ export const resumeWhatsAppFlow = async ({
             console.log(`✅ [NudgeResponse] Recipient ${nudge.campaignRecipientId} opted out.`);
             return; // Stop flow
           } else if (action === "yes") {
-            await prisma.campaignRecipient.update({
+            await (prisma.campaignRecipient as any).update({
               where: { id: nudge.campaignRecipientId },
               data: { nudgeStatus: "RESPONDED" }
             });
@@ -126,22 +128,45 @@ export const resumeWhatsAppFlow = async ({
             // Re-prompt the user to continue from where they left off
             try {
               const credentials = await getWhatsAppCredentials({ credentialsId, workspaceId, isPreview: false });
-              if (credentials && credentials.provider === "meta") {
-                 const metaUrl = `https://graph.facebook.com/v20.0/${credentials.phoneNumberId}/messages`;
-                 await fetch(metaUrl, {
-                   method: "POST",
-                   headers: {
-                     "Content-Type": "application/json",
-                     Authorization: `Bearer ${credentials.systemUserAccessToken}`,
-                   },
-                   body: JSON.stringify({
-                     messaging_product: "whatsapp",
-                     recipient_type: "individual",
-                     to: message.from,
-                     type: "text",
-                     text: { body: "Great! Please send your answer to the previous question to continue." }
-                   }),
-                 });
+              const session = await getSession(sessionId);
+              if (credentials && credentials.provider === "meta" && session?.state?.currentBlockId) {
+                 const currentTypebot = session.state.typebotsQueue[0].typebot;
+                 const { block } = getBlockById(session.state.currentBlockId, currentTypebot.groups) ?? {};
+                 
+                 if (block && "options" in block) {
+                   const sessionStore = getSessionStore(sessionId);
+                   const input = await formatInputForChatResponse(block as any, {
+                     variables: currentTypebot.variables,
+                     isPreview: workspaceId === undefined,
+                     workspaceId: workspaceId ?? "",
+                     sessionStore,
+                     typebot: currentTypebot,
+                   });
+
+                   const messagesToSend = await convertInputToWhatsAppMessages({
+                     input: input as any,
+                     lastMessage: undefined,
+                     systemMessages: currentTypebot.systemMessages,
+                   });
+
+                   const metaUrl = `https://graph.facebook.com/v20.0/${credentials.phoneNumberId}/messages`;
+                   
+                   for (const msg of messagesToSend) {
+                     await fetch(metaUrl, {
+                       method: "POST",
+                       headers: {
+                         "Content-Type": "application/json",
+                         Authorization: `Bearer ${credentials.systemUserAccessToken}`,
+                       },
+                       body: JSON.stringify({
+                         messaging_product: "whatsapp",
+                         recipient_type: "individual",
+                         to: message.from,
+                         ...msg
+                       }),
+                     });
+                   }
+                 }
               }
             } catch (e) {
               console.error("Failed to send continue prompt", e);
