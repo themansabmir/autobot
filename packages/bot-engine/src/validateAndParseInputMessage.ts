@@ -4,6 +4,7 @@ import type { InputBlock } from "@typebot.io/blocks-inputs/schema";
 import type { InputMessage } from "@typebot.io/chat-api/schemas";
 import { env } from "@typebot.io/env";
 import { normalizeLanguageCode } from "@typebot.io/i18n";
+import { nativeLanguageNames } from "@typebot.io/lib/languages";
 import { parseAllowedFileTypesMetadata } from "@typebot.io/lib/extensionFromMimeType";
 import { isURL } from "@typebot.io/lib/isURL";
 import type { SessionStore } from "@typebot.io/runtime-session-store";
@@ -168,7 +169,7 @@ export const validateAndParseInputMessage = (
       const languages = typebot?.settings?.localization?.languages ?? [];
       const displayedItems = languages.map((language: string) => ({
         id: normalizeLanguageCode(language),
-        content: language,
+        content: nativeLanguageNames[language] ?? language,
         value: normalizeLanguageCode(language),
       }));
       return parseSingleChoiceReply(message.text, {

@@ -5,6 +5,7 @@ import type {
   RuntimeOptions,
 } from "@typebot.io/chat-api/schemas";
 import { normalizeLanguageCode } from "@typebot.io/i18n";
+import { nativeLanguageNames } from "@typebot.io/lib/languages";
 import type { SessionStore } from "@typebot.io/runtime-session-store";
 import { deepParseVariables } from "@typebot.io/variables/deepParseVariables";
 import type { Variable } from "@typebot.io/variables/schemas";
@@ -104,7 +105,7 @@ export const formatInputForChatResponse = async (
       const languages = typebot?.settings?.localization?.languages ?? [];
       const items = languages.map((language: string) => ({
         id: normalizeLanguageCode(language),
-        content: language,
+        content: nativeLanguageNames[language] ?? language,
       }));
 
       console.log("🔍 [LANGUAGE Block] Generated items:", items);
