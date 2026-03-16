@@ -615,21 +615,32 @@ const saveInputVarIfAny = ({
   reply: Message;
   state: SessionState;
 }): SessionState => {
-  if (reply.type !== "text" || !block.options?.variableId) return state;
+  if (
+    (reply.type !== "text" && reply.type !== "audio") ||
+    !block.options?.variableId
+  )
+    return state;
 
   const foundVariable = state.typebotsQueue[0].typebot.variables.find(
     (variable) => variable.id === block.options?.variableId,
   );
   if (!foundVariable) return state;
 
+  const value =
+    reply.type === "text"
+      ? reply.text
+      : reply.type === "audio"
+        ? reply.url
+        : undefined;
+
   const { updatedState } = updateVariablesInSession({
     newVariables: [
       {
         ...foundVariable,
         value:
-          Array.isArray(foundVariable.value) && reply.text
-            ? foundVariable.value.concat(reply.text)
-            : reply.text,
+          Array.isArray(foundVariable.value) && value
+            ? foundVariable.value.concat(value)
+            : value,
       },
     ],
     currentBlockId: undefined,

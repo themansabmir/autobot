@@ -429,6 +429,7 @@ const convertWhatsAppMessageToTypebotMessage = async ({
           const { file, mimeType } = await downloadMedia({
             mediaId,
             credentials,
+            url: message.type === "audio" ? message.audio.url : undefined,
           });
           const extension = extensionFromMimeType[mimeType];
           const url = await uploadFileToBucket({
@@ -573,7 +574,7 @@ const aggregateParallelMediaMessagesIfRedisEnabled = async ({
 > => {
   if (
     redis &&
-    ["document", "video", "image"].includes(receivedMessages[0].type)
+    ["document", "video", "image", "audio"].includes(receivedMessages[0].type)
   ) {
     const redisKey = `wasession:${sessionId}`;
     try {

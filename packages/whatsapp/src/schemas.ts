@@ -250,6 +250,8 @@ export const incomingMessageSchema = z.discriminatedUnion("type", [
     audio: z.object({
       id: z.string(),
       mime_type: z.string(),
+      url: z.string().optional(),
+      voice: z.boolean().optional(),
     }),
   }),
   sharedIncomingMessageFieldsSchema.extend({
