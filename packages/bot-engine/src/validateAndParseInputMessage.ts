@@ -101,7 +101,16 @@ export const validateAndParseInputMessage = (
         return (fileBlock.options?.isRequired ?? defaultFileInputOptions.isRequired)
           ? { status: "fail" }
           : { status: "skip" };
-
+          if (
+                (message.type === "audio" && message.url) ||
+                (message.type === "text" && message.text?.startsWith("http"))
+            ) {
+                const mediaUrl = message.type === "audio" ? message.url : message.text;
+                return {
+                    status: "success",
+                    content: mediaUrl,
+                };
+            }
       const replyValue = message.type === "audio" ? message.url : message.text;
       const urls = replyValue.split(", ");
       const hasValidUrls = urls.some((url) =>
